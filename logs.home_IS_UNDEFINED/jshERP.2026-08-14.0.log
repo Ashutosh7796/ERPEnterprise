@@ -1,0 +1,445 @@
+2026/08/14-18:42:36 INFO  [main] com.jsh.erp.ErpApplication - Starting ErpApplication on DISDST-53974126 with PID 4768 (E:\Codes\ERP\jshERP-master\jshERP-boot\target\classes started by admin in E:\Codes\ERP\jshERP-master)
+2026/08/14-18:42:36 DEBUG [main] com.jsh.erp.ErpApplication - Running with Spring Boot v2.0.0.RELEASE, Spring v5.0.4.RELEASE
+2026/08/14-18:42:36 INFO  [main] com.jsh.erp.ErpApplication - No active profile set, falling back to default profiles: default
+2026/08/14-18:42:49 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - ==>  Preparing: select dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, remark from jsh_sys_dict_data WHERE ifnull(delete_flag,'0') !='1' AND status = ? order by dict_sort asc 
+2026/08/14-18:42:49 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - ==> Parameters: 0(String)
+2026/08/14-18:42:50 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - <==      Total: 4
+2026/08/14-18:42:54 INFO  [main] com.jsh.erp.ErpApplication - Started ErpApplication in 18.892 seconds (JVM running for 19.707)
+2026/08/14-19:06:08 INFO  [main] com.jsh.erp.ErpApplication - Starting ErpApplication using Java 21.0.8 with PID 8880 (E:\Codes\ERP\jshERP-master\jshERP-boot\target\classes started by admin in E:\Codes\ERP\jshERP-master)
+2026/08/14-19:06:08 DEBUG [main] com.jsh.erp.ErpApplication - Running with Spring Boot v3.3.2, Spring v6.1.11
+2026/08/14-19:06:08 INFO  [main] com.jsh.erp.ErpApplication - No active profile set, falling back to 1 default profile: "default"
+2026/08/14-19:06:11 ERROR [main] org.springframework.boot.SpringApplication - Application run failed
+org.springframework.beans.factory.BeanDefinitionStoreException: Invalid bean definition with name 'accountHeadMapper' defined in file [E:\Codes\ERP\jshERP-master\jshERP-boot\target\classes\com\jsh\erp\datasource\mappers\AccountHeadMapper.class]: Invalid value type for attribute 'factoryBeanObjectType': java.lang.String
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.getTypeForFactoryBean(AbstractAutowireCapableBeanFactory.java:857)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getType(AbstractBeanFactory.java:743)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.findAnnotationOnBean(DefaultListableBeanFactory.java:735)
+	at org.springframework.boot.sql.init.dependency.AnnotationDependsOnDatabaseInitializationDetector.detect(AnnotationDependsOnDatabaseInitializationDetector.java:36)
+	at org.springframework.boot.sql.init.dependency.DatabaseInitializationDependencyConfigurer$DependsOnDatabaseInitializationPostProcessor.detectDependsOnInitializationBeanNames(DatabaseInitializationDependencyConfigurer.java:152)
+	at org.springframework.boot.sql.init.dependency.DatabaseInitializationDependencyConfigurer$DependsOnDatabaseInitializationPostProcessor.postProcessBeanFactory(DatabaseInitializationDependencyConfigurer.java:115)
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:363)
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:197)
+	at org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors(AbstractApplicationContext.java:789)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:607)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:335)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1363)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1352)
+	at com.jsh.erp.ErpApplication.main(ErpApplication.java:22)
+2026/08/14-19:09:25 INFO  [main] com.jsh.erp.ErpApplication - Starting ErpApplication using Java 21.0.8 with PID 22100 (E:\Codes\ERP\jshERP-master\jshERP-boot\target\classes started by admin in E:\Codes\ERP\jshERP-master)
+2026/08/14-19:09:25 DEBUG [main] com.jsh.erp.ErpApplication - Running with Spring Boot v3.3.2, Spring v6.1.11
+2026/08/14-19:09:25 INFO  [main] com.jsh.erp.ErpApplication - No active profile set, falling back to 1 default profile: "default"
+2026/08/14-19:09:28 ERROR [main] org.springframework.boot.SpringApplication - Application run failed
+org.springframework.beans.factory.BeanDefinitionStoreException: Invalid bean definition with name 'accountHeadMapper' defined in file [E:\Codes\ERP\jshERP-master\jshERP-boot\target\classes\com\jsh\erp\datasource\mappers\AccountHeadMapper.class]: Invalid value type for attribute 'factoryBeanObjectType': java.lang.String
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.getTypeForFactoryBean(AbstractAutowireCapableBeanFactory.java:857)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getType(AbstractBeanFactory.java:743)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.findAnnotationOnBean(DefaultListableBeanFactory.java:735)
+	at org.springframework.boot.sql.init.dependency.AnnotationDependsOnDatabaseInitializationDetector.detect(AnnotationDependsOnDatabaseInitializationDetector.java:36)
+	at org.springframework.boot.sql.init.dependency.DatabaseInitializationDependencyConfigurer$DependsOnDatabaseInitializationPostProcessor.detectDependsOnInitializationBeanNames(DatabaseInitializationDependencyConfigurer.java:152)
+	at org.springframework.boot.sql.init.dependency.DatabaseInitializationDependencyConfigurer$DependsOnDatabaseInitializationPostProcessor.postProcessBeanFactory(DatabaseInitializationDependencyConfigurer.java:115)
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:363)
+	at org.springframework.context.support.PostProcessorRegistrationDelegate.invokeBeanFactoryPostProcessors(PostProcessorRegistrationDelegate.java:197)
+	at org.springframework.context.support.AbstractApplicationContext.invokeBeanFactoryPostProcessors(AbstractApplicationContext.java:789)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:607)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:335)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1363)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1352)
+	at com.jsh.erp.ErpApplication.main(ErpApplication.java:22)
+2026/08/14-19:12:38 INFO  [main] com.jsh.erp.ErpApplication - Starting ErpApplication using Java 21.0.8 with PID 11836 (E:\Codes\ERP\jshERP-master\jshERP-boot\target\classes started by admin in E:\Codes\ERP\jshERP-master)
+2026/08/14-19:12:38 DEBUG [main] com.jsh.erp.ErpApplication - Running with Spring Boot v3.3.2, Spring v6.1.11
+2026/08/14-19:12:38 INFO  [main] com.jsh.erp.ErpApplication - No active profile set, falling back to 1 default profile: "default"
+2026/08/14-19:12:45 ERROR [main] org.springframework.boot.diagnostics.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+The dependencies of some of the beans in the application context form a cycle:
+
+   accountController
+      ↓
+   accountService
+      ↓
+   logService
+┌─────┐
+|  userService
+↑     ↓
+|  orgaUserRelService
+└─────┘
+
+
+Action:
+
+Relying upon circular references is discouraged and they are prohibited by default. Update your application to remove the dependency cycle between beans. As a last resort, it may be possible to break the cycle automatically by setting spring.main.allow-circular-references to true.
+
+2026/08/14-19:14:54 INFO  [main] com.jsh.erp.ErpApplication - Starting ErpApplication using Java 21.0.8 with PID 35812 (E:\Codes\ERP\jshERP-master\jshERP-boot\target\classes started by admin in E:\Codes\ERP\jshERP-master)
+2026/08/14-19:14:54 DEBUG [main] com.jsh.erp.ErpApplication - Running with Spring Boot v3.3.2, Spring v6.1.11
+2026/08/14-19:14:54 INFO  [main] com.jsh.erp.ErpApplication - No active profile set, falling back to 1 default profile: "default"
+2026/08/14-19:15:04 ERROR [main] org.springframework.boot.SpringApplication - Application run failed
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'sysDictDataController': Injection of resource dependencies failed
+	at org.springframework.context.annotation.CommonAnnotationBeanPostProcessor.postProcessProperties(CommonAnnotationBeanPostProcessor.java:371)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.populateBean(AbstractAutowireCapableBeanFactory.java:1439)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:599)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:975)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:971)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:625)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:335)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1363)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1352)
+	at com.jsh.erp.ErpApplication.main(ErpApplication.java:22)
+Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'sysDictTypeService': Invocation of init method failed
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:222)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsBeforeInitialization(AbstractAutowireCapableBeanFactory.java:422)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1798)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:600)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:337)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:335)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.config.DependencyDescriptor.resolveCandidate(DependencyDescriptor.java:254)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.doResolveDependency(DefaultListableBeanFactory.java:1443)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.resolveDependency(DefaultListableBeanFactory.java:1353)
+	at org.springframework.context.annotation.CommonAnnotationBeanPostProcessor.autowireResource(CommonAnnotationBeanPostProcessor.java:598)
+	at org.springframework.context.annotation.CommonAnnotationBeanPostProcessor.getResource(CommonAnnotationBeanPostProcessor.java:576)
+	at org.springframework.context.annotation.CommonAnnotationBeanPostProcessor$ResourceElement.getResourceToInject(CommonAnnotationBeanPostProcessor.java:738)
+	at org.springframework.beans.factory.annotation.InjectionMetadata$InjectedElement.inject(InjectionMetadata.java:270)
+	at org.springframework.beans.factory.annotation.InjectionMetadata.inject(InjectionMetadata.java:145)
+	at org.springframework.context.annotation.CommonAnnotationBeanPostProcessor.postProcessProperties(CommonAnnotationBeanPostProcessor.java:368)
+	... 17 common frames omitted
+Caused by: org.mybatis.spring.MyBatisSystemException: null
+	at org.mybatis.spring.MyBatisExceptionTranslator.translateExceptionIfPossible(MyBatisExceptionTranslator.java:97)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:439)
+	at jdk.proxy2/jdk.proxy2.$Proxy98.selectList(Unknown Source)
+	at org.mybatis.spring.SqlSessionTemplate.selectList(SqlSessionTemplate.java:224)
+	at com.baomidou.mybatisplus.core.override.MybatisMapperMethod.executeForMany(MybatisMapperMethod.java:164)
+	at com.baomidou.mybatisplus.core.override.MybatisMapperMethod.execute(MybatisMapperMethod.java:77)
+	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy$PlainMethodInvoker.invoke(MybatisMapperProxy.java:152)
+	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:89)
+	at jdk.proxy2/jdk.proxy2.$Proxy171.selectDictDataList(Unknown Source)
+	at com.jsh.erp.service.SysDictTypeService.loadingDictCache(SysDictTypeService.java:125)
+	at com.jsh.erp.service.SysDictTypeService.init(SysDictTypeService.java:57)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMethod.invoke(InitDestroyAnnotationBeanPostProcessor.java:457)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeInitMethods(InitDestroyAnnotationBeanPostProcessor.java:401)
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:219)
+	... 34 common frames omitted
+Caused by: org.apache.ibatis.exceptions.PersistenceException: 
+### Error querying database.  Cause: java.lang.IllegalStateException: No thread-bound request found: Are you referring to request attributes outside of an actual web request, or processing a request outside of the originally receiving thread? If you are actually operating within a web request and still receive this message, your code is probably running outside of DispatcherServlet: In this case, use RequestContextListener or RequestContextFilter to expose the current request.
+### Cause: java.lang.IllegalStateException: No thread-bound request found: Are you referring to request attributes outside of an actual web request, or processing a request outside of the originally receiving thread? If you are actually operating within a web request and still receive this message, your code is probably running outside of DispatcherServlet: In this case, use RequestContextListener or RequestContextFilter to expose the current request.
+	at org.apache.ibatis.exceptions.ExceptionFactory.wrapException(ExceptionFactory.java:30)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:156)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:147)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:142)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.mybatis.spring.SqlSessionTemplate$SqlSessionInterceptor.invoke(SqlSessionTemplate.java:425)
+	... 48 common frames omitted
+Caused by: java.lang.IllegalStateException: No thread-bound request found: Are you referring to request attributes outside of an actual web request, or processing a request outside of the originally receiving thread? If you are actually operating within a web request and still receive this message, your code is probably running outside of DispatcherServlet: In this case, use RequestContextListener or RequestContextFilter to expose the current request.
+	at org.springframework.web.context.request.RequestContextHolder.currentRequestAttributes(RequestContextHolder.java:131)
+	at org.springframework.web.context.support.WebApplicationContextUtils.currentRequestAttributes(WebApplicationContextUtils.java:313)
+	at org.springframework.web.context.support.WebApplicationContextUtils$RequestObjectFactory.getObject(WebApplicationContextUtils.java:329)
+	at org.springframework.web.context.support.WebApplicationContextUtils$RequestObjectFactory.getObject(WebApplicationContextUtils.java:324)
+	at org.springframework.beans.factory.support.AutowireUtils$ObjectFactoryDelegatingInvocationHandler.invoke(AutowireUtils.java:283)
+	at jdk.proxy2/jdk.proxy2.$Proxy97.getHeader(Unknown Source)
+	at com.jsh.erp.config.TenantConfig$1.ignoreTable(TenantConfig.java:44)
+	at com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor.buildTableExpression(TenantLineInnerInterceptor.java:270)
+	at com.baomidou.mybatisplus.extension.plugins.inner.BaseMultiTableInnerInterceptor.lambda$builderExpression$3(BaseMultiTableInnerInterceptor.java:387)
+	at java.base/java.util.stream.ReferencePipeline$3$1.accept(ReferencePipeline.java:197)
+	at java.base/java.util.ArrayList$ArrayListSpliterator.forEachRemaining(ArrayList.java:1708)
+	at java.base/java.util.stream.AbstractPipeline.copyInto(AbstractPipeline.java:509)
+	at java.base/java.util.stream.AbstractPipeline.wrapAndCopyInto(AbstractPipeline.java:499)
+	at java.base/java.util.stream.ReduceOps$ReduceOp.evaluateSequential(ReduceOps.java:921)
+	at java.base/java.util.stream.AbstractPipeline.evaluate(AbstractPipeline.java:234)
+	at java.base/java.util.stream.ReferencePipeline.collect(ReferencePipeline.java:682)
+	at com.baomidou.mybatisplus.extension.plugins.inner.BaseMultiTableInnerInterceptor.builderExpression(BaseMultiTableInnerInterceptor.java:389)
+	at com.baomidou.mybatisplus.extension.plugins.inner.BaseMultiTableInnerInterceptor.processPlainSelect(BaseMultiTableInnerInterceptor.java:114)
+	at com.baomidou.mybatisplus.extension.plugins.inner.BaseMultiTableInnerInterceptor.processSelectBody(BaseMultiTableInnerInterceptor.java:55)
+	at com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor.processSelect(TenantLineInnerInterceptor.java:90)
+	at com.baomidou.mybatisplus.extension.parser.JsqlParserSupport.processParser(JsqlParserSupport.java:90)
+	at com.baomidou.mybatisplus.extension.parser.JsqlParserSupport.parserSingle(JsqlParserSupport.java:49)
+	at com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor.beforeQuery(TenantLineInnerInterceptor.java:70)
+	at com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor.intercept(MybatisPlusInterceptor.java:78)
+	at org.apache.ibatis.plugin.Plugin.invoke(Plugin.java:59)
+	at jdk.proxy2/jdk.proxy2.$Proxy174.query(Unknown Source)
+	at org.apache.ibatis.session.defaults.DefaultSqlSession.selectList(DefaultSqlSession.java:154)
+	... 53 common frames omitted
+2026/08/14-21:18:14 INFO  [main] com.jsh.erp.ErpApplication - Starting ErpApplication using Java 21.0.8 with PID 16948 (E:\Codes\ERP\jshERP-master\jshERP-boot\target\classes started by admin in E:\Codes\ERP\jshERP-master)
+2026/08/14-21:18:14 DEBUG [main] com.jsh.erp.ErpApplication - Running with Spring Boot v3.3.2, Spring v6.1.11
+2026/08/14-21:18:14 INFO  [main] com.jsh.erp.ErpApplication - No active profile set, falling back to 1 default profile: "default"
+2026/08/14-21:18:22 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - ==>  Preparing: SELECT dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, remark FROM jsh_sys_dict_data WHERE ifnull(delete_flag, '0') != '1' AND status = ? ORDER BY dict_sort ASC
+2026/08/14-21:18:23 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - ==> Parameters: 0(String)
+2026/08/14-21:18:23 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - <==      Total: 4
+2026/08/14-21:18:24 INFO  [main] com.jsh.erp.ErpApplication - Started ErpApplication in 10.658 seconds (process running for 11.453)
+2026/08/14-21:18:30 ERROR [http-nio-9999-exec-7] com.jsh.erp.exception.GlobalExceptionHandler - Global Exception Occured => url : http://192.168.31.37:9999/jshERP-boot/v2/api-docs, msg : No static resource v2/api-docs.
+2026/08/14-21:18:30 ERROR [http-nio-9999-exec-7] com.jsh.erp.exception.GlobalExceptionHandler - Global Exception Occured => url : http://192.168.31.37:9999/jshERP-boot/v2/api-docs
+org.springframework.web.servlet.resource.NoResourceFoundException: No static resource v2/api-docs.
+	at org.springframework.web.servlet.resource.ResourceHttpRequestHandler.handleRequest(ResourceHttpRequestHandler.java:585)
+	at org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter.handle(HttpRequestHandlerAdapter.java:52)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at com.jsh.erp.filter.LogCostFilter.doFilter(LogCostFilter.java:62)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:389)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:904)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1741)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026/08/14-21:25:03 INFO  [main] com.jsh.erp.ErpApplication - Starting ErpApplication using Java 21.0.8 with PID 10940 (E:\Codes\ERP\jshERP-master\jshERP-boot\target\classes started by admin in E:\Codes\ERP\jshERP-master)
+2026/08/14-21:25:03 DEBUG [main] com.jsh.erp.ErpApplication - Running with Spring Boot v3.3.2, Spring v6.1.11
+2026/08/14-21:25:03 INFO  [main] com.jsh.erp.ErpApplication - No active profile set, falling back to 1 default profile: "default"
+2026/08/14-21:25:19 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - ==>  Preparing: SELECT dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, remark FROM jsh_sys_dict_data WHERE ifnull(delete_flag, '0') != '1' AND status = ? ORDER BY dict_sort ASC
+2026/08/14-21:25:19 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - ==> Parameters: 0(String)
+2026/08/14-21:25:19 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - <==      Total: 4
+2026/08/14-21:25:22 INFO  [main] com.jsh.erp.ErpApplication - Started ErpApplication in 19.713 seconds (process running for 20.539)
+2026/08/14-21:25:26 ERROR [http-nio-9999-exec-1] com.jsh.erp.exception.GlobalExceptionHandler - Global Exception Occured => url : http://192.168.31.37:9999/jshERP-boot/v2/api-docs, msg : No static resource v2/api-docs.
+2026/08/14-21:25:26 ERROR [http-nio-9999-exec-1] com.jsh.erp.exception.GlobalExceptionHandler - Global Exception Occured => url : http://192.168.31.37:9999/jshERP-boot/v2/api-docs
+org.springframework.web.servlet.resource.NoResourceFoundException: No static resource v2/api-docs.
+	at org.springframework.web.servlet.resource.ResourceHttpRequestHandler.handleRequest(ResourceHttpRequestHandler.java:585)
+	at org.springframework.web.servlet.mvc.HttpRequestHandlerAdapter.handle(HttpRequestHandlerAdapter.java:52)
+	at org.springframework.web.servlet.DispatcherServlet.doDispatch(DispatcherServlet.java:1089)
+	at org.springframework.web.servlet.DispatcherServlet.doService(DispatcherServlet.java:979)
+	at org.springframework.web.servlet.FrameworkServlet.processRequest(FrameworkServlet.java:1014)
+	at org.springframework.web.servlet.FrameworkServlet.doGet(FrameworkServlet.java:903)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:564)
+	at org.springframework.web.servlet.FrameworkServlet.service(FrameworkServlet.java:885)
+	at jakarta.servlet.http.HttpServlet.service(HttpServlet.java:658)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:195)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at com.jsh.erp.filter.LogCostFilter.doFilter(LogCostFilter.java:62)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.RequestContextFilter.doFilterInternal(RequestContextFilter.java:100)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.FormContentFilter.doFilterInternal(FormContentFilter.java:93)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.springframework.web.filter.CharacterEncodingFilter.doFilterInternal(CharacterEncodingFilter.java:201)
+	at org.springframework.web.filter.OncePerRequestFilter.doFilter(OncePerRequestFilter.java:116)
+	at org.apache.catalina.core.ApplicationFilterChain.internalDoFilter(ApplicationFilterChain.java:164)
+	at org.apache.catalina.core.ApplicationFilterChain.doFilter(ApplicationFilterChain.java:140)
+	at org.apache.catalina.core.StandardWrapperValve.invoke(StandardWrapperValve.java:167)
+	at org.apache.catalina.core.StandardContextValve.invoke(StandardContextValve.java:90)
+	at org.apache.catalina.authenticator.AuthenticatorBase.invoke(AuthenticatorBase.java:483)
+	at org.apache.catalina.core.StandardHostValve.invoke(StandardHostValve.java:115)
+	at org.apache.catalina.valves.ErrorReportValve.invoke(ErrorReportValve.java:93)
+	at org.apache.catalina.core.StandardEngineValve.invoke(StandardEngineValve.java:74)
+	at org.apache.catalina.connector.CoyoteAdapter.service(CoyoteAdapter.java:344)
+	at org.apache.coyote.http11.Http11Processor.service(Http11Processor.java:389)
+	at org.apache.coyote.AbstractProcessorLight.process(AbstractProcessorLight.java:63)
+	at org.apache.coyote.AbstractProtocol$ConnectionHandler.process(AbstractProtocol.java:904)
+	at org.apache.tomcat.util.net.NioEndpoint$SocketProcessor.doRun(NioEndpoint.java:1741)
+	at org.apache.tomcat.util.net.SocketProcessorBase.run(SocketProcessorBase.java:52)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1190)
+	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:659)
+	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2026/08/14-21:47:09 INFO  [main] com.jsh.erp.ErpApplication - Starting ErpApplication using Java 21.0.8 with PID 23480 (E:\Codes\ERP\jshERP-master\jshERP-boot\target\classes started by admin in E:\Codes\ERP\jshERP-master)
+2026/08/14-21:47:09 DEBUG [main] com.jsh.erp.ErpApplication - Running with Spring Boot v3.3.2, Spring v6.1.11
+2026/08/14-21:47:09 INFO  [main] com.jsh.erp.ErpApplication - No active profile set, falling back to 1 default profile: "default"
+2026/08/14-21:47:18 DEBUG [main] org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping - 347 mappings in 'requestMappingHandlerMapping'
+2026/08/14-21:47:19 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - ==>  Preparing: SELECT dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, remark FROM jsh_sys_dict_data WHERE ifnull(delete_flag, '0') != '1' AND status = ? ORDER BY dict_sort ASC
+2026/08/14-21:47:19 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - ==> Parameters: 0(String)
+2026/08/14-21:47:19 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - <==      Total: 4
+2026/08/14-21:47:20 DEBUG [main] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Patterns [/webjars/**, /**, /swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
+2026/08/14-21:47:20 DEBUG [main] org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026/08/14-21:47:20 DEBUG [main] org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 2 @ExceptionHandler, 1 ResponseBodyAdvice
+2026/08/14-21:47:21 INFO  [main] com.jsh.erp.ErpApplication - Started ErpApplication in 13.463 seconds (process running for 14.176)
+2026/08/14-21:47:25 INFO  [http-nio-9999-exec-1] org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.DispatcherServlet - Detected StandardServletMultipartResolver
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.DispatcherServlet - Detected AcceptHeaderLocaleResolver
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.DispatcherServlet - Detected FixedThemeResolver
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.DispatcherServlet - Detected org.springframework.web.servlet.view.DefaultRequestToViewNameTranslator@32d8e58d
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.DispatcherServlet - Detected org.springframework.web.servlet.support.SessionFlashMapManager@6b8f87dc
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.DispatcherServlet - enableLoggingRequestDetails='false': request parameters and headers will be masked to prevent unsafe logging of potentially sensitive data
+2026/08/14-21:47:25 INFO  [http-nio-9999-exec-1] org.springframework.web.servlet.DispatcherServlet - Completed initialization in 20 ms
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/doc.html", parameters={}
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/], classpath [resources/], classpath [static/], classpath [public/], ServletContext [/]]
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-5] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/ace/ace.min.css", parameters={}
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-6] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/jsonview/jquery.jsonview.min.css", parameters={}
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-2] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/cdao/DUI.css", parameters={}
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-3] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/jquery/jquery-1.9.1.min.js", parameters={}
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/bootstrap/css/bootstrap.min.css", parameters={}
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-7] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/layer3.0.3/skin/default/layer.css", parameters={}
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-6] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-2] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-7] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-5] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-3] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-6] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-8] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/jsonview/jquery.jsonview.min.js", parameters={}
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-8] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-8] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-8] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/layer3.0.3/layer.js", parameters={}
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-8] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-5] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-5] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/cdao/DApiUI.js", parameters={}
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-5] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-7] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-7] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/ace/bootstrap.min.js", parameters={}
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-7] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-2] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-2] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/ace/ace.min.js", parameters={}
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-2] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/ace/ace.min.css", parameters={}
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:25 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/jsonview/jquery.jsonview.min.css", parameters={}
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-9] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/layer3.0.3/skin/default/layer.css", parameters={}
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-9] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-9] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-10] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/jsonview/jquery.jsonview.min.js", parameters={}
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-10] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-10] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-5] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-2] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-8] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-7] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/ace/ace.min.js", parameters={}
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-3] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-6] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/layer3.0.3/skin/default/layer.css?v=3.0.3303", parameters={masked}
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/v2/api-docs", parameters={}
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-6] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/], classpath [resources/], classpath [static/], classpath [public/], ServletContext [/]]
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.resource.ResourceHttpRequestHandler - Resource not found
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-6] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource v2/api-docs.]
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.DispatcherServlet - Completed 404 NOT_FOUND
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.DispatcherServlet - "ERROR" dispatch for GET "/jshERP-boot/error", parameters={}
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping - Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/javascript, */*;q=0.01] and supported [application/json, application/*+json]
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor - Writing [{timestamp=Fri Aug 14 21:47:26 IST 2026, status=404, error=Not Found, path=/jshERP-boot/v2/api-docs}]
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-9] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/v2/api-docs", parameters={}
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-9] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/], classpath [resources/], classpath [static/], classpath [public/], ServletContext [/]]
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-9] org.springframework.web.servlet.resource.ResourceHttpRequestHandler - Resource not found
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-9] org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource v2/api-docs.]
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.DispatcherServlet - Exiting from "ERROR" dispatch, status 404
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-9] org.springframework.web.servlet.DispatcherServlet - Completed 404 NOT_FOUND
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-9] org.springframework.web.servlet.DispatcherServlet - "ERROR" dispatch for GET "/jshERP-boot/error", parameters={}
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-9] org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping - Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-9] org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/javascript, */*;q=0.01] and supported [application/json, application/*+json]
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-9] org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor - Writing [{timestamp=Fri Aug 14 21:47:26 IST 2026, status=404, error=Not Found, path=/jshERP-boot/v2/api-docs}]
+2026/08/14-21:47:26 DEBUG [http-nio-9999-exec-9] org.springframework.web.servlet.DispatcherServlet - Exiting from "ERROR" dispatch, status 404
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-10] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/doc.html", parameters={}
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-10] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/], classpath [resources/], classpath [static/], classpath [public/], ServletContext [/]]
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-10] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-5] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/cdao/DUI.css", parameters={}
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-2] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/jquery/jquery-1.9.1.min.js", parameters={}
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-8] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/bootstrap/css/bootstrap.min.css", parameters={}
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-7] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/ace/ace.min.css", parameters={}
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/layer3.0.3/layer.js", parameters={}
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-3] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/cdao/DApiUI.js", parameters={}
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-2] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-8] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-7] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-5] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-3] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/ace/bootstrap.min.js", parameters={}
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-2] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-8] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-3] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-7] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-1] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-5] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-6] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/webjars/bycdao-ui/layer3.0.3/skin/default/layer.css?v=3.0.3303", parameters={masked}
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-6] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/webjars/]]
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-6] org.springframework.web.servlet.DispatcherServlet - Completed 200 OK
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.DispatcherServlet - GET "/jshERP-boot/v2/api-docs", parameters={}
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Mapped to ResourceHttpRequestHandler [classpath [META-INF/resources/], classpath [resources/], classpath [static/], classpath [public/], ServletContext [/]]
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.resource.ResourceHttpRequestHandler - Resource not found
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.mvc.support.DefaultHandlerExceptionResolver - Resolved [org.springframework.web.servlet.resource.NoResourceFoundException: No static resource v2/api-docs.]
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.DispatcherServlet - Completed 404 NOT_FOUND
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.DispatcherServlet - "ERROR" dispatch for GET "/jshERP-boot/error", parameters={}
+2026/08/14-21:47:35 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping - Mapped to org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController#error(HttpServletRequest)
+2026/08/14-21:47:36 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor - Using 'application/json', given [application/json, text/javascript, */*;q=0.01] and supported [application/json, application/*+json]
+2026/08/14-21:47:36 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.mvc.method.annotation.HttpEntityMethodProcessor - Writing [{timestamp=Fri Aug 14 21:47:35 IST 2026, status=404, error=Not Found, path=/jshERP-boot/v2/api-docs}]
+2026/08/14-21:47:36 DEBUG [http-nio-9999-exec-4] org.springframework.web.servlet.DispatcherServlet - Exiting from "ERROR" dispatch, status 404
+2026/08/14-22:19:06 INFO  [main] com.jsh.erp.ErpApplication - Starting ErpApplication using Java 21.0.8 with PID 11876 (E:\Codes\ERP\jshERP-master\jshERP-boot\target\classes started by admin in E:\Codes\ERP\jshERP-master)
+2026/08/14-22:19:06 DEBUG [main] com.jsh.erp.ErpApplication - Running with Spring Boot v3.3.2, Spring v6.1.11
+2026/08/14-22:19:06 INFO  [main] com.jsh.erp.ErpApplication - No active profile set, falling back to 1 default profile: "default"
+2026/08/14-22:19:21 DEBUG [main] org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping - 347 mappings in 'requestMappingHandlerMapping'
+2026/08/14-22:19:22 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - ==>  Preparing: SELECT dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, remark FROM jsh_sys_dict_data WHERE ifnull(delete_flag, '0') != '1' AND status = ? ORDER BY dict_sort ASC
+2026/08/14-22:19:22 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - ==> Parameters: 0(String)
+2026/08/14-22:19:23 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - <==      Total: 4
+2026/08/14-22:19:25 DEBUG [main] org.springframework.web.servlet.handler.SimpleUrlHandlerMapping - Patterns [/webjars/**, /**, /swagger-ui*/*swagger-initializer.js, /swagger-ui*/**] in 'resourceHandlerMapping'
+2026/08/14-22:19:25 DEBUG [main] org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter - ControllerAdvice beans: 0 @ModelAttribute, 0 @InitBinder, 1 RequestBodyAdvice, 1 ResponseBodyAdvice
+2026/08/14-22:19:25 DEBUG [main] org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver - ControllerAdvice beans: 2 @ExceptionHandler, 1 ResponseBodyAdvice
+2026/08/14-22:19:27 ERROR [main] org.springframework.boot.diagnostics.LoggingFailureAnalysisReporter - 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 9999 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 9999 or configure this application to listen on another port.
+

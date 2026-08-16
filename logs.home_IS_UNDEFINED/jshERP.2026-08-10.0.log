@@ -1,0 +1,7 @@
+2026/08/10-11:00:40 INFO  [main] com.jsh.erp.ErpApplication - Starting ErpApplication on DISDST-53974126 with PID 11324 (E:\Codes\ERP\jshERP-master\jshERP-boot\target\classes started by admin in E:\Codes\ERP\jshERP-master)
+2026/08/10-11:00:40 DEBUG [main] com.jsh.erp.ErpApplication - Running with Spring Boot v2.0.0.RELEASE, Spring v5.0.4.RELEASE
+2026/08/10-11:00:40 INFO  [main] com.jsh.erp.ErpApplication - No active profile set, falling back to default profiles: default
+2026/08/10-11:01:04 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - ==>  Preparing: select dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, create_by, create_time, remark from jsh_sys_dict_data WHERE ifnull(delete_flag,'0') !='1' AND status = ? order by dict_sort asc 
+2026/08/10-11:01:04 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - ==> Parameters: 0(String)
+2026/08/10-11:01:04 DEBUG [main] com.jsh.erp.datasource.mappers.SysDictDataMapper.selectDictDataList - <==      Total: 4
+2026/08/10-11:01:11 INFO  [main] com.jsh.erp.ErpApplication - Started ErpApplication in 33.819 seconds (JVM running for 34.756)
