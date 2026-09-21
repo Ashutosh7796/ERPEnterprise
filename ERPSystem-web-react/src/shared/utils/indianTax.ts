@@ -69,14 +69,16 @@ export function formatINR(val: number | string | undefined | null): string {
 }
 
 /**
- * Compute Statutory GST breakdown (CGST, SGST, IGST)
+ * Helper for UI preview only.
+ * IMPORTANT: All statutory, financial, and accounting calculations MUST call
+ * backend gstApi.calculateTax() to ensure effective-dated rule and POS compliance.
  */
 export function calculateGST(params: {
   taxableAmount: number
   gstRate: number
   isInterState?: boolean
 }): GSTCalculationResult {
-  const { taxableAmount = 0, gstRate = 18, isInterState = false } = params
+  const { taxableAmount = 0, gstRate = 0, isInterState = false } = params
   const safeTaxable = Math.max(0, taxableAmount)
 
   if (isInterState) {
@@ -134,3 +136,98 @@ export function calculateTDS(taxableAmount: number, tdsRate: number, section: st
     netPayable,
   }
 }
+
+export const formatCurrency = formatINR
+
+export function formatIndianDate(date: string | Date | undefined | null): string {
+  if (!date) return '-'
+  const d = typeof date === 'string' ? new Date(date) : date
+  if (isNaN(d.getTime())) return '-'
+  const day = String(d.getDate()).padStart(2, '0')
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const year = d.getFullYear()
+  return `${day}/${month}/${year}`
+}
+
+/**
+ * Converts a numerical currency amount to Indian English Words (Rupees ... Only)
+ * e.g. 224200 -> "Rupees Two Lakh Twenty-Four Thousand Two Hundred Only"
+ */
+export function numberToIndianWords(amount: number): string {
+  if (!amount || isNaN(amount) || amount <= 0) return 'Rupees Zero Only'
+
+  const ones = [
+    '', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
+    'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen',
+    'Seventeen', 'Eighteen', 'Nineteen'
+  ]
+  const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety']
+
+  const numToWordsLessThanThousand = (num: number): string => {
+    let str = ''
+    if (num >= 100) {
+      str += ones[Math.floor(num / 100)] + ' Hundred '
+      num %= 100
+    }
+    if (num >= 20) {
+      str += tens[Math.floor(num / 10)] + (num % 10 ? '-' + ones[num % 10] : '') + ' '
+    } else if (num > 0) {
+      str += ones[num] + ' '
+    }
+    return str.trim()
+  }
+
+  const [rupeesStr, paiseStr] = Math.abs(amount).toFixed(2).split('.')
+  let rupees = parseInt(rupeesStr, 10)
+  const paise = parseInt(paiseStr, 10)
+
+  let result = ''
+
+  const crore = Math.floor(rupees / 10000000)
+  rupees %= 10000000
+  if (crore > 0) {
+    result += numToWordsLessThanThousand(crore) + ' Crore '
+  }
+
+  const lakh = Math.floor(rupees / 100000)
+  rupees %= 100000
+  if (lakh > 0) {
+    result += numToWordsLessThanThousand(lakh) + ' Lakh '
+  }
+
+  const thousand = Math.floor(rupees / 1000)
+  rupees %= 1000
+  if (thousand > 0) {
+    result += numToWordsLessThanThousand(thousand) + ' Thousand '
+  }
+
+  const hundred = Math.floor(rupees / 100)
+  rupees %= 100
+  if (hundred > 0) {
+    result += ones[hundred] + ' Hundred '
+  }
+
+  if (rupees > 0) {
+    if (rupees >= 20) {
+      result += tens[Math.floor(rupees / 10)] + (rupees % 10 ? '-' + ones[rupees % 10] : '') + ' '
+    } else {
+      result += ones[rupees] + ' '
+    }
+  }
+
+  result = result.trim()
+  let words = result ? `Rupees ${result}` : 'Rupees Zero'
+
+  if (paise > 0) {
+    let paiseText = ''
+    if (paise >= 20) {
+      paiseText = tens[Math.floor(paise / 10)] + (paise % 10 ? '-' + ones[paise % 10] : '')
+    } else {
+      paiseText = ones[paise]
+    }
+    words += ` and ${paiseText} Paise`
+  }
+
+  return `${words} Only`
+}
+

@@ -94,12 +94,28 @@ export async function request<T = any>(
 
     clearTimeout(timeoutId)
 
-    if (response.status === 401 || response.status === 403) {
+    if (response.status === 401) {
       removeToken()
       if (window.location.pathname !== '/login') {
         window.location.href = '/login'
       }
-      throw new ApiError(response.status, 'Session expired. Please log in again.')
+      throw new ApiError(401, 'Session expired or unauthenticated. Please log in again.')
+    }
+
+    if (response.status === 403) {
+      const text = await response.text()
+      let json: any = null
+      try {
+        json = JSON.parse(text)
+      } catch {
+        json = text
+      }
+      const errorMsg =
+        json?.data?.message ||
+        json?.msg ||
+        json?.data?.error ||
+        (typeof json === 'string' && json ? json : 'Access denied: You do not have permission to perform this action.')
+      throw new ApiError(403, errorMsg, json)
     }
 
     const text = await response.text()

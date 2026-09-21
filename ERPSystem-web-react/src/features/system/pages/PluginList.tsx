@@ -6,22 +6,13 @@ import {
   Space,
   Tag,
   Popconfirm,
-  Modal,
-  Form,
-  Input,
   Upload,
-  Divider,
   message,
 } from 'antd'
 import type { TableColumnsType } from 'antd'
 import {
   UploadOutlined,
   ReloadOutlined,
-  KeyOutlined,
-  MobileOutlined,
-  PlayCircleOutlined,
-  PauseCircleOutlined,
-  DeleteOutlined,
 } from '@ant-design/icons'
 import { http } from '@core/api/client'
 import { ExportPrintButtons } from '@shared/components/ExportPrintButtons'
@@ -41,18 +32,11 @@ export const PluginListPage: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<PluginRecord[]>([])
 
-  // Activation Code Modals
-  const [codeModalOpen, setCodeModalOpen] = useState(false)
-  const [appCodeModalOpen, setAppCodeModalOpen] = useState(false)
-  const [codeForm] = Form.useForm()
-  const [appCodeForm] = Form.useForm()
-  const [submittingCode, setSubmittingCode] = useState(false)
-
   const fetchData = async () => {
     setLoading(true)
     try {
-      const res = await http.get('/plugin/list')
-      const rows = Array.isArray(res) ? res : res?.data || []
+      const res = await http.get('/plugin/list', { currentPage: 1, pageSize: 100 })
+      const rows = Array.isArray(res) ? res : res?.rows || res?.data?.rows || (Array.isArray(res?.data) ? res.data : [])
       setDataSource(rows)
     } catch (err: any) {
       console.error('Failed to load plugins:', err)
@@ -69,7 +53,7 @@ export const PluginListPage: React.FC = () => {
 
   const handleStartPlugin = async (pluginId: string) => {
     try {
-      await http.post(`/plugin/start?id=${pluginId}`)
+      await http.post(`/plugin/start/${pluginId}`)
       message.success(`Plugin ${pluginId} started successfully`)
       fetchData()
     } catch (err: any) {
@@ -79,8 +63,8 @@ export const PluginListPage: React.FC = () => {
 
   const handleStopPlugin = async (pluginId: string) => {
     try {
-      await http.post(`/plugin/stop?id=${pluginId}`)
-      message.success(`Plugin ${pluginId} stopped`)
+      await http.post(`/plugin/stop/${pluginId}`)
+      message.success(`Plugin ${pluginId} stopped successfully`)
       fetchData()
     } catch (err: any) {
       message.error(err?.message || 'Failed to stop plugin')
@@ -89,39 +73,11 @@ export const PluginListPage: React.FC = () => {
 
   const handleUninstallPlugin = async (pluginId: string) => {
     try {
-      await http.post(`/plugin/uninstall?id=${pluginId}`)
+      await http.post(`/plugin/uninstall/${pluginId}`)
       message.success(`Plugin ${pluginId} uninstalled`)
       fetchData()
     } catch (err: any) {
       message.error(err?.message || 'Failed to uninstall plugin')
-    }
-  }
-
-  const handleSaveCode = async () => {
-    try {
-      const values = await codeForm.validateFields()
-      setSubmittingCode(true)
-      await http.post('/plugin/writeCode', { code: values.code })
-      message.success('Plugin activation code saved successfully!')
-      setCodeModalOpen(false)
-    } catch (err: any) {
-      message.error(err?.message || 'Invalid activation code')
-    } finally {
-      setSubmittingCode(false)
-    }
-  }
-
-  const handleSaveAppCode = async () => {
-    try {
-      const values = await appCodeForm.validateFields()
-      setSubmittingCode(true)
-      await http.post('/plugin/writeAppCode', { code: values.code })
-      message.success('Mobile app activation code saved successfully!')
-      setAppCodeModalOpen(false)
-    } catch (err: any) {
-      message.error(err?.message || 'Invalid activation code')
-    } finally {
-      setSubmittingCode(false)
     }
   }
 
@@ -136,13 +92,14 @@ export const PluginListPage: React.FC = () => {
     {
       title: 'Action',
       key: 'action',
-      width: 200,
+      width: 140,
       align: 'center',
       render: (_, record) => {
         const pluginId = record.pluginDescriptor?.pluginId || record.id
         const isStarted = record.pluginState === 'STARTED'
+
         return (
-          <Space split={<Divider type="vertical" style={{ margin: '0 4px' }} />} size={0}>
+          <Space size="middle">
             {isStarted ? (
               <Popconfirm title="Stop this plugin?" onConfirm={() => handleStopPlugin(pluginId)}>
                 <a style={{ color: '#fa8c16' }}>Stop</a>
@@ -184,7 +141,7 @@ export const PluginListPage: React.FC = () => {
       title: 'Author / Provider',
       key: 'provider',
       width: 140,
-      render: (_, record) => record.pluginDescriptor?.provider || 'jshERP',
+      render: (_, record) => record.pluginDescriptor?.provider || 'Enterprise System',
     },
     {
       title: 'Status',
@@ -208,10 +165,10 @@ export const PluginListPage: React.FC = () => {
               const formData = new FormData()
               formData.append('file', file)
               try {
-                await http.post('/plugin/uploadJar', formData, {
+                await http.post('/plugin/uploadInstallPluginJar', formData, {
                   headers: { 'Content-Type': 'multipart/form-data' },
                 })
-                message.success('Plugin JAR uploaded and registered successfully!')
+                message.success('Plugin JAR package uploaded and started successfully!')
                 onSuccess?.('ok')
                 fetchData()
               } catch (err: any) {
@@ -224,12 +181,6 @@ export const PluginListPage: React.FC = () => {
               Upload Plugin Package (.jar)
             </Button>
           </Upload>
-          <Button icon={<KeyOutlined />} onClick={() => setCodeModalOpen(true)}>
-            Enter Plugin Activation Code
-          </Button>
-          <Button icon={<MobileOutlined />} onClick={() => setAppCodeModalOpen(true)}>
-            Mobile App License Key
-          </Button>
           <Button icon={<ReloadOutlined />} onClick={fetchData}>
             Refresh
           </Button>
@@ -246,48 +197,6 @@ export const PluginListPage: React.FC = () => {
         dataSource={dataSource}
         pagination={false}
       />
-
-      {/* Plugin Activation Code Modal */}
-      <Modal
-        title="Plugin Activation Key"
-        open={codeModalOpen}
-        onCancel={() => setCodeModalOpen(false)}
-        onOk={handleSaveCode}
-        confirmLoading={submittingCode}
-        destroyOnHidden
-        width={450}
-      >
-        <Form form={codeForm} layout="vertical">
-          <Form.Item
-            name="code"
-            label="Enter License / Activation Key"
-            rules={[{ required: true, message: 'Please enter plugin key' }]}
-          >
-            <Input.TextArea rows={3} placeholder="Paste activation license code..." />
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      {/* Mobile App Activation Code Modal */}
-      <Modal
-        title="Mobile App License Key"
-        open={appCodeModalOpen}
-        onCancel={() => setAppCodeModalOpen(false)}
-        onOk={handleSaveAppCode}
-        confirmLoading={submittingCode}
-        destroyOnHidden
-        width={450}
-      >
-        <Form form={appCodeForm} layout="vertical">
-          <Form.Item
-            name="code"
-            label="Enter Mobile App Key"
-            rules={[{ required: true, message: 'Please enter mobile key' }]}
-          >
-            <Input.TextArea rows={3} placeholder="Paste mobile app license code..." />
-          </Form.Item>
-        </Form>
-      </Modal>
     </Card>
   )
 }

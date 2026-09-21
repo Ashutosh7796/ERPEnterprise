@@ -31,6 +31,7 @@ import {
 } from '@ant-design/icons'
 import { http } from '@core/api/client'
 import { ExportPrintButtons } from '@shared/components/ExportPrintButtons'
+import { DepotBinDrawer } from '../components/DepotBinDrawer'
 
 export interface DepotRecord {
   id: number
@@ -65,6 +66,15 @@ export const DepotListPage: React.FC = () => {
   const [userTree, setUserTree] = useState<any[]>([])
   const [checkedUserKeys, setCheckedUserKeys] = useState<React.Key[]>([])
   const [userSubmitting, setUserSubmitting] = useState(false)
+
+  // Storage Location Bin Drawer State
+  const [binDrawerOpen, setBinDrawerOpen] = useState(false)
+  const [binDepot, setBinDepot] = useState<DepotRecord | null>(null)
+
+  const handleOpenManageBins = (record: DepotRecord) => {
+    setBinDepot(record)
+    setBinDrawerOpen(true)
+  }
 
   const allColumnKeys = [
     'rowIndex',
@@ -288,10 +298,11 @@ export const DepotListPage: React.FC = () => {
     action: {
       title: 'Action',
       key: 'action',
-      width: 270,
+      width: 360,
       align: 'center' as const,
       render: (_: any, record: DepotRecord) => (
         <Space split={<Divider type="vertical" style={{ margin: '0 4px' }} />} size={0}>
+          <a onClick={() => handleOpenManageBins(record)}>Manage Bins</a>
           <a onClick={() => handleOpenAssignUser(record)}>Assign Users</a>
           <Popconfirm title="Set this as default warehouse?" onConfirm={() => handleSetDefault(record.id)}>
             <a>Set Default</a>
@@ -614,6 +625,13 @@ export const DepotListPage: React.FC = () => {
           )}
         </div>
       </Modal>
+
+      {/* Storage Location Bins Drawer */}
+      <DepotBinDrawer
+        visible={binDrawerOpen}
+        depot={binDepot}
+        onClose={() => setBinDrawerOpen(false)}
+      />
     </Card>
   )
 }

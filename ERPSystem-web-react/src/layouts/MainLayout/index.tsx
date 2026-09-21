@@ -6,6 +6,7 @@ import { Header } from './Header'
 import { TabBar } from './TabBar'
 import { SettingDrawer } from './SettingDrawer'
 import { ChangePasswordModal } from './ChangePasswordModal'
+import { SupportSessionBanner } from './SupportSessionBanner'
 import { ErrorBoundary } from '@core/error/ErrorBoundary'
 import { useAuthStore } from '@core/auth/authStore'
 import { useAppStore } from '@store/useAppStore'
@@ -17,7 +18,7 @@ const { Content, Footer } = Layout
 export const MainLayout: React.FC = () => {
   const { token } = antdTheme.useToken()
   const { user, setUser, isInitialized, setInitialized } = useAuthStore()
-  const { themeSettings } = useAppStore()
+  const { collapsed, themeSettings } = useAppStore()
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -48,10 +49,22 @@ export const MainLayout: React.FC = () => {
     )
   }
 
+  const siderWidth = collapsed ? 64 : 260
+
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: '100vh', background: '#f0f2f5' }}>
       <Sidebar />
-      <Layout>
+      <Layout
+        style={{
+          marginLeft: siderWidth,
+          transition: 'margin-left 0.2s ease',
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          background: '#f0f2f5',
+        }}
+      >
+        <SupportSessionBanner />
         <Header />
         {themeSettings.multipage && <TabBar />}
         <Content
@@ -59,7 +72,7 @@ export const MainLayout: React.FC = () => {
             margin: '12px 16px',
             padding: '0',
             minHeight: 280,
-            overflowY: 'auto',
+            flex: 1,
           }}
         >
           <ErrorBoundary>
@@ -67,7 +80,7 @@ export const MainLayout: React.FC = () => {
           </ErrorBoundary>
         </Content>
         <Footer style={{ textAlign: 'center', padding: '8px 24px', fontSize: 12, color: token.colorTextSecondary }}>
-          © 2015-2030 jshERP Pro V3.6 · Indian Enterprise Edition
+          © 2015-2030 ERP System Pro V3.6 · Indian Enterprise Edition
         </Footer>
       </Layout>
 

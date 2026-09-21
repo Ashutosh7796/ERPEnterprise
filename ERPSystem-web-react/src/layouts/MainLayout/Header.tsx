@@ -1,5 +1,5 @@
 import React from 'react'
-import { Layout, Button, Dropdown, Space, Avatar, Tooltip, theme as antdTheme } from 'antd'
+import { Layout, Button, Dropdown, Space, Avatar, Tooltip, Tag, theme as antdTheme, App } from 'antd'
 import type { MenuProps } from 'antd'
 import {
   MenuFoldOutlined,
@@ -12,7 +12,15 @@ import {
   FullscreenOutlined,
   FullscreenExitOutlined,
   DownCircleOutlined,
+  SafetyCertificateOutlined,
+  SwapOutlined,
+  BellOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
 } from '@ant-design/icons'
+import { Popover, Badge, List, Card } from 'antd'
+import { getTenantPendingRequests, approveSupportSession, rejectSupportSession } from '@features/support/api/supportApi'
+import { useSSE } from '@features/support/hooks/useSSE'
 import { useAppStore } from '@store/useAppStore'
 import { useAuthStore } from '@core/auth/authStore'
 import { useNavigate } from 'react-router-dom'
@@ -22,6 +30,7 @@ import { ENDPOINTS } from '@core/api/endpoints'
 const { Header: AntHeader } = Layout
 
 export const Header: React.FC = () => {
+  const { message, notification } = App.useApp()
   const { token } = antdTheme.useToken()
   const navigate = useNavigate()
   const [isFullscreen, setIsFullscreen] = React.useState(false)
@@ -34,9 +43,131 @@ export const Header: React.FC = () => {
     updateThemeSettings,
     setSettingDrawerVisible,
     setChangePasswordVisible,
+    userAuth,
   } = useAppStore()
 
   const { user, logout } = useAuthStore()
+  const [notifications, setNotifications] = React.useState<any[]>([])
+  const [loadingConsent, setLoadingConsent] = React.useState(false)
+
+  const isTenant = Boolean(userAuth.tenantId && userAuth.tenantId > 0)
+
+  const fetchPendingRequests = async () => {
+    try {
+      const res: any = await getTenantPendingRequests()
+      if (res && res.code === 200) {
+        setNotifications(res.data?.requests || [])
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  // Real-Time SSE Stream for Customer Tenant
+  useSSE({
+    url: '/ERPSystem-boot/support/sse/tenant-stream',
+    enabled: isTenant,
+    onEvent: (eventType, data) => {
+      if (eventType === 'SUPPORT_REQUEST' && data?.sessionCode) {
+        setNotifications((prev) => {
+          if (prev.some((n) => n.sessionCode === data.sessionCode)) return prev
+          return [data, ...prev]
+        })
+        notification.info({
+          key: `support_req_${data.sessionCode}`,
+          message: 'Support Access Authorization Requested',
+          description: (
+            <div style={{ marginTop: 4 }}>
+              <div><strong>Specialist:</strong> {data.operatorName || 'System Specialist'}</div>
+              <div><strong>Scope:</strong> {data.moduleScope || 'ALL_MODULES'} ({data.accessMode || 'APPROVED_WRITE'})</div>
+              <div><strong>Justification:</strong> {data.justification}</div>
+              <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
+                <Button
+                  size="small"
+                  type="primary"
+                  style={{ background: '#52c41a', borderColor: '#52c41a' }}
+                  onClick={() => {
+                    notification.destroy(`support_req_${data.sessionCode}`)
+                    handleApproveAccess(data.sessionCode)
+                  }}
+                >
+                  Approve Access
+                </Button>
+                <Button
+                  size="small"
+                  danger
+                  onClick={() => {
+                    notification.destroy(`support_req_${data.sessionCode}`)
+                    handleRejectAccess(data.sessionCode)
+                  }}
+                >
+                  Deny
+                </Button>
+              </div>
+            </div>
+          ),
+          duration: 0,
+        })
+      } else if (
+        eventType === 'SESSION_REVOKED' ||
+        eventType === 'SESSION_REJECTED' ||
+        eventType === 'SESSION_APPROVED' ||
+        eventType === 'SESSION_EXPIRED' ||
+        eventType === 'SUPPORT_SESSION_ENDED'
+      ) {
+        if (data?.sessionCode) {
+          notification.destroy(`support_req_${data.sessionCode}`)
+          setNotifications((prev) => prev.filter((n) => n.sessionCode !== data.sessionCode))
+        }
+      }
+    },
+    onReconnectSync: async () => {
+      await fetchPendingRequests()
+    },
+  })
+
+  // Initial mount load (zero periodic polling)
+  React.useEffect(() => {
+    if (isTenant) {
+      fetchPendingRequests()
+    }
+  }, [isTenant])
+
+  const handleApproveAccess = async (sessionCode: string) => {
+    try {
+      setLoadingConsent(true)
+      const res: any = await approveSupportSession(sessionCode)
+      if (res && res.code === 200) {
+        message.success('Support access request approved! Specialist can now access diagnostic workspace.')
+        setNotifications((prev) => prev.filter((n) => n.sessionCode !== sessionCode))
+        await fetchPendingRequests()
+      } else {
+        message.error(res?.msgTip || 'Failed to approve support access request')
+      }
+    } catch (e: any) {
+      message.error(e?.message || 'Error approving support session')
+    } finally {
+      setLoadingConsent(false)
+    }
+  }
+
+  const handleRejectAccess = async (sessionCode: string) => {
+    try {
+      setLoadingConsent(true)
+      const res: any = await rejectSupportSession(sessionCode, 'Declined by tenant administrator')
+      if (res && res.code === 200) {
+        message.info('Support access request declined.')
+        setNotifications((prev) => prev.filter((n) => n.sessionCode !== sessionCode))
+        await fetchPendingRequests()
+      } else {
+        message.error(res?.msgTip || 'Failed to decline request')
+      }
+    } catch (e: any) {
+      message.error(e?.message || 'Error declining support session')
+    } finally {
+      setLoadingConsent(false)
+    }
+  }
 
   const handleLogout = async () => {
     try {
@@ -97,7 +228,8 @@ export const Header: React.FC = () => {
     },
   ]
 
-  const displayName = user?.userName || user?.loginName || 'Test User'
+  const displayName = userAuth.userName || userAuth.loginName || user?.userName || user?.loginName || 'User'
+  const domain = userAuth.authorityDomain || 'TENANT'
 
   return (
     <AntHeader
@@ -116,7 +248,7 @@ export const Header: React.FC = () => {
         boxShadow: '0 1px 4px rgba(0,21,41,.08)',
       }}
     >
-      {/* Left Section: Menu Toggle + System Title */}
+      {/* Left Section: Menu Toggle + Domain Badge + System Title */}
       <Space size="middle" align="center">
         <Button
           type="text"
@@ -127,9 +259,27 @@ export const Header: React.FC = () => {
         <span style={{ fontWeight: 700, fontSize: 16, color: '#fff', letterSpacing: 0.5 }}>
           {platformName}
         </span>
-        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', marginLeft: 8 }}>
-          Acme Enterprise
-        </span>
+
+        {domain === 'PLATFORM' && (
+          <Tag color="purple" style={{ margin: 0, fontWeight: 600, border: 'none' }}>
+            PLATFORM ADMIN
+          </Tag>
+        )}
+        {domain === 'SUPPORT_OPERATIONS' && (
+          <Tag color="cyan" style={{ margin: 0, fontWeight: 600, border: 'none' }}>
+            SYSTEM SUPPORT
+          </Tag>
+        )}
+        {domain === 'SUPPORT_SESSION' && (
+          <Tag color="gold" style={{ margin: 0, fontWeight: 600, border: 'none' }}>
+            SUPPORT: TENANT #{userAuth.tenantId}
+          </Tag>
+        )}
+        {domain === 'TENANT' && userAuth.tenantId && (
+          <Tag color="geekblue" style={{ margin: 0, fontWeight: 600, border: 'none' }}>
+            Tenant #{userAuth.tenantId}
+          </Tag>
+        )}
       </Space>
 
       {/* Right Section: Action Icons, Language, User Dropdown */}
@@ -154,6 +304,88 @@ export const Header: React.FC = () => {
             <span>{themeSettings.language === 'english' ? 'English' : '简体中文'}</span>
           </Button>
         </Dropdown>
+
+        {/* Notification Bell & Consent Center */}
+        <Popover
+          placement="bottomRight"
+          trigger="click"
+          title={
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontWeight: 600 }}>Notifications & Support Requests</span>
+              <Tag color="blue">{notifications.length} Pending</Tag>
+            </div>
+          }
+          content={
+            <div style={{ width: 340, maxHeight: 400, overflowY: 'auto' }}>
+              {notifications.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '24px 0', color: '#8c8c8c' }}>
+                  <BellOutlined style={{ fontSize: 24, marginBottom: 8, color: '#bfbfbf' }} />
+                  <div>No pending support access requests or alerts.</div>
+                </div>
+              ) : (
+                <div>
+                  {notifications.map((item) => (
+                    <Card
+                      key={item.sessionCode || Math.random().toString()}
+                      size="small"
+                      style={{ marginBottom: 8, borderColor: '#ffbb96', background: '#fff7e6' }}
+                      title={
+                        <Space>
+                          <SafetyCertificateOutlined style={{ color: '#fa8c16' }} />
+                          <span style={{ fontSize: 13, fontWeight: 600 }}>
+                            {item.operatorName || 'Support Specialist'}
+                          </span>
+                        </Space>
+                      }
+                      extra={<Tag color="orange">{item.accessMode || 'READ_ONLY'}</Tag>}
+                    >
+                      <p style={{ margin: '0 0 8px 0', fontSize: 12, color: '#595959' }}>
+                        <strong>Reason:</strong> {item.justification}
+                      </p>
+                      <div style={{ fontSize: 11, color: '#8c8c8c', marginBottom: 8 }}>
+                        Scope: {item.moduleScope} &bull; Duration: {item.durationMinutes}m
+                      </div>
+                      <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+                        <Button
+                          size="small"
+                          danger
+                          icon={<CloseCircleOutlined />}
+                          onClick={() => handleRejectAccess(item.sessionCode)}
+                          loading={loadingConsent}
+                        >
+                          Deny
+                        </Button>
+                        <Button
+                          size="small"
+                          type="primary"
+                          icon={<CheckCircleOutlined />}
+                          onClick={() => handleApproveAccess(item.sessionCode)}
+                          loading={loadingConsent}
+                          style={{ background: '#52c41a', borderColor: '#52c41a' }}
+                        >
+                          Approve Access
+                        </Button>
+                      </Space>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          }
+          onOpenChange={(open) => {
+            if (open) fetchPendingRequests()
+          }}
+        >
+          <Tooltip title="Notifications & Access Requests">
+            <Badge count={notifications.length} offset={[-4, 4]} size="small">
+              <Button
+                type="text"
+                icon={<BellOutlined style={{ color: '#fff', fontSize: 18 }} />}
+                style={{ width: 36, height: 36 }}
+              />
+            </Badge>
+          </Tooltip>
+        </Popover>
 
         {/* Settings Drawer Quick Trigger */}
         <Tooltip title="Interface Settings">

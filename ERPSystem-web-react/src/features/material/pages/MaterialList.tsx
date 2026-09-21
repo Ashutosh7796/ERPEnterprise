@@ -1,24 +1,18 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import {
   Card,
-  Table,
   Form,
   Input,
-  InputNumber,
   Select,
   Button,
   Space,
   Row,
   Col,
-  Popover,
-  Checkbox,
-  Divider,
   Tag,
   Popconfirm,
   message,
-  Switch,
+  Tooltip,
 } from 'antd'
-import type { TableColumnsType } from 'antd'
 import {
   SearchOutlined,
   ReloadOutlined,
@@ -28,13 +22,18 @@ import {
   DeleteOutlined,
   CheckOutlined,
   StopOutlined,
-  SettingOutlined,
   EditOutlined,
   CopyOutlined,
 } from '@ant-design/icons'
 import { http } from '@core/api/client'
 import { MaterialModal } from '../components/MaterialModal'
 import { ExportPrintButtons } from '@shared/components/ExportPrintButtons'
+import {
+  ErpAgGrid,
+  CurrencyCellRenderer,
+  StatusTagCellRenderer,
+  type ErpColDef,
+} from '@shared/components/grid'
 
 export interface MaterialRecord {
   id: number
@@ -74,7 +73,7 @@ export const MaterialListPage: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<MaterialRecord[]>([])
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 })
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
+  const [selectedRowKeys, setSelectedRowKeys] = useState<(string | number)[]>([])
   const [expandedSearch, setExpandedSearch] = useState(false)
 
   const [categoryList, setCategoryList] = useState<any[]>([])
@@ -83,53 +82,6 @@ export const MaterialListPage: React.FC = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [editingRecord, setEditingRecord] = useState<any | null>(null)
 
-  // Column definitions matching Vue MaterialList.vue
-  const allColumnKeys = [
-    'action',
-    'mBarCode',
-    'name',
-    'standard',
-    'model',
-    'color',
-    'brand',
-    'mnemonic',
-    'categoryName',
-    'otherField1',
-    'otherField2',
-    'otherField3',
-    'unit',
-    'weight',
-    'expiryNum',
-    'mfrs',
-    'initialStock',
-    'stock',
-    'purchaseDecimal',
-    'commodityDecimal',
-    'wholesaleDecimal',
-    'lowDecimal',
-    'position',
-    'remark',
-    'enabled',
-  ]
-
-  const [visibleColumns, setVisibleColumns] = useState<string[]>([
-    'action',
-    'mBarCode',
-    'name',
-    'standard',
-    'model',
-    'color',
-    'brand',
-    'categoryName',
-    'unit',
-    'stock',
-    'purchaseDecimal',
-    'commodityDecimal',
-    'wholesaleDecimal',
-    'lowDecimal',
-    'enabled',
-  ])
-
   useEffect(() => {
     http.get('/materialCategory/getAllList').then((res: any) => {
       const list = res?.data || (Array.isArray(res) ? res : [])
@@ -137,7 +89,7 @@ export const MaterialListPage: React.FC = () => {
     })
   }, [])
 
-  const fetchData = async (page = 1, pageSize = 10, searchValues: any = {}) => {
+  const fetchData = useCallback(async (page = 1, pageSize = 10, searchValues: any = {}) => {
     setLoading(true)
     try {
       const searchObj: Record<string, any> = {
@@ -148,74 +100,80 @@ export const MaterialListPage: React.FC = () => {
         color: searchValues.color || '',
         brand: searchValues.brand || '',
         mfrs: searchValues.mfrs || '',
-        otherField1: searchValues.otherField1 || '',
-        otherField2: searchValues.otherField2 || '',
-        otherField3: searchValues.otherField3 || '',
-        weight: searchValues.weight || '',
-        expiryNum: searchValues.expiryNum || '',
-        position: searchValues.position || '',
+        enableSerialNumber: searchValues.enableSerialNumber,
+        enableBatchNumber: searchValues.enableBatchNumber,
         remark: searchValues.remark || '',
-        enabled: searchValues.enabled !== undefined ? searchValues.enabled : '',
-        enableSerialNumber: searchValues.enableSerialNumber !== undefined ? searchValues.enableSerialNumber : '',
-        enableBatchNumber: searchValues.enableBatchNumber !== undefined ? searchValues.enableBatchNumber : '',
       }
 
-      const res = await http.get('/material/list', {
-        search: JSON.stringify(searchObj),
-        currentPage: page,
-        pageSize,
+      const res = await http.get<any>('/material/list', {
+        params: {
+          search: JSON.stringify(searchObj),
+          currentPage: page,
+          pageSize: pageSize,
+        },
       })
 
-      const rows = res?.rows || res?.data?.rows || (Array.isArray(res?.data) ? res.data : [])
-      const total = res?.total !== undefined ? res.total : res?.data?.total || 0
-
-      setDataSource(rows)
-      setPagination({ current: page, pageSize, total })
+      if (res && res.data && res.data.rows) {
+        setDataSource(res.data.rows)
+        setPagination({ current: page, pageSize, total: res.data.total || 0 })
+      } else if (res && res.rows) {
+        setDataSource(res.rows)
+        setPagination({ current: page, pageSize, total: res.total || 0 })
+      } else {
+        setDataSource([])
+      }
     } catch (err: any) {
-      console.error('Failed to load products:', err)
-      message.error(err?.message || 'Failed to load product list.')
+      console.error('Failed to fetch material list:', err)
       setDataSource([])
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [fetchData])
 
-  // Delete single product
+  // Handle Single Delete
   const handleDelete = async (id: number) => {
     try {
-      await http.delete(`/material/delete?id=${id}`)
-      message.success('Product deleted successfully')
-      fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
+      const res = await http.delete(`/material/delete?id=${id}`)
+      if (res && (res.code === 200 || res.status === 200)) {
+        message.success('Product deleted successfully')
+        fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
+      } else {
+        message.error('Failed to delete product')
+      }
     } catch (err: any) {
       message.error(err?.message || 'Failed to delete product')
     }
   }
 
-  // Batch delete products
+  // Handle Batch Delete
   const handleBatchDelete = async () => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Please select products first')
+      message.warning('Please select products to delete')
       return
     }
     try {
       const ids = selectedRowKeys.join(',')
-      await http.delete(`/material/deleteBatch?ids=${ids}`)
-      message.success('Selected products deleted successfully')
-      setSelectedRowKeys([])
-      fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
+      const res = await http.delete(`/material/deleteBatch?ids=${ids}`)
+      if (res && (res.code === 200 || res.status === 200)) {
+        message.success('Batch delete successful')
+        setSelectedRowKeys([])
+        fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
+      } else {
+        message.error('Failed to delete selected products')
+      }
     } catch (err: any) {
-      message.error(err?.message || 'Failed to delete selected products')
+      message.error(err?.message || 'Failed to delete products')
     }
   }
 
-  // Batch enable / disable status
+  // Handle Batch Enable/Disable
   const handleBatchStatus = async (status: boolean) => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Please select products first')
+      message.warning('Please select products')
       return
     }
     try {
@@ -236,279 +194,282 @@ export const MaterialListPage: React.FC = () => {
     setModalOpen(true)
   }
 
-  const columnsConfig: Record<string, any> = {
-    action: {
-      title: 'Action',
-      key: 'action',
-      width: 140,
-      align: 'center' as const,
-      render: (_: any, record: MaterialRecord) => (
-        <Space separator={<Divider vertical style={{ margin: '0 4px' }} />} size={0}>
-          <a
-            onClick={() => {
-              setEditingRecord(record)
-              setModalOpen(true)
-            }}
-          >
-            Edit
-          </a>
-          <a onClick={() => handleCopyAdd(record)}>Copy</a>
-          <Popconfirm
-            title="Delete this product?"
-            onConfirm={() => handleDelete(record.id)}
-          >
-            <a style={{ color: '#ff4d4f' }}>Delete</a>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-    mBarCode: {
-      title: 'Barcode',
-      dataIndex: 'mBarCode',
-      key: 'mBarCode',
-      width: 130,
-      render: (val: any, r: MaterialRecord) => val || r.barCode || '-',
-    },
-    name: {
-      title: 'Product Name',
-      dataIndex: 'name',
-      key: 'name',
-      width: 180,
-      ellipsis: true,
-      render: (val: string, r: MaterialRecord) => (
-        <Space size="small">
-          <span>{val}</span>
-          {Number(r.enableSerialNumber) === 1 && <Tag color="orange">SN</Tag>}
-          {Number(r.enableBatchNumber) === 1 && <Tag color="purple">Batch</Tag>}
-        </Space>
-      ),
-    },
-    standard: {
-      title: 'Spec',
-      dataIndex: 'standard',
-      key: 'standard',
-      width: 100,
-      ellipsis: true,
-      render: (v: any) => v || '-',
-    },
-    model: {
-      title: 'Model',
-      dataIndex: 'model',
-      key: 'model',
-      width: 100,
-      ellipsis: true,
-      render: (v: any) => v || '-',
-    },
-    color: {
-      title: 'Color',
-      dataIndex: 'color',
-      key: 'color',
-      width: 80,
-      ellipsis: true,
-      render: (v: any) => v || '-',
-    },
-    brand: {
-      title: 'Brand',
-      dataIndex: 'brand',
-      key: 'brand',
-      width: 100,
-      ellipsis: true,
-      render: (v: any) => v || '-',
-    },
-    mnemonic: {
-      title: 'Mnemonic',
-      dataIndex: 'mnemonic',
-      key: 'mnemonic',
-      width: 90,
-      ellipsis: true,
-      render: (v: any) => v || '-',
-    },
-    categoryName: {
-      title: 'Category',
-      dataIndex: 'categoryName',
-      key: 'categoryName',
-      width: 110,
-      ellipsis: true,
-      render: (v: any) => v || '-',
-    },
-    otherField1: {
-      title: 'Field 1',
-      dataIndex: 'otherField1',
-      key: 'otherField1',
-      width: 90,
-      ellipsis: true,
-    },
-    otherField2: {
-      title: 'Field 2',
-      dataIndex: 'otherField2',
-      key: 'otherField2',
-      width: 90,
-      ellipsis: true,
-    },
-    otherField3: {
-      title: 'Field 3',
-      dataIndex: 'otherField3',
-      key: 'otherField3',
-      width: 90,
-      ellipsis: true,
-    },
-    unit: {
-      title: 'Unit',
-      dataIndex: 'unit',
-      key: 'unit',
-      width: 80,
-      render: (v: any, r: MaterialRecord) => v || r.unitName || '-',
-    },
-    weight: {
-      title: 'Weight (kg)',
-      dataIndex: 'weight',
-      key: 'weight',
-      width: 95,
-      render: (v: any) => (v !== undefined && v !== null ? Number(v).toFixed(2) : '-'),
-    },
-    expiryNum: {
-      title: 'Expiry (Days)',
-      dataIndex: 'expiryNum',
-      key: 'expiryNum',
-      width: 105,
-      render: (v: any) => (v ? `${v}d` : '-'),
-    },
-    mfrs: {
-      title: 'Manufacturer',
-      dataIndex: 'mfrs',
-      key: 'mfrs',
-      width: 120,
-      ellipsis: true,
-      render: (v: any) => v || '-',
-    },
-    initialStock: {
-      title: 'Initial Stock',
-      dataIndex: 'initialStock',
-      key: 'initialStock',
-      width: 95,
-      render: (v: any) => v || 0,
-    },
-    stock: {
-      title: 'Current Stock',
-      dataIndex: 'stock',
-      key: 'stock',
-      width: 105,
-      render: (v: any) => <strong>{v !== undefined ? v : 0}</strong>,
-    },
-    purchaseDecimal: {
-      title: 'Cost Price (₹)',
-      dataIndex: 'purchaseDecimal',
-      key: 'purchaseDecimal',
-      width: 115,
-      render: (v: any) => (v ? `₹${Number(v).toFixed(2)}` : '₹0.00'),
-    },
-    commodityDecimal: {
-      title: 'Retail Price (₹)',
-      dataIndex: 'commodityDecimal',
-      key: 'commodityDecimal',
-      width: 115,
-      render: (v: any) => (v ? `₹${Number(v).toFixed(2)}` : '₹0.00'),
-    },
-    wholesaleDecimal: {
-      title: 'Sales Price (₹)',
-      dataIndex: 'wholesaleDecimal',
-      key: 'wholesaleDecimal',
-      width: 115,
-      render: (v: any) => (v ? `₹${Number(v).toFixed(2)}` : '₹0.00'),
-    },
-    lowDecimal: {
-      title: 'Min Price (₹)',
-      dataIndex: 'lowDecimal',
-      key: 'lowDecimal',
-      width: 110,
-      render: (v: any) => (v ? `₹${Number(v).toFixed(2)}` : '₹0.00'),
-    },
-    position: {
-      title: 'Shelf / Bin',
-      dataIndex: 'position',
-      key: 'position',
-      width: 100,
-      ellipsis: true,
-      render: (v: any) => v || '-',
-    },
-    remark: {
-      title: 'Remarks',
-      dataIndex: 'remark',
-      key: 'remark',
-      width: 130,
-      ellipsis: true,
-    },
-    enabled: {
-      title: 'Status',
-      dataIndex: 'enabled',
-      key: 'enabled',
-      width: 85,
-      align: 'center' as const,
-      render: (val: any) => {
-        const isEnabled = val === true || val === 1 || val === '1'
-        return <Tag color={isEnabled ? 'green' : 'orange'}>{isEnabled ? 'Active' : 'Disabled'}</Tag>
+  // AG Grid Column Definitions
+  const columnDefs = useMemo<ErpColDef<MaterialRecord>[]>(() => {
+    return [
+      {
+        headerName: 'Action',
+        colId: 'action',
+        pinned: 'left',
+        width: 140,
+        minWidth: 130,
+        lockPinned: true,
+        suppressHeaderMenuButton: true,
+        sortable: false,
+        filter: false,
+        cellRenderer: (params: any) => {
+          const record = params.data
+          if (!record) return null
+          return (
+            <div className="erp-grid-actions">
+              <Tooltip title="Edit Product">
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<EditOutlined style={{ color: '#1677ff', fontSize: 14 }} />}
+                  style={{ padding: '0 4px' }}
+                  onClick={() => {
+                    setEditingRecord(record)
+                    setModalOpen(true)
+                  }}
+                />
+              </Tooltip>
+              <Tooltip title="Copy Product">
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<CopyOutlined style={{ color: '#52c41a', fontSize: 14 }} />}
+                  style={{ padding: '0 4px' }}
+                  onClick={() => handleCopyAdd(record)}
+                />
+              </Tooltip>
+              <Popconfirm title="Delete this product?" onConfirm={() => handleDelete(record.id)}>
+                <Tooltip title="Delete Product">
+                  <Button
+                    type="text"
+                    danger
+                    size="small"
+                    icon={<DeleteOutlined style={{ fontSize: 14 }} />}
+                    style={{ padding: '0 4px' }}
+                  />
+                </Tooltip>
+              </Popconfirm>
+            </div>
+          )
+        },
       },
-    },
-  }
+      {
+        headerName: 'Barcode',
+        field: 'mBarCode',
+        width: 140,
+        minWidth: 120,
+        filter: true,
+        valueGetter: (p) => p.data?.mBarCode || p.data?.barCode || '-',
+      },
+      {
+        headerName: 'Product Name',
+        field: 'name',
+        width: 220,
+        minWidth: 180,
+        flex: 1.5,
+        wrapText: true,
+        filter: true,
+        cellRenderer: (params: any) => {
+          const r = params.data
+          if (!r) return null
+          return (
+            <Space size={4} wrap={false} style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <span style={{ fontWeight: 500 }}>{r.name}</span>
+              {Number(r.enableSerialNumber) === 1 && <Tag color="orange" style={{ margin: 0 }}>SN</Tag>}
+              {Number(r.enableBatchNumber) === 1 && <Tag color="purple" style={{ margin: 0 }}>Batch</Tag>}
+            </Space>
+          )
+        },
+      },
+      {
+        headerName: 'Spec',
+        field: 'standard',
+        width: 110,
+        minWidth: 90,
+        filter: true,
+        valueGetter: (p) => p.data?.standard || '-',
+      },
+      {
+        headerName: 'Model',
+        field: 'model',
+        width: 110,
+        minWidth: 90,
+        filter: true,
+        valueGetter: (p) => p.data?.model || '-',
+      },
+      {
+        headerName: 'Color',
+        field: 'color',
+        width: 90,
+        minWidth: 80,
+        filter: true,
+        valueGetter: (p) => p.data?.color || '-',
+      },
+      {
+        headerName: 'Brand',
+        field: 'brand',
+        width: 110,
+        minWidth: 90,
+        filter: true,
+        valueGetter: (p) => p.data?.brand || '-',
+      },
+      {
+        headerName: 'Category',
+        field: 'categoryName',
+        width: 120,
+        minWidth: 100,
+        filter: true,
+        valueGetter: (p) => p.data?.categoryName || '-',
+      },
+      {
+        headerName: 'Unit',
+        field: 'unit',
+        width: 80,
+        minWidth: 70,
+        filter: true,
+        valueGetter: (p) => p.data?.unit || p.data?.unitName || '-',
+      },
+      {
+        headerName: 'Current Stock',
+        field: 'stock',
+        width: 120,
+        minWidth: 100,
+        type: 'numericColumn',
+        cellRenderer: (p: any) => (
+          <strong style={{ color: Number(p.value || 0) <= 0 ? '#ff4d4f' : '#262626' }}>
+            {p.value !== undefined ? p.value : 0}
+          </strong>
+        ),
+      },
+      {
+        headerName: 'Cost Price (₹)',
+        field: 'purchaseDecimal',
+        width: 125,
+        minWidth: 110,
+        type: 'numericColumn',
+        cellRenderer: CurrencyCellRenderer,
+      },
+      {
+        headerName: 'Retail Price (₹)',
+        field: 'commodityDecimal',
+        width: 125,
+        minWidth: 110,
+        type: 'numericColumn',
+        cellRenderer: CurrencyCellRenderer,
+      },
+      {
+        headerName: 'Sales Price (₹)',
+        field: 'wholesaleDecimal',
+        width: 125,
+        minWidth: 110,
+        type: 'numericColumn',
+        cellRenderer: CurrencyCellRenderer,
+      },
+      {
+        headerName: 'Min Price (₹)',
+        field: 'lowDecimal',
+        width: 115,
+        minWidth: 100,
+        type: 'numericColumn',
+        cellRenderer: CurrencyCellRenderer,
+      },
+      {
+        headerName: 'Initial Stock',
+        field: 'initialStock',
+        width: 110,
+        minWidth: 90,
+        type: 'numericColumn',
+        valueGetter: (p) => p.data?.initialStock || 0,
+      },
+      {
+        headerName: 'Shelf / Bin',
+        field: 'position',
+        width: 105,
+        minWidth: 90,
+        filter: true,
+        valueGetter: (p) => p.data?.position || '-',
+      },
+      {
+        headerName: 'Status',
+        field: 'enabled',
+        width: 95,
+        minWidth: 85,
+        filter: true,
+        cellRenderer: StatusTagCellRenderer,
+      },
+      {
+        headerName: 'Remarks',
+        field: 'remark',
+        width: 180,
+        minWidth: 150,
+        flex: 1.5,
+        wrapText: true,
+        filter: true,
+        tooltipField: 'remark',
+        valueGetter: (p) => p.data?.remark || '-',
+      },
+    ]
+  }, [])
 
-  const columns = visibleColumns.map((key) => columnsConfig[key]).filter(Boolean)
-
-  const columnSettingsContent = (
-    <div style={{ width: 480 }}>
-      <div style={{ fontWeight: 600, marginBottom: 8 }}>Product Column Display Settings</div>
-      <Checkbox.Group
-        value={visibleColumns}
-        onChange={(vals) => setVisibleColumns(vals as string[])}
-        style={{ width: '100%' }}
-      >
-        <Row gutter={[8, 8]}>
-          {allColumnKeys.map((key) => (
-            <Col span={8} key={key}>
-              <Checkbox value={key} disabled={key === 'action' || key === 'name'}>
-                {columnsConfig[key]?.title || key}
-              </Checkbox>
-            </Col>
-          ))}
-        </Row>
-      </Checkbox.Group>
-      <Divider style={{ margin: '10px 0 6px 0' }} />
+  // Left action bar
+  const leftToolbarButtons = (
+    <Space size="small" wrap>
       <Button
-        type="link"
-        size="small"
-        onClick={() =>
-          setVisibleColumns([
-            'action',
-            'mBarCode',
-            'name',
-            'standard',
-            'model',
-            'color',
-            'brand',
-            'categoryName',
-            'unit',
-            'stock',
-            'purchaseDecimal',
-            'commodityDecimal',
-            'wholesaleDecimal',
-            'lowDecimal',
-            'enabled',
-          ])
-        }
+        type="primary"
+        icon={<PlusOutlined />}
+        onClick={() => {
+          setEditingRecord(null)
+          setModalOpen(true)
+        }}
       >
-        Restore Default Columns
+        Add Product
       </Button>
-    </div>
+      <Popconfirm
+        title="Delete selected products?"
+        onConfirm={handleBatchDelete}
+        disabled={selectedRowKeys.length === 0}
+      >
+        <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
+          Batch Delete
+        </Button>
+      </Popconfirm>
+      <Button
+        icon={<CheckOutlined />}
+        onClick={() => handleBatchStatus(true)}
+        disabled={selectedRowKeys.length === 0}
+      >
+        Enable
+      </Button>
+      <Button
+        icon={<StopOutlined />}
+        onClick={() => handleBatchStatus(false)}
+        disabled={selectedRowKeys.length === 0}
+      >
+        Disable
+      </Button>
+      <ExportPrintButtons
+        title="Product Information List"
+        columns={columnDefs as any}
+        dataSource={dataSource}
+      />
+    </Space>
   )
 
   return (
     <Card variant="borderless" style={{ borderRadius: 6, width: '100%' }} styles={{ body: { padding: '16px 20px' } }}>
-      {/* Search Form */}
+      {/* Search Filter Form */}
       <Form
         form={form}
         onFinish={(vals) => fetchData(1, pagination.pageSize, vals)}
         style={{ marginBottom: 16 }}
       >
         <Row gutter={[16, 12]} align="middle">
+          <Col xs={24} sm={12} md={6}>
+            <Form.Item
+              name="materialParam"
+              label="Barcode/Name:"
+              labelCol={{ flex: '110px' }}
+              wrapperCol={{ flex: 'auto' }}
+              style={{ marginBottom: 0 }}
+            >
+              <Input placeholder="Barcode / Name..." allowClear style={{ width: '100%' }} />
+            </Form.Item>
+          </Col>
           <Col xs={24} sm={12} md={6}>
             <Form.Item
               name="categoryId"
@@ -520,6 +481,8 @@ export const MaterialListPage: React.FC = () => {
               <Select
                 placeholder="Select category..."
                 allowClear
+                showSearch
+                optionFilterProp="children"
                 options={categoryList.map((c) => ({
                   value: c.id,
                   label: c.name,
@@ -530,24 +493,13 @@ export const MaterialListPage: React.FC = () => {
           </Col>
           <Col xs={24} sm={12} md={6}>
             <Form.Item
-              name="materialParam"
-              label="Keywords:"
-              labelCol={{ flex: '85px' }}
-              wrapperCol={{ flex: 'auto' }}
-              style={{ marginBottom: 0 }}
-            >
-              <Input placeholder="Enter barcode, name, mnemonic..." allowClear style={{ width: '100%' }} />
-            </Form.Item>
-          </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Form.Item
               name="standard"
               label="Spec:"
               labelCol={{ flex: '60px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
-              <Input placeholder="Enter specification..." allowClear style={{ width: '100%' }} />
+              <Input placeholder="Specification..." allowClear style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={6}>
@@ -576,28 +528,29 @@ export const MaterialListPage: React.FC = () => {
           </Col>
         </Row>
 
+        {/* Row 2 (Expandable) */}
         {expandedSearch && (
           <Row gutter={[16, 12]} align="middle" style={{ marginTop: 12 }}>
             <Col xs={24} sm={12} md={6}>
               <Form.Item
                 name="model"
                 label="Model:"
-                labelCol={{ flex: '80px' }}
+                labelCol={{ flex: '110px' }}
                 wrapperCol={{ flex: 'auto' }}
                 style={{ marginBottom: 0 }}
               >
-                <Input placeholder="Enter model..." allowClear style={{ width: '100%' }} />
+                <Input placeholder="Model..." allowClear style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12} md={6}>
               <Form.Item
                 name="color"
                 label="Color:"
-                labelCol={{ flex: '85px' }}
+                labelCol={{ flex: '80px' }}
                 wrapperCol={{ flex: 'auto' }}
                 style={{ marginBottom: 0 }}
               >
-                <Input placeholder="Enter color..." allowClear style={{ width: '100%' }} />
+                <Input placeholder="Color..." allowClear style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12} md={6}>
@@ -608,168 +561,43 @@ export const MaterialListPage: React.FC = () => {
                 wrapperCol={{ flex: 'auto' }}
                 style={{ marginBottom: 0 }}
               >
-                <Input placeholder="Enter brand..." allowClear style={{ width: '100%' }} />
+                <Input placeholder="Brand..." allowClear style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12} md={6}>
               <Form.Item
-                name="mfrs"
-                label="Manufacturer:"
-                labelCol={{ flex: '95px' }}
-                wrapperCol={{ flex: 'auto' }}
-                style={{ marginBottom: 0 }}
-              >
-                <Input placeholder="Enter manufacturer..." allowClear style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Form.Item
-                name="position"
-                label="Shelf / Bin:"
-                labelCol={{ flex: '80px' }}
-                wrapperCol={{ flex: 'auto' }}
-                style={{ marginBottom: 0 }}
-              >
-                <Input placeholder="Enter shelf / rack..." allowClear style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Form.Item
-                name="enabled"
-                label="Status:"
-                labelCol={{ flex: '85px' }}
-                wrapperCol={{ flex: 'auto' }}
-                style={{ marginBottom: 0 }}
-              >
-                <Select
-                  placeholder="Select status..."
-                  allowClear
-                  options={[
-                    { value: '1', label: 'Active' },
-                    { value: '0', label: 'Disabled' },
-                  ]}
-                  style={{ width: '100%' }}
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Form.Item
-                name="enableSerialNumber"
-                label="Serial No:"
+                name="remark"
+                label="Remarks:"
                 labelCol={{ flex: '70px' }}
                 wrapperCol={{ flex: 'auto' }}
                 style={{ marginBottom: 0 }}
               >
-                <Select
-                  placeholder="Has Serial No?"
-                  allowClear
-                  options={[
-                    { value: '1', label: 'Yes' },
-                    { value: '0', label: 'No' },
-                  ]}
-                  style={{ width: '100%' }}
-                />
-              </Form.Item>
-            </Col>
-            <Col xs={24} sm={12} md={6}>
-              <Form.Item
-                name="enableBatchNumber"
-                label="Batch No:"
-                labelCol={{ flex: '95px' }}
-                wrapperCol={{ flex: 'auto' }}
-                style={{ marginBottom: 0 }}
-              >
-                <Select
-                  placeholder="Has Batch No?"
-                  allowClear
-                  options={[
-                    { value: '1', label: 'Yes' },
-                    { value: '0', label: 'No' },
-                  ]}
-                  style={{ width: '100%' }}
-                />
+                <Input placeholder="Remarks..." allowClear style={{ width: '100%' }} />
               </Form.Item>
             </Col>
           </Row>
         )}
       </Form>
 
-      {/* Action Controls */}
-      <div
-        style={{
-          marginBottom: 16,
-          display: 'flex',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 8,
-        }}
-      >
-        <Space size="small" wrap>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => {
-              setEditingRecord(null)
-              setModalOpen(true)
-            }}
-          >
-            Add New
-          </Button>
-          <Popconfirm
-            title="Delete selected products?"
-            onConfirm={handleBatchDelete}
-            disabled={selectedRowKeys.length === 0}
-          >
-            <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-              Batch Delete
-            </Button>
-          </Popconfirm>
-          <Button
-            icon={<CheckOutlined />}
-            onClick={() => handleBatchStatus(true)}
-            disabled={selectedRowKeys.length === 0}
-          >
-            Enable
-          </Button>
-          <Button
-            icon={<StopOutlined />}
-            onClick={() => handleBatchStatus(false)}
-            disabled={selectedRowKeys.length === 0}
-          >
-            Disable
-          </Button>
-          <ExportPrintButtons
-            title="Product Information List"
-            columns={columns as any}
-            dataSource={dataSource}
-          />
-        </Space>
-
-        <Popover content={columnSettingsContent} trigger="click" placement="bottomRight">
-          <Button icon={<SettingOutlined />}>Column Settings</Button>
-        </Popover>
-      </div>
-
-      {/* Table */}
-      <Table
-        rowKey="id"
-        bordered
-        size="middle"
+      {/* AG Grid Modern Product Table */}
+      <ErpAgGrid
+        rowData={dataSource}
+        columnDefs={columnDefs}
         loading={loading}
-        columns={columns as TableColumnsType<any>}
-        dataSource={dataSource}
-        scroll={{ x: 1600 }}
-        rowSelection={{
-          selectedRowKeys,
-          onChange: (keys) => setSelectedRowKeys(keys),
-        }}
+        rowSelection="multiple"
+        selectedRowKeys={selectedRowKeys}
+        onSelectionChange={(_, keys) => setSelectedRowKeys(keys)}
         pagination={{
-          ...pagination,
-          showTotal: (tot, range) => `${range[0]}-${range[1]} of ${tot} records`,
-          showSizeChanger: true,
-          pageSizeOptions: ['10', '20', '30', '50', '100', '200'],
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: pagination.total,
           onChange: (page, size) => fetchData(page, size, form.getFieldsValue()),
+          pageSizeOptions: [10, 20, 30, 50, 100, 200],
         }}
+        leftToolbar={leftToolbarButtons}
+        exportFileName="material_list"
+        persistenceKey="material_product_grid"
+        height="560px"
       />
 
       {/* Product Add/Edit Modal */}

@@ -2,11 +2,17 @@ import * as XLSX from 'xlsx'
 import dayjs from 'dayjs'
 
 export interface ColumnDefinition {
-  title: string
+  title?: string
+  headerName?: string
   dataIndex?: string
+  field?: string
   key?: string
+  colId?: string
   width?: number | string
   render?: (value: any, record: any, index: number) => any
+  valueGetter?: (params: any) => any
+  cellRenderer?: any
+  menuTitle?: string
 }
 
 export interface ExportExcelOptions {
@@ -29,33 +35,177 @@ export interface PrintReportOptions {
 }
 
 /**
- * Extracts raw or rendered cell text for export/print
+ * Gets human-readable column title from Ant Design or AG Grid column definition
  */
-function extractCellText(col: ColumnDefinition, record: any, rowIndex: number): string | number {
-  if (col.key === 'rowIndex' || col.dataIndex === 'rowIndex') {
+export function getColumnTitle(col: ColumnDefinition): string {
+  return col.title || col.headerName || col.menuTitle || col.field || col.dataIndex || ''
+}
+
+/**
+ * Categorizes a column for smart printing and formatting
+ */
+export function getColumnCategory(col: ColumnDefinition): 'date' | 'code' | 'numeric' | 'status' | 'person' | 'text' {
+  const id = (col.colId || col.key || col.dataIndex || col.field || '').toLowerCase()
+  const title = getColumnTitle(col).toLowerCase()
+
+  if (id.includes('date') || id.includes('time') || title.includes('date') || title.includes('time')) {
+    return 'date'
+  }
+  if (id === 'status' || id === 'enabled' || title === 'status' || title === 'state') {
+    return 'status'
+  }
+  if (
+    id === 'number' ||
+    id === 'billno' ||
+    id === 'linknumber' ||
+    id === 'barcode' ||
+    id === 'mbarcode' ||
+    id === 'code' ||
+    title.includes('doc number') ||
+    title.includes('barcode') ||
+    title.includes('linked doc') ||
+    title.includes('doc no')
+  ) {
+    return 'code'
+  }
+  if (
+    id.includes('price') ||
+    id.includes('amount') ||
+    id.includes('money') ||
+    id.includes('decimal') ||
+    id.includes('debt') ||
+    id.includes('count') ||
+    id.includes('stock') ||
+    id.includes('qty') ||
+    title.includes('(₹)') ||
+    title.includes('amount') ||
+    title.includes('price') ||
+    title.includes('qty') ||
+    title.includes('total') ||
+    title.includes('debt') ||
+    title.includes('stock')
+  ) {
+    return 'numeric'
+  }
+  if (
+    id === 'username' ||
+    id === 'handspersonname' ||
+    id === 'creatorname' ||
+    title.includes('operator') ||
+    title.includes('staff') ||
+    title.includes('creator') ||
+    title.includes('user')
+  ) {
+    return 'person'
+  }
+  return 'text'
+}
+
+/**
+ * Determines whether a column is an action, selection, or internal control column
+ */
+export function isActionOrSelectColumn(col: ColumnDefinition): boolean {
+  const id = (col.colId || col.key || col.dataIndex || col.field || '').toLowerCase()
+  const title = getColumnTitle(col).toLowerCase().trim()
+  return (
+    id === 'action' ||
+    id === '__select__' ||
+    id === 'ag-grid-selectioncolumn' ||
+    id === 'ag-grid-autocolumn' ||
+    title === 'action' ||
+    title === 'operation' ||
+    title === 'stockdetails' ||
+    title === ''
+  )
+}
+
+/**
+ * Recursively extracts plain text from React nodes, components, and elements
+ */
+function extractNodeText(node: any): string {
+  if (node === null || node === undefined || node === false) return ''
+  if (typeof node === 'string' || typeof node === 'number') return String(node)
+  if (Array.isArray(node)) {
+    return node.map(extractNodeText).filter(Boolean).join(' ')
+  }
+  if (typeof node === 'object') {
+    if ('props' in node) {
+      return extractNodeText(node.props?.children)
+    }
+  }
+  return ''
+}
+
+/**
+ * Extracts raw or rendered cell text for export/print from both Ant Design and AG Grid columns
+ */
+export function extractCellText(col: ColumnDefinition, record: any, rowIndex: number): string | number {
+  const colKey = col.key || col.colId || col.dataIndex || col.field
+  if (colKey === 'rowIndex') {
     return rowIndex + 1
   }
 
-  const rawVal = col.dataIndex ? record[col.dataIndex] : undefined
+  // 1. Resolve raw value from field or dataIndex
+  const field = col.field || col.dataIndex
+  let val = field ? record[field] : undefined
 
-  if (typeof col.render === 'function') {
-    const rendered = col.render(rawVal, record, rowIndex)
-    if (rendered === null || rendered === undefined) return '-'
-    if (typeof rendered === 'string' || typeof rendered === 'number') return rendered
-    if (typeof rendered === 'object' && 'props' in rendered) {
-      // If it's a React element, extract children text if possible
-      const children = (rendered as any).props?.children
-      if (typeof children === 'string' || typeof children === 'number') return children
-      if (Array.isArray(children)) {
-        return children
-          .map((c) => (typeof c === 'string' || typeof c === 'number' ? c : ''))
-          .join('')
+  // 2. Resolve AG Grid valueGetter if present
+  if (typeof col.valueGetter === 'function') {
+    try {
+      const calculated = col.valueGetter({
+        data: record,
+        node: { data: record, rowIndex },
+        colDef: col,
+        api: null,
+        getValue: (f: string) => record[f],
+      })
+      if (calculated !== undefined && calculated !== null) {
+        val = calculated
       }
+    } catch {
+      // fallback to field
     }
   }
 
-  if (rawVal === null || rawVal === undefined || rawVal === '') return '-'
-  return rawVal
+  // 3. Resolve Ant Design render or React component
+  if (typeof col.render === 'function') {
+    try {
+      const rendered = col.render(val, record, rowIndex)
+      const text = extractNodeText(rendered)
+      if (text) return text
+    } catch {
+      // fallback
+    }
+  }
+
+  const cat = getColumnCategory(col)
+
+  // 4. Translate status codes to business names
+  if (cat === 'status') {
+    const s = String(val ?? '').trim()
+    if (s === '1' || s === 'true') return 'Approved'
+    if (s === '0' || s === 'false') return 'Pending Approval'
+    if (s === '2') return 'Rejected'
+    if (s === '3') return 'Partial'
+    if (s === '9') return 'Under Review'
+  }
+
+  // 5. Format numbers cleanly with thousand separators
+  if (cat === 'numeric' && typeof val === 'number') {
+    const id = (col.field || col.dataIndex || '').toLowerCase()
+    const isQty = id.includes('count') || id.includes('qty') || id.includes('stock')
+    if (isQty) {
+      return val.toLocaleString('en-IN')
+    }
+    return `₹${val.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  }
+
+  // 6. Nullish / empty handling
+  if (val === null || val === undefined || val === '') return '-'
+  if (typeof val === 'number') return val
+  if (typeof val === 'boolean') return val ? 'Yes' : 'No'
+
+  return String(val)
 }
 
 /**
@@ -71,10 +221,8 @@ export function exportToExcel(options: ExportExcelOptions): void {
     dataSource,
   } = options
 
-  // Filter out action / operation columns from export
-  const exportCols = columns.filter(
-    (c) => c.key !== 'action' && c.dataIndex !== 'action' && c.title !== 'Action' && c.title !== 'StockDetails'
-  )
+  // Filter out action / selection columns from export
+  const exportCols = columns.filter((c) => !isActionOrSelectColumn(c))
 
   const rows: any[][] = []
 
@@ -94,7 +242,7 @@ export function exportToExcel(options: ExportExcelOptions): void {
   }
 
   // Add column header row
-  rows.push(exportCols.map((c) => c.title))
+  rows.push(exportCols.map((c) => getColumnTitle(c)))
 
   // Add data rows
   dataSource.forEach((record, rIndex) => {
@@ -126,22 +274,21 @@ export function exportToExcel(options: ExportExcelOptions): void {
 
 /**
  * Universal browser print engine for reports and bill tables
+ * Optimized for paper saving, one-line density, and smart column layout
  */
 export function printTableReport(options: PrintReportOptions): void {
   const {
     title,
-    companyName = 'jshERP Pro',
+    companyName = 'jshERP Enterprise',
     subtitle,
     summaryItems = [],
     columns,
     dataSource,
-    orientation = 'landscape',
+    orientation = columns.length > 6 ? 'landscape' : 'portrait',
   } = options
 
-  // Filter out action / button columns
-  const printCols = columns.filter(
-    (c) => c.key !== 'action' && c.dataIndex !== 'action' && c.title !== 'Action' && c.title !== 'StockDetails'
-  )
+  // Filter out action / button / select columns
+  const printCols = columns.filter((c) => !isActionOrSelectColumn(c))
 
   const summaryHtml =
     summaryItems.length > 0
@@ -155,15 +302,24 @@ export function printTableReport(options: PrintReportOptions): void {
         </div>`
       : ''
 
-  const tableHeaderHtml = printCols.map((col) => `<th>${col.title}</th>`).join('')
+  const tableHeaderHtml = printCols
+    .map((col) => {
+      const cat = getColumnCategory(col)
+      const alignClass = cat === 'numeric' ? 'align-right' : cat === 'date' || cat === 'status' || cat === 'code' ? 'align-center' : 'align-left'
+      const nowrapClass = cat !== 'text' ? 'nowrap' : ''
+      return `<th class="${alignClass} ${nowrapClass}">${getColumnTitle(col)}</th>`
+    })
+    .join('')
 
   const tableBodyHtml = dataSource
     .map((record, rIndex) => {
       const cells = printCols
         .map((col) => {
           const val = extractCellText(col, record, rIndex)
-          const isNumber = typeof val === 'number' || (typeof val === 'string' && /^[₹$]?\d+(\.\d+)?$/.test(val.trim()))
-          return `<td class="${isNumber ? 'align-right' : 'align-left'}">${val}</td>`
+          const cat = getColumnCategory(col)
+          const alignClass = cat === 'numeric' ? 'align-right' : cat === 'date' || cat === 'status' || cat === 'code' ? 'align-center' : 'align-left'
+          const nowrapClass = cat !== 'text' ? 'nowrap' : 'wrap-text'
+          return `<td class="${alignClass} ${nowrapClass}">${val}</td>`
         })
         .join('')
       return `<tr>${cells}</tr>`
@@ -179,51 +335,55 @@ export function printTableReport(options: PrintReportOptions): void {
         <style>
           @page {
             size: ${orientation};
-            margin: 12mm 15mm;
+            margin: 8mm 10mm;
+          }
+          * {
+            box-sizing: border-box;
           }
           body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            color: #262626;
+            color: #1a1a1a;
             margin: 0;
-            padding: 10px;
-            font-size: 12px;
+            padding: 0;
+            font-size: 10px;
+            line-height: 1.3;
           }
           .header {
             text-align: center;
-            margin-bottom: 16px;
-            border-bottom: 2px solid #1890ff;
-            padding-bottom: 10px;
+            margin-bottom: 8px;
+            border-bottom: 2px solid #1677ff;
+            padding-bottom: 6px;
           }
           .company {
-            font-size: 14px;
-            font-weight: 500;
+            font-size: 12px;
+            font-weight: 600;
             color: #595959;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
           }
           .title {
-            font-size: 20px;
+            font-size: 17px;
             font-weight: 700;
-            color: #1890ff;
-            margin: 4px 0;
+            color: #1677ff;
+            margin: 2px 0;
           }
           .meta {
-            font-size: 11px;
-            color: #8c8c8c;
+            font-size: 9.5px;
+            color: #737373;
             display: flex;
             justify-content: space-between;
-            margin-top: 6px;
+            margin-top: 4px;
           }
           .summary-banner {
             background-color: #f6ffed;
             border: 1px solid #b7eb8f;
-            border-radius: 4px;
-            padding: 8px 12px;
-            margin-bottom: 14px;
-            font-size: 12px;
+            border-radius: 3px;
+            padding: 5px 8px;
+            margin-bottom: 8px;
+            font-size: 10px;
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
           }
           .summary-val {
             color: #52c41a;
@@ -235,24 +395,39 @@ export function printTableReport(options: PrintReportOptions): void {
           table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 16px;
+            margin-top: 4px;
+            margin-bottom: 8px;
           }
           th {
-            background-color: #fafafa;
+            background-color: #f5f5f5;
             color: #262626;
             font-weight: 600;
-            border: 1px solid #d9d9d9;
-            padding: 8px 6px;
-            text-align: center;
-            font-size: 11.5px;
+            border: 1px solid #bfbfbf;
+            padding: 5px 5px;
+            font-size: 9.5px;
+            line-height: 1.2;
           }
           td {
-            border: 1px solid #e8e8e8;
-            padding: 6px 6px;
-            font-size: 11.5px;
+            border: 1px solid #d9d9d9;
+            padding: 3.5px 5px;
+            font-size: 9.5px;
+            line-height: 1.25;
           }
           tr:nth-child(even) td {
-            background-color: #fcfcfc;
+            background-color: #fafafa;
+          }
+          tr {
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
+          .nowrap {
+            white-space: nowrap !important;
+            width: 1%;
+          }
+          .wrap-text {
+            white-space: normal;
+            word-break: break-word;
+            overflow-wrap: break-word;
           }
           .align-right {
             text-align: right;
@@ -260,13 +435,16 @@ export function printTableReport(options: PrintReportOptions): void {
           .align-left {
             text-align: left;
           }
+          .align-center {
+            text-align: center;
+          }
           .footer {
-            margin-top: 20px;
-            padding-top: 8px;
-            border-top: 1px solid #e8e8e8;
+            margin-top: 10px;
+            padding-top: 6px;
+            border-top: 1px solid #d9d9d9;
             display: flex;
             justify-content: space-between;
-            font-size: 10.5px;
+            font-size: 9px;
             color: #8c8c8c;
           }
         </style>
@@ -275,7 +453,7 @@ export function printTableReport(options: PrintReportOptions): void {
         <div class="header">
           <div class="company">${companyName}</div>
           <div class="title">${title}</div>
-          ${subtitle ? `<div style="font-size: 12px; color: #595959;">${subtitle}</div>` : ''}
+          ${subtitle ? `<div style="font-size: 11px; color: #595959;">${subtitle}</div>` : ''}
           <div class="meta">
             <span>Printed Date: ${dayjs().format('YYYY-MM-DD HH:mm:ss')}</span>
             <span>Total Records: ${dataSource.length}</span>
@@ -289,7 +467,7 @@ export function printTableReport(options: PrintReportOptions): void {
             <tr>${tableHeaderHtml}</tr>
           </thead>
           <tbody>
-            ${tableBodyHtml || '<tr><td colspan="' + printCols.length + '" style="text-align:center; padding: 20px;">No data available</td></tr>'}
+            ${tableBodyHtml || '<tr><td colspan="' + printCols.length + '" style="text-align:center; padding: 12px;">No data available</td></tr>'}
           </tbody>
         </table>
 

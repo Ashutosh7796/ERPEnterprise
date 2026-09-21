@@ -84,6 +84,18 @@ export const gstApi = {
       body: data,
     }),
 
+  determinePOS: (data: any) =>
+    request<{ code: number; data: { result: any } }>('/gst/determinePOS', {
+      method: 'POST',
+      body: data,
+    }),
+
+  explainTax: (data: GSTTaxCalculationRequest) =>
+    request<{ code: number; data: { explanation: any } }>('/gst/explainTax', {
+      method: 'POST',
+      body: data,
+    }),
+
   validateGstin: (gstin: string) =>
     request<{
       code: number
@@ -173,5 +185,156 @@ export const gstApi = {
 
   deleteTaxRule: (id: number) =>
     request<{ code: number; data: any }>('/taxRule/delete', { method: 'POST', params: { id } }),
+
+  // Multi-GSTIN Party Master & Tax Profile APIs
+  getPartyGstins: (partyId: number) =>
+    request<{ code: number; data: { list: any[] } }>('/partyGstin/listByParty', { params: { partyId } }),
+
+  addPartyGstin: (data: any) =>
+    request<{ code: number; data: any }>('/partyGstin/add', { method: 'POST', body: data }),
+
+  updatePartyGstin: (data: any) =>
+    request<{ code: number; data: any }>('/partyGstin/update', { method: 'POST', body: data }),
+
+  deletePartyGstin: (id: number) =>
+    request<{ code: number; data: any }>('/partyGstin/delete', { method: 'POST', params: { id } }),
+
+  resolvePartyProfile: (params: { partyId: number; gstin?: string; transactionDate?: string }) =>
+    request<{ code: number; data: { profile: any } }>('/partyGstin/resolveProfile', { params }),
+
+  // Transaction Tax Preview & Immutable Snapshot APIs
+  previewTransactionTax: (data: any) =>
+    request<{ code: number; data: { result: GSTTaxCalculationResult } }>('/gstTransaction/previewTax', {
+      method: 'POST',
+      body: data,
+    }),
+
+  getTransactionTaxSnapshot: (documentId: number) =>
+    request<{ code: number; data: { header: any; items: any[] } }>('/gstTransaction/getSnapshot', {
+      params: { documentId },
+    }),
+
+  validateTransactionDocument: (documentId: number) =>
+    request<{ code: number; data: { result: GSTTaxCalculationResult } }>('/gstTransaction/validateDocument', {
+      method: 'POST',
+      params: { documentId },
+    }),
+
+  // GST Rule 46 Compliant Sales Invoicing APIs
+  previewSalesInvoiceTax: (data: any) =>
+    request<{ code: number; data: GSTTaxCalculationResult }>('/gstSalesInvoice/previewTax', {
+      method: 'POST',
+      body: data,
+    }),
+
+  createOrUpdateSalesInvoice: (data: any) =>
+    request<{ code: number; data: any }>('/gstSalesInvoice/createOrUpdate', {
+      method: 'POST',
+      body: data,
+    }),
+
+  transitionSalesInvoice: (data: { invoiceId: number; targetStatus: string; reason?: string }) =>
+    request<{ code: number; data: any }>('/gstSalesInvoice/transition', {
+      method: 'POST',
+      body: data,
+    }),
+
+  getRule46Invoice: (invoiceId: number) =>
+    request<{ code: number; data: any }>('/gstSalesInvoice/getRule46Invoice', {
+      params: { invoiceId },
+    }),
+
+  cancelSalesInvoice: (data: { invoiceId: number; reason: string }) =>
+    request<{ code: number; data: boolean }>('/gstSalesInvoice/cancel', {
+      method: 'POST',
+      body: data,
+    }),
+
+  // GST Section 34 & Rule 53 Compliant Credit / Debit Notes APIs
+  previewNoteTax: (data: any) =>
+    request<{ code: number; data: GSTTaxCalculationResult }>('/gstNote/previewTax', {
+      method: 'POST',
+      body: data,
+    }),
+
+  createOrUpdateNote: (data: any) =>
+    request<{ code: number; data: any }>('/gstNote/createOrUpdate', {
+      method: 'POST',
+      body: data,
+    }),
+
+  transitionNote: (data: { noteId: number; targetStatus: string; reason?: string }) =>
+    request<{ code: number; data: any }>('/gstNote/transition', {
+      method: 'POST',
+      body: data,
+    }),
+
+  getRule53Note: (noteId: number) =>
+    request<{ code: number; data: any }>('/gstNote/getRule53Note', {
+      params: { noteId },
+    }),
+
+  getAdjustableInvoices: (params?: { customerId?: number; keyword?: string }) =>
+    request<{ code: number; data: any[] }>('/gstNote/getAdjustableInvoices', { params }),
+
+  getAdjustableLines: (params: { originalInvoiceId: number; excludeNoteId?: number }) =>
+    request<{ code: number; data: any[] }>('/gstNote/getAdjustableLines', { params }),
+
+  cancelNote: (data: { noteId: number; reason: string }) =>
+    request<{ code: number; data: boolean }>('/gstNote/cancel', {
+      method: 'POST',
+      body: data,
+    }),
+
+  // GST e-Invoice, Signed QR & e-Way Bill APIs (Sub-Phase 2.8)
+  checkEinvoiceEligibility: (params: { documentId: number; documentType?: string }) =>
+    request<{ code: number; data: { eligible: boolean; reason: string; is30DayRestricted?: boolean; isExemptEntity?: boolean } }>(
+      '/gstEinvoice/checkEligibility',
+      { method: 'POST', params }
+    ),
+
+  generateIrn: (params: { documentId: number; documentType?: string }, transportDetails?: any) =>
+    request<{ code: number; data: any }>('/gstEinvoice/generateIrn', {
+      method: 'POST',
+      params,
+      body: transportDetails,
+    }),
+
+  generateEwb: (params: { documentId: number; documentType?: string }, data: any) =>
+    request<{ code: number; data: any }>('/gstEinvoice/generateEwb', {
+      method: 'POST',
+      params,
+      body: data,
+    }),
+
+  cancelIrn: (params: { documentId: number; documentType?: string; reasonCode?: string; remarks?: string }) =>
+    request<{ code: number; data: any }>('/gstEinvoice/cancelIrn', {
+      method: 'POST',
+      params,
+    }),
+
+  cancelEwb: (params: { documentId: number; reasonCode?: number; remarks?: string }) =>
+    request<{ code: number; data: any }>('/gstEinvoice/cancelEwb', {
+      method: 'POST',
+      params,
+    }),
+
+  reconcileEinvoiceStatus: (params: { documentId: number; documentType?: string }) =>
+    request<{ code: number; data: any }>('/gstEinvoice/reconcileStatus', {
+      method: 'POST',
+      params,
+    }),
+
+  getEinvoiceStatus: (params: { documentId: number; documentType?: string }) =>
+    request<{ code: number; data: any }>('/gstEinvoice/getStatus', {
+      params,
+    }),
+
+  calculateEwbValidity: (params: { distanceKm: number; vehicleType?: string }) =>
+    request<{ code: number; data: any }>('/gstEinvoice/calculateEwbValidity', {
+      params,
+    }),
 }
+
+
 

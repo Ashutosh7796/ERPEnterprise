@@ -7,7 +7,7 @@ export const PurchaseBillManager: React.FC<PurchaseBillManagerProps> = (props) =
   return (
     <BillManager
       {...props}
-      partnerType={props.subType === '请购单' ? 'none' : 'vendor'}
+      partnerType="vendor"
       partnerLabel="Vendor / Supplier"
     />
   )

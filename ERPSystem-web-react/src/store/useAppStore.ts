@@ -42,6 +42,54 @@ const saveTheme = (settings: ThemeSettings) => {
   }
 }
 
+export type AuthorityDomain = 'PLATFORM' | 'SUPPORT_OPERATIONS' | 'TENANT' | 'SUPPORT_SESSION'
+
+export interface UserAuth {
+  authorityDomain: AuthorityDomain
+  isSuperAdmin: boolean
+  isSystemSupport: boolean
+  isTenantAdmin: boolean
+  isSupportSession: boolean
+  supportAccessMode: 'READ_ONLY' | 'APPROVED_WRITE' | null
+  supportModuleScope: string | null
+  supportExpiresAt: number | null
+  originatingAuthorityDomain: AuthorityDomain | null
+  tenantId: number | null
+  tenantName: string | null
+  userId: number | null
+  loginName: string
+  userName: string
+  roleId: number | null
+  roleName: string
+  roleType: string
+  permissions: string[]
+  permittedPaths: string[]
+  loaded: boolean
+}
+
+const DEFAULT_AUTH: UserAuth = {
+  authorityDomain: 'TENANT',
+  isSuperAdmin: false,
+  isSystemSupport: false,
+  isTenantAdmin: false,
+  isSupportSession: false,
+  supportAccessMode: null,
+  supportModuleScope: null,
+  supportExpiresAt: null,
+  originatingAuthorityDomain: null,
+  tenantId: null,
+  tenantName: null,
+  userId: null,
+  loginName: '',
+  userName: '',
+  roleId: null,
+  roleName: '',
+  roleType: 'User',
+  permissions: [],
+  permittedPaths: [],
+  loaded: false,
+}
+
 interface AppState {
   collapsed: boolean
   darkMode: boolean
@@ -50,6 +98,7 @@ interface AppState {
   themeSettings: ThemeSettings
   settingDrawerVisible: boolean
   changePasswordVisible: boolean
+  userAuth: UserAuth
 
   setCollapsed: (collapsed: boolean) => void
   toggleCollapsed: () => void
@@ -60,18 +109,78 @@ interface AppState {
   updateThemeSettings: (partial: Partial<ThemeSettings>) => void
   setSettingDrawerVisible: (visible: boolean) => void
   setChangePasswordVisible: (visible: boolean) => void
+  setUserAuth: (auth: Partial<UserAuth>) => void
+  resetUserAuth: () => void
+  fetchUserAuth: () => Promise<void>
 }
 
 const initialTheme = loadSavedTheme()
 
-export const useAppStore = create<AppState>((set) => ({
+export const useAppStore = create<AppState>((set, get) => ({
   collapsed: false,
   darkMode: false,
   activeTenantId: null,
-  platformName: 'jshERP Pro',
+  platformName: 'ERP System Pro',
   themeSettings: initialTheme,
   settingDrawerVisible: false,
   changePasswordVisible: false,
+  userAuth: DEFAULT_AUTH,
+
+  setUserAuth: (auth) =>
+    set((state) => ({ userAuth: { ...state.userAuth, ...auth } })),
+
+  resetUserAuth: () => set({ userAuth: DEFAULT_AUTH }),
+
+  fetchUserAuth: async () => {
+    try {
+      const { http } = await import('@core/api/client')
+      const res: any = await http.get('/function/findUserAuthorization')
+      if (res) {
+        const authObj = res.data && typeof res.data === 'object' ? res.data : res
+        
+        let domain: AuthorityDomain = (authObj.authorityDomain || res.authorityDomain || 'TENANT') as AuthorityDomain
+        const isSuperAdmin = Boolean(authObj.isSuperAdmin ?? res.isSuperAdmin)
+        const isSystemSupport = Boolean(authObj.isSystemSupport ?? res.isSystemSupport)
+        const isTenantAdmin = Boolean(authObj.isTenantAdmin ?? res.isTenantAdmin)
+        const isSupportSession = Boolean(authObj.isSupportSession ?? res.isSupportSession)
+
+        if (isSupportSession) {
+          domain = 'SUPPORT_SESSION'
+        } else if (isSuperAdmin && (!authObj.tenantId || authObj.tenantId === 0)) {
+          domain = 'PLATFORM'
+        } else if (isSystemSupport && (!authObj.tenantId || authObj.tenantId === 0)) {
+          domain = 'SUPPORT_OPERATIONS'
+        }
+
+        set({
+          userAuth: {
+            ...authObj,
+            authorityDomain: domain,
+            isSuperAdmin,
+            isSystemSupport,
+            isTenantAdmin,
+            isSupportSession,
+            supportAccessMode: authObj.supportAccessMode || res.supportAccessMode || null,
+            supportModuleScope: authObj.supportModuleScope || res.supportModuleScope || null,
+            supportExpiresAt: authObj.supportExpiresAt || res.supportExpiresAt || null,
+            originatingAuthorityDomain: authObj.originatingAuthorityDomain || res.originatingAuthorityDomain || (isSuperAdmin ? 'PLATFORM' : 'SUPPORT_OPERATIONS'),
+            permittedPaths: authObj.permittedPaths || res.permittedPaths || [],
+            permissions: authObj.permissions || res.permissions || [],
+            loginName: authObj.loginName || res.loginName || '',
+            userName: authObj.userName || res.userName || '',
+            roleId: authObj.roleId ?? res.roleId ?? null,
+            roleName: authObj.roleName || res.roleName || '',
+            roleType: authObj.roleType || res.roleType || 'User',
+            tenantId: authObj.tenantId ?? res.tenantId ?? null,
+            tenantName: authObj.tenantName || res.tenantName || null,
+            loaded: true,
+          },
+        })
+      }
+    } catch (e) {
+      console.warn('Failed to fetch user authorization state', e)
+    }
+  },
 
   setCollapsed: (collapsed) => set({ collapsed }),
   toggleCollapsed: () => set((state) => ({ collapsed: !state.collapsed })),

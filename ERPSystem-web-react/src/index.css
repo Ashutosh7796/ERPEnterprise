@@ -25,3 +25,220 @@ body {
 body.colorWeak {
   filter: invert(80%);
 }
+
+/* =========================================================
+   Standard Enterprise Print Layout Styles (@media print)
+   ========================================================= */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 10mm 10mm 10mm 10mm;
+  }
+
+  /* 1. Hide all non-printable UI chrome */
+  .ant-layout-sider,
+  .ant-layout-header,
+  .ant-layout-footer,
+  .app-sidebar,
+  .app-header,
+  .multi-tab-container,
+  .ant-tabs,
+  .ant-tabs-nav,
+  .no-print,
+  .ant-btn,
+  .ant-btn-primary,
+  .ant-btn-default,
+  nav,
+  aside,
+  header,
+  footer {
+    display: none !important;
+  }
+
+  /* 2. Reset containers to full page width */
+  html,
+  body,
+  #root,
+  .ant-layout,
+  .ant-layout-content,
+  .main-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+  }
+
+  /* 3. Printable document card formatting */
+  .printable-document,
+  .print-document-container,
+  .ant-card {
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: #ffffff !important;
+  }
+
+  .ant-card-body {
+    padding: 0 !important;
+  }
+
+  /* 4. Preserve borders, tables, and colors */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .ant-table,
+  .ant-table-container,
+  .ant-table-content table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  .ant-table-bordered .ant-table-cell {
+    border-color: #333333 !important;
+  }
+
+  /* 5. Avoid awkward page breaks */
+  tr,
+  .ant-table-row,
+  .print-section,
+  .print-card {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+}
+
+/* =========================================================
+   Modern Enterprise ERP System Aesthetics
+   ========================================================= */
+
+/* Custom Smooth Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(140, 140, 140, 0.25);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(140, 140, 140, 0.45);
+}
+
+/* ═══ Enterprise Dashboard Design System ═══ */
+
+/* KPI Card — Premium hover effect */
+.kpi-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 16px !important;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid transparent !important;
+}
+.kpi-card-hover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(37,99,235,0.08), transparent 60%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.kpi-card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -8px rgba(0, 0, 0, 0.08), 0 8px 16px -4px rgba(0, 0, 0, 0.04) !important;
+  border-color: transparent !important;
+}
+.kpi-card-hover:hover::before {
+  opacity: 1;
+}
+
+/* Enterprise sidebar accents */
+.enterprise-sidebar .ant-menu-item {
+  border-radius: 8px !important;
+  margin: 4px 8px !important;
+  width: calc(100% - 16px) !important;
+  transition: all 0.2s ease !important;
+}
+
+.enterprise-sidebar .ant-menu-submenu-title {
+  border-radius: 8px !important;
+  margin: 4px 8px !important;
+  width: calc(100% - 16px) !important;
+}
+
+.enterprise-sidebar .ant-menu-item-selected {
+  font-weight: 600 !important;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.15);
+}
+
+/* Live status pulse */
+@keyframes livePulse {
+  0% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 8px rgba(74, 222, 128, 0);
+  }
+  100% {
+    transform: scale(0.9);
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+  }
+}
+
+.live-pulse-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  background-color: #4ade80;
+  border-radius: 50%;
+  animation: livePulse 2s infinite;
+}
+
+/* Dashboard table refinements */
+.ant-table-thead > tr > th {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  color: #94a3b8 !important;
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+.ant-table-tbody > tr > td {
+  border-bottom: 1px solid #f1f5f9 !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: #f8fafc !important;
+}
+
+/* Card header refinements */
+.ant-card-head {
+  border-bottom: 1px solid #f1f5f9 !important;
+  min-height: 48px !important;
+}
+
+.ant-card-head-title {
+  padding: 12px 0 !important;
+}
+

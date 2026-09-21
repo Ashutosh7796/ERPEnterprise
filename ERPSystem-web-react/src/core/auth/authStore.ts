@@ -11,6 +11,7 @@ interface AuthState {
   isInitialized: boolean
 
   login: (token: string, user: UserSessionDTO, remember?: boolean) => void
+  switchTenant: (newToken: string, newTenantId: number) => void
   logout: () => void
   setUser: (user: UserSessionDTO | null) => void
   setPermissions: (permissions: string[]) => void
@@ -31,6 +32,11 @@ export const useAuthStore = create<AuthState>((set) => {
 
     login: (token, user, remember = true) => {
       setToken(token, remember)
+      import('@store/useTabStore').then(({ useTabStore }) => useTabStore.getState().closeAllTabs())
+      import('@store/useAppStore').then(({ useAppStore }) => {
+        useAppStore.getState().resetUserAuth()
+        useAppStore.getState().fetchUserAuth()
+      })
       set({
         token,
         user,
@@ -38,8 +44,25 @@ export const useAuthStore = create<AuthState>((set) => {
       })
     },
 
+    switchTenant: (newToken, newTenantId) => {
+      setToken(newToken, true)
+      import('@store/useTabStore').then(({ useTabStore }) => useTabStore.getState().closeAllTabs())
+      import('@store/useAppStore').then(({ useAppStore }) => {
+        useAppStore.getState().resetUserAuth()
+        useAppStore.getState().fetchUserAuth()
+      })
+      set((state) => ({
+        token: newToken,
+        user: state.user ? { ...state.user, tenantId: newTenantId } : null,
+      }))
+    },
+
     logout: () => {
       removeToken()
+      import('@store/useTabStore').then(({ useTabStore }) => useTabStore.getState().closeAllTabs())
+      import('@store/useAppStore').then(({ useAppStore }) => {
+        useAppStore.getState().resetUserAuth()
+      })
       set({
         token: null,
         user: null,

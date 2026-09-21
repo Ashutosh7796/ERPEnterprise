@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import {
   Card,
-  Table,
   Form,
   Input,
   DatePicker,
@@ -11,13 +10,10 @@ import {
   Tag,
   Row,
   Col,
-  Popover,
-  Checkbox,
   Popconfirm,
-  Divider,
   message,
+  Tooltip,
 } from 'antd'
-import type { TableColumnsType } from 'antd'
 import {
   SearchOutlined,
   ReloadOutlined,
@@ -27,13 +23,18 @@ import {
   DeleteOutlined,
   CheckOutlined,
   StopOutlined,
-  SettingOutlined,
   EditOutlined,
   EyeOutlined,
 } from '@ant-design/icons'
 import { http } from '@core/api/client'
 import { FinancialModal } from './FinancialModal'
 import { ExportPrintButtons } from '@shared/components/ExportPrintButtons'
+import {
+  ErpAgGrid,
+  CurrencyCellRenderer,
+  DateCellRenderer,
+  type ErpColDef,
+} from '@shared/components/grid'
 
 const { RangePicker } = DatePicker
 
@@ -56,7 +57,7 @@ export const FinancialBillManager: React.FC<FinancialBillManagerProps> = ({
   const [loading, setLoading] = useState(false)
   const [dataSource, setDataSource] = useState<any[]>([])
   const [pagination, setPagination] = useState({ current: 1, pageSize: 10, total: 0 })
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([])
+  const [selectedRowKeys, setSelectedRowKeys] = useState<(string | number)[]>([])
 
   // Search Expand / Collapse State
   const [expandedSearch, setExpandedSearch] = useState(false)
@@ -70,26 +71,6 @@ export const FinancialBillManager: React.FC<FinancialBillManagerProps> = ({
   // Modal State
   const [modalOpen, setModalOpen] = useState(false)
   const [editingRecord, setEditingRecord] = useState<any>(null)
-
-  // Dynamic Column Keys
-  const allColumnKeys = useMemo(() => {
-    const cols = ['action']
-    if (partnerType !== 'none') cols.push('organName')
-    cols.push('billNo', 'billTimeStr', 'userName', 'handsPersonName', 'accountName')
-    if (type === '收款' || type === '付款') {
-      cols.push('totalPrice', 'discountMoney', 'changeAmount')
-    } else {
-      cols.push('changeAmount')
-    }
-    cols.push('remark', 'status')
-    return cols
-  }, [partnerType, type])
-
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(allColumnKeys)
-
-  useEffect(() => {
-    setVisibleColumns(allColumnKeys)
-  }, [allColumnKeys])
 
   // Load Dropdown Data
   useEffect(() => {
@@ -216,176 +197,249 @@ export const FinancialBillManager: React.FC<FinancialBillManagerProps> = ({
     }
     try {
       const ids = selectedRowKeys.join(',')
-      const res = await http.post(`/accountHead/batchSetStatus?status=${status}&ids=${ids}`)
-      if (res && (res.code === 200 || res.status === 200)) {
+      const res: any = await http.post('/accountHead/batchSetStatus', {
+        status: String(status),
+        ids,
+      })
+      if (res && (res.code === 200 || res.status === 200 || res.code === 20000 || res.status === 'OK' || res.status === 0)) {
         message.success(status === 1 ? 'Approved successfully' : 'Unapproved successfully')
         setSelectedRowKeys([])
         fetchData(pagination.current, pagination.pageSize)
       } else {
-        message.error('Failed to update status')
+        message.error(res?.message || res?.data?.message || 'Failed to update status')
       }
     } catch (err: any) {
       message.error(err?.message || 'Failed to update status')
     }
   }
 
-  const columnsConfig: Record<string, any> = {
-    action: {
-      title: 'Action',
-      key: 'action',
-      width: 150,
-      fixed: 'left',
-      align: 'center' as const,
-      render: (_: any, record: any) => (
-        <Space size="small">
-          <Button
-            type="link"
-            size="small"
-            icon={<EyeOutlined />}
-            style={{ padding: 0 }}
-            onClick={() => {
-              setEditingRecord(record)
-              setModalOpen(true)
-            }}
-          >
-            View
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            icon={<EditOutlined />}
-            style={{ padding: 0 }}
-            onClick={() => {
-              setEditingRecord(record)
-              setModalOpen(true)
-            }}
-          >
-            Edit
-          </Button>
-          <Popconfirm title="Delete this document?" onConfirm={() => handleDelete(record.id)}>
-            <Button type="link" danger size="small" icon={<DeleteOutlined />} style={{ padding: 0 }}>
-              Delete
-            </Button>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-    organName: {
-      title: partnerLabel,
-      dataIndex: 'organName',
-      key: 'organName',
-      width: 150,
-      ellipsis: true,
-    },
-    billNo: {
-      title: 'Doc Number',
-      dataIndex: 'billNo',
-      key: 'billNo',
-      width: 170,
-      render: (val: string, record: any) => (
-        <a
-          onClick={() => {
-            setEditingRecord(record)
-            setModalOpen(true)
-          }}
-        >
-          {val}
-        </a>
-      ),
-    },
-    billTimeStr: {
-      title: 'Doc Date',
-      dataIndex: 'billTimeStr',
-      key: 'billTimeStr',
-      width: 150,
-    },
-    userName: {
-      title: 'Operator',
-      dataIndex: 'userName',
-      key: 'userName',
-      width: 100,
-      ellipsis: true,
-    },
-    handsPersonName: {
-      title: 'Financial Staff',
-      dataIndex: 'handsPersonName',
-      key: 'handsPersonName',
-      width: 120,
-      ellipsis: true,
-    },
-    accountName: {
-      title: 'Account',
-      dataIndex: 'accountName',
-      key: 'accountName',
-      width: 130,
-      ellipsis: true,
-    },
-    totalPrice: {
-      title: 'Total (₹)',
-      dataIndex: 'totalPrice',
-      key: 'totalPrice',
-      width: 110,
-      render: (val: any) => (val !== undefined ? `₹${Number(val).toFixed(2)}` : '-'),
-    },
-    discountMoney: {
-      title: 'Discount (₹)',
-      dataIndex: 'discountMoney',
-      key: 'discountMoney',
-      width: 110,
-      render: (val: any) => (val !== undefined ? `₹${Number(val).toFixed(2)}` : '-'),
-    },
-    changeAmount: {
-      title: 'Amount (₹)',
-      dataIndex: 'changeAmount',
-      key: 'changeAmount',
-      width: 120,
-      render: (val: any) => (
-        <strong style={{ color: '#1890ff' }}>
-          {val !== undefined ? `₹${Number(val).toFixed(2)}` : '-'}
-        </strong>
-      ),
-    },
-    remark: {
-      title: 'Remarks',
-      dataIndex: 'remark',
-      key: 'remark',
-      ellipsis: true,
-    },
-    status: {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      width: 100,
-      align: 'center' as const,
-      render: (status: string) => {
-        if (status === '1') return <Tag color="green">Approved</Tag>
-        if (status === '9') return <Tag color="orange">Under Review</Tag>
-        return <Tag color="red">Pending</Tag>
+  // AG Grid Column Definitions
+  const columnDefs = useMemo<ErpColDef<any>[]>(() => {
+    const cols: ErpColDef<any>[] = [
+      {
+        headerName: 'Action',
+        colId: 'action',
+        pinned: 'left',
+        width: 130,
+        minWidth: 120,
+        lockPinned: true,
+        suppressHeaderMenuButton: true,
+        sortable: false,
+        filter: false,
+        cellRenderer: (params: any) => {
+          const record = params.data
+          if (!record) return null
+          return (
+            <div className="erp-grid-actions">
+              <Tooltip title="View Document">
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<EyeOutlined style={{ color: '#1677ff', fontSize: 14 }} />}
+                  style={{ padding: '0 4px' }}
+                  onClick={() => {
+                    setEditingRecord(record)
+                    setModalOpen(true)
+                  }}
+                />
+              </Tooltip>
+              <Tooltip title="Edit Document">
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<EditOutlined style={{ color: '#1677ff', fontSize: 14 }} />}
+                  style={{ padding: '0 4px' }}
+                  onClick={() => {
+                    setEditingRecord(record)
+                    setModalOpen(true)
+                  }}
+                />
+              </Tooltip>
+              <Popconfirm title="Delete this document?" onConfirm={() => handleDelete(record.id)}>
+                <Tooltip title="Delete Document">
+                  <Button type="text" danger size="small" icon={<DeleteOutlined style={{ fontSize: 14 }} />} style={{ padding: '0 4px' }} />
+                </Tooltip>
+              </Popconfirm>
+            </div>
+          )
+        },
       },
-    },
-  }
+    ]
 
-  const columns = visibleColumns.map((key) => columnsConfig[key]).filter(Boolean)
+    if (partnerType !== 'none') {
+      cols.push({
+        headerName: partnerLabel,
+        field: 'organName',
+        width: 180,
+        minWidth: 160,
+        flex: 1,
+        wrapText: true,
+        filter: true,
+        valueGetter: (p) => p.data?.organName || '-',
+      })
+    }
 
-  const columnSettingsContent = (
-    <div style={{ width: 340 }}>
-      <div style={{ fontWeight: 600, marginBottom: 8 }}>Column Display Settings</div>
-      <Checkbox.Group
-        value={visibleColumns}
-        onChange={(vals) => setVisibleColumns(vals as string[])}
-        style={{ display: 'flex', flexDirection: 'column', gap: 6 }}
+    cols.push(
+      {
+        headerName: 'Doc Number',
+        field: 'billNo',
+        width: 170,
+        minWidth: 150,
+        filter: true,
+        cellRenderer: (params: any) => {
+          const val = params.value
+          if (!val) return '-'
+          return (
+            <a
+              style={{ fontWeight: 500, color: '#1677ff', cursor: 'pointer' }}
+              onClick={() => {
+                setEditingRecord(params.data)
+                setModalOpen(true)
+              }}
+            >
+              {val}
+            </a>
+          )
+        },
+      },
+      {
+        headerName: 'Doc Date',
+        field: 'billTimeStr',
+        width: 165,
+        minWidth: 155,
+        filter: true,
+        cellRenderer: DateCellRenderer,
+      },
+      {
+        headerName: 'Operator',
+        field: 'userName',
+        width: 120,
+        minWidth: 100,
+        filter: true,
+        valueGetter: (p) => p.data?.userName || p.data?.creatorName || '-',
+      },
+      {
+        headerName: 'Financial Staff',
+        field: 'handsPersonName',
+        width: 150,
+        minWidth: 130,
+        wrapText: true,
+        filter: true,
+        valueGetter: (p) => p.data?.handsPersonName || '-',
+      },
+      {
+        headerName: 'Account',
+        field: 'accountName',
+        width: 210,
+        minWidth: 180,
+        flex: 1.5,
+        wrapText: true,
+        filter: true,
+        valueGetter: (p) => p.data?.accountName || '-',
+      }
+    )
+
+    if (type === '收款' || type === '付款') {
+      cols.push(
+        {
+          headerName: 'Total (₹)',
+          field: 'totalPrice',
+          width: 140,
+          minWidth: 120,
+          type: 'numericColumn',
+          cellRenderer: CurrencyCellRenderer,
+        },
+        {
+          headerName: 'Discount (₹)',
+          field: 'discountMoney',
+          width: 130,
+          minWidth: 110,
+          type: 'numericColumn',
+          cellRenderer: CurrencyCellRenderer,
+        }
+      )
+    }
+
+    cols.push(
+      {
+        headerName: 'Amount (₹)',
+        field: 'changeAmount',
+        width: 140,
+        minWidth: 120,
+        type: 'numericColumn',
+        cellRenderer: CurrencyCellRenderer,
+      },
+      {
+        headerName: 'Status',
+        field: 'status',
+        width: 120,
+        minWidth: 100,
+        filter: true,
+        cellRenderer: (p: any) => {
+          const status = String(p.value ?? '')
+          if (status === '1') return <Tag color="green">Approved</Tag>
+          if (status === '9') return <Tag color="orange">Under Review</Tag>
+          return <Tag color="red">Pending</Tag>
+        },
+      },
+      {
+        headerName: 'Remarks',
+        field: 'remark',
+        width: 180,
+        minWidth: 150,
+        flex: 1,
+        wrapText: true,
+        filter: true,
+        tooltipField: 'remark',
+        valueGetter: (p) => p.data?.remark || '-',
+      }
+    )
+
+    return cols
+  }, [partnerType, partnerLabel, type])
+
+  // Top Action Bar Buttons
+  const leftToolbarButtons = (
+    <Space size="small" wrap>
+      <Button
+        type="primary"
+        icon={<PlusOutlined />}
+        onClick={() => {
+          setEditingRecord(null)
+          setModalOpen(true)
+        }}
       >
-        {allColumnKeys.map((key) => (
-          <Checkbox key={key} value={key} disabled={key === 'action' || key === 'billNo'}>
-            {columnsConfig[key]?.title || key}
-          </Checkbox>
-        ))}
-      </Checkbox.Group>
-      <Divider style={{ margin: '8px 0' }} />
-      <Button type="link" size="small" onClick={() => setVisibleColumns(allColumnKeys)}>
-        Restore Default Columns
+        Add New
       </Button>
-    </div>
+      <Popconfirm
+        title="Delete selected documents?"
+        onConfirm={handleBatchDelete}
+        disabled={selectedRowKeys.length === 0}
+      >
+        <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
+          Batch Delete
+        </Button>
+      </Popconfirm>
+      <Button
+        icon={<CheckOutlined />}
+        onClick={() => handleBatchStatus(1)}
+        disabled={selectedRowKeys.length === 0}
+      >
+        Approve
+      </Button>
+      <Button
+        icon={<StopOutlined />}
+        onClick={() => handleBatchStatus(0)}
+        disabled={selectedRowKeys.length === 0}
+      >
+        Unapprove
+      </Button>
+      <ExportPrintButtons
+        title={`${title} Documents`}
+        columns={columnDefs as any}
+        dataSource={dataSource}
+      />
+    </Space>
   )
 
   return (
@@ -408,18 +462,7 @@ export const FinancialBillManager: React.FC<FinancialBillManagerProps> = ({
               <Input placeholder="Enter doc number..." allowClear style={{ width: '100%' }} />
             </Form.Item>
           </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Form.Item
-              name="dateRange"
-              label="Doc Date:"
-              labelCol={{ flex: '80px' }}
-              wrapperCol={{ flex: 'auto' }}
-              style={{ marginBottom: 0 }}
-            >
-              <RangePicker style={{ width: '100%' }} />
-            </Form.Item>
-          </Col>
-          {partnerType !== 'none' ? (
+          {partnerType !== 'none' && (
             <Col xs={24} sm={12} md={6}>
               <Form.Item
                 name="organId"
@@ -441,27 +484,18 @@ export const FinancialBillManager: React.FC<FinancialBillManagerProps> = ({
                 />
               </Form.Item>
             </Col>
-          ) : (
-            <Col xs={24} sm={12} md={6}>
-              <Form.Item
-                name="accountId"
-                label="Account:"
-                labelCol={{ flex: '80px' }}
-                wrapperCol={{ flex: 'auto' }}
-                style={{ marginBottom: 0 }}
-              >
-                <Select
-                  placeholder="Select Account..."
-                  allowClear
-                  options={accountList.map((a) => ({
-                    value: a.id,
-                    label: a.name,
-                  }))}
-                  style={{ width: '100%' }}
-                />
-              </Form.Item>
-            </Col>
           )}
+          <Col xs={24} sm={12} md={6}>
+            <Form.Item
+              name="dateRange"
+              label="Doc Date:"
+              labelCol={{ flex: '80px' }}
+              wrapperCol={{ flex: 'auto' }}
+              style={{ marginBottom: 0 }}
+            >
+              <RangePicker style={{ width: '100%' }} />
+            </Form.Item>
+          </Col>
           <Col xs={24} sm={12} md={6}>
             <Space wrap style={{ paddingLeft: 4 }}>
               <Button type="primary" icon={<SearchOutlined />} htmlType="submit">
@@ -493,20 +527,20 @@ export const FinancialBillManager: React.FC<FinancialBillManagerProps> = ({
           <Row gutter={[16, 12]} align="middle" style={{ marginTop: 12 }}>
             <Col xs={24} sm={12} md={6}>
               <Form.Item
-                name="creator"
-                label="Operator:"
+                name="handsPersonId"
+                label="Staff:"
                 labelCol={{ flex: '90px' }}
                 wrapperCol={{ flex: 'auto' }}
                 style={{ marginBottom: 0 }}
               >
                 <Select
-                  placeholder="Select Operator..."
+                  placeholder="Select staff..."
                   allowClear
                   showSearch
                   optionFilterProp="children"
-                  options={userList.map((u) => ({
-                    value: u.id,
-                    label: u.userName,
+                  options={personList.map((p) => ({
+                    value: p.id,
+                    label: p.name,
                   }))}
                   style={{ width: '100%' }}
                 />
@@ -514,18 +548,20 @@ export const FinancialBillManager: React.FC<FinancialBillManagerProps> = ({
             </Col>
             <Col xs={24} sm={12} md={6}>
               <Form.Item
-                name="handsPersonId"
-                label="Staff:"
-                labelCol={{ flex: '80px' }}
+                name="accountId"
+                label="Account:"
+                labelCol={{ flex: '90px' }}
                 wrapperCol={{ flex: 'auto' }}
                 style={{ marginBottom: 0 }}
               >
                 <Select
-                  placeholder="Select Staff..."
+                  placeholder="Select account..."
                   allowClear
-                  options={personList.map((p) => ({
-                    value: p.id,
-                    label: p.name,
+                  showSearch
+                  optionFilterProp="children"
+                  options={accountList.map((a) => ({
+                    value: a.id,
+                    label: a.name,
                   }))}
                   style={{ width: '100%' }}
                 />
@@ -554,8 +590,8 @@ export const FinancialBillManager: React.FC<FinancialBillManagerProps> = ({
             <Col xs={24} sm={12} md={6}>
               <Form.Item
                 name="remark"
-                label="Remarks:"
-                labelCol={{ flex: '80px' }}
+                label="Doc Remarks:"
+                labelCol={{ flex: '90px' }}
                 wrapperCol={{ flex: 'auto' }}
                 style={{ marginBottom: 0 }}
               >
@@ -566,82 +602,24 @@ export const FinancialBillManager: React.FC<FinancialBillManagerProps> = ({
         )}
       </Form>
 
-      {/* Action Bar */}
-      <div
-        style={{
-          marginBottom: 16,
-          display: 'flex',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 8,
-        }}
-      >
-        <Space size="small" wrap>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={() => {
-              setEditingRecord(null)
-              setModalOpen(true)
-            }}
-          >
-            Add New
-          </Button>
-          <Popconfirm
-            title="Delete selected documents?"
-            onConfirm={handleBatchDelete}
-            disabled={selectedRowKeys.length === 0}
-          >
-            <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-              Batch Delete
-            </Button>
-          </Popconfirm>
-          <Button
-            icon={<CheckOutlined />}
-            onClick={() => handleBatchStatus(1)}
-            disabled={selectedRowKeys.length === 0}
-          >
-            Approve
-          </Button>
-          <Button
-            icon={<StopOutlined />}
-            onClick={() => handleBatchStatus(0)}
-            disabled={selectedRowKeys.length === 0}
-          >
-            Unapprove
-          </Button>
-          <ExportPrintButtons
-            title={`${title} Documents`}
-            columns={columns as any}
-            dataSource={dataSource}
-          />
-        </Space>
-
-        <Popover content={columnSettingsContent} trigger="click" placement="bottomRight">
-          <Button icon={<SettingOutlined />}>Column Settings</Button>
-        </Popover>
-      </div>
-
-      {/* Main Table */}
-      <Table
-        rowKey="id"
-        bordered
-        size="middle"
+      {/* Modern High-Performance AG Grid */}
+      <ErpAgGrid
+        rowData={dataSource}
+        columnDefs={columnDefs}
         loading={loading}
-        columns={columns as TableColumnsType<any>}
-        dataSource={dataSource}
-        scroll={{ x: 1200 }}
-        rowSelection={{
-          selectedRowKeys,
-          onChange: setSelectedRowKeys,
-        }}
+        rowSelection="multiple"
+        selectedRowKeys={selectedRowKeys}
+        onSelectionChange={(_, keys) => setSelectedRowKeys(keys)}
         pagination={{
-          ...pagination,
-          showTotal: (tot, range) => `${range[0]}-${range[1]} of ${tot} records`,
-          showSizeChanger: true,
-          pageSizeOptions: ['10', '20', '30', '50', '100'],
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: pagination.total,
           onChange: (page, size) => fetchData(page, size, form.getFieldsValue()),
         }}
+        leftToolbar={leftToolbarButtons}
+        exportFileName={`${title}_financial_docs`}
+        persistenceKey={`financial_grid_${type}`}
+        height="560px"
       />
 
       {/* Add / Edit Financial Modal */}

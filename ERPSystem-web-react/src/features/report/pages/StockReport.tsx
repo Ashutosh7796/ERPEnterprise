@@ -72,6 +72,8 @@ export const StockReportPage: React.FC = () => {
     'purchaseDecimal',
     'initialStock',
     'currentStock',
+    'reservedStock',
+    'availableStock',
     'currentStockPrice',
     'currentWeight',
   ]
@@ -125,16 +127,16 @@ export const StockReportPage: React.FC = () => {
     fetchData()
   }, [])
 
-  // Fetch Inventory Flow / History for a material
+  // Fetch Authoritative Stock Ledger Flow / History for a material
   const fetchFlowData = async (material: any, page = 1, pageSize = 10) => {
     if (!material?.id) return
     setFlowLoading(true)
     try {
-      const depotIds = form.getFieldValue('depotIds') || ''
-      const res = await http.get('/depotItem/findDetailByDepotIdsAndMaterialId', {
+      const depotIds = form.getFieldValue('depotIds')
+      const depotId = depotIds ? Number(depotIds) : undefined
+      const res = await http.get('/stockLedger/list', {
         materialId: material.id,
-        depotIds: String(depotIds),
-        stockPriceFlag: false,
+        depotId,
         currentPage: page,
         pageSize,
       })
@@ -143,7 +145,7 @@ export const StockReportPage: React.FC = () => {
       setFlowData(rows)
       setFlowPagination({ current: page, pageSize, total })
     } catch (err) {
-      console.error('Failed to load inventory flow:', err)
+      console.error('Failed to load authoritative stock ledger flow:', err)
       setFlowData([])
     } finally {
       setFlowLoading(false)
@@ -293,11 +295,43 @@ export const StockReportPage: React.FC = () => {
       render: (val: any) => val || 0,
     },
     currentStock: {
-      title: 'Stock',
+      title: 'Stock (On-Hand)',
       dataIndex: 'currentStock',
       key: 'currentStock',
-      width: 80,
-      render: (val: any) => <strong>{val !== undefined ? val : 0}</strong>,
+      width: 95,
+      render: (val: any) => <strong>{val !== undefined && val !== null ? Number(val).toFixed(2) : '0.00'}</strong>,
+    },
+    reservedStock: {
+      title: 'Reserved',
+      dataIndex: 'reservedStock',
+      key: 'reservedStock',
+      width: 90,
+      render: (val: any) => (
+        <span style={{ color: Number(val) > 0 ? '#faad14' : '#8c8c8c' }}>
+          {val !== undefined && val !== null ? Number(val).toFixed(2) : '0.00'}
+        </span>
+      ),
+    },
+    availableStock: {
+      title: 'Available (ATP)',
+      dataIndex: 'availableStock',
+      key: 'availableStock',
+      width: 110,
+      render: (val: any, record: any) => {
+        const atpVal =
+          val !== undefined && val !== null
+            ? Number(val)
+            : Number(record.currentStock || 0) - Number(record.reservedStock || 0)
+        return (
+          <strong
+            style={{
+              color: atpVal > 0 ? '#52c41a' : atpVal < 0 ? '#f5222d' : '#8c8c8c',
+            }}
+          >
+            {atpVal.toFixed(2)}
+          </strong>
+        )
+      },
     },
     currentStockPrice: {
       title: 'StockAmount',
@@ -519,41 +553,112 @@ export const StockReportPage: React.FC = () => {
         }}
       />
 
-      {/* Inventory Flow Details Modal */}
+      {/* Authoritative Stock Ledger Flow Details Modal */}
       <Modal
-        title={`Stock Flow Details: ${selectedMaterial?.name || ''} (${selectedMaterial?.mBarCode || selectedMaterial?.barCode || ''})`}
+        title={`Stock Ledger History: ${selectedMaterial?.name || ''} (${selectedMaterial?.mBarCode || selectedMaterial?.barCode || ''})`}
         open={flowModalOpen}
         onCancel={() => setFlowModalOpen(false)}
         footer={null}
-        width={900}
+        width={980}
       >
         <Table
-          rowKey={(r) => r.id || `${r.number || ''}_${r.operTime || ''}`}
+          rowKey={(r) => r.id || `${r.voucherNo || r.number || ''}_${r.postingTime || r.operTime || ''}`}
           size="small"
           bordered
           loading={flowLoading}
           dataSource={flowData}
           columns={[
-            { title: 'Doc Number', dataIndex: 'number', key: 'number', width: 160 },
-            { title: 'Type', dataIndex: 'type', key: 'type', width: 120, render: (t) => <Tag color="blue">{t}</Tag> },
-            { title: 'Warehouse', dataIndex: 'depotName', key: 'depotName', width: 130 },
+            {
+              title: 'Voucher No',
+              dataIndex: 'voucherNo',
+              key: 'voucherNo',
+              width: 150,
+              render: (v, r) => v || r.number || '-',
+            },
+            {
+              title: 'Voucher Type',
+              dataIndex: 'voucherType',
+              key: 'voucherType',
+              width: 140,
+              render: (t, r) => {
+                const typeVal = t || r.type || 'MOVEMENT'
+                return <Tag color="blue">{typeVal}</Tag>
+              },
+            },
+            {
+              title: 'Warehouse',
+              dataIndex: 'depotName',
+              key: 'depotName',
+              width: 130,
+              render: (v) => v || '-',
+            },
+            {
+              title: 'Storage Bin',
+              dataIndex: 'binCode',
+              key: 'binCode',
+              width: 100,
+              render: (v) => (v ? <Tag color="geekblue">{v}</Tag> : '-'),
+            },
             {
               title: 'Change Qty',
-              dataIndex: 'basicNumber',
-              key: 'basicNumber',
-              width: 100,
+              dataIndex: 'actualQty',
+              key: 'actualQty',
+              width: 110,
+              render: (v, r) => {
+                const qtyVal = v !== undefined && v !== null ? Number(v) : Number(r.basicNumber || 0)
+                return (
+                  <strong style={{ color: qtyVal >= 0 ? '#52c41a' : '#f5222d' }}>
+                    {qtyVal > 0 ? `+${qtyVal.toFixed(2)}` : qtyVal.toFixed(2)}
+                  </strong>
+                )
+              },
+            },
+            {
+              title: 'Running Balance',
+              dataIndex: 'qtyAfterTransaction',
+              key: 'qtyAfterTransaction',
+              width: 120,
               render: (v) => (
-                <strong style={{ color: Number(v) >= 0 ? '#52c41a' : '#f5222d' }}>
-                  {Number(v) > 0 ? `+${v}` : v}
+                <strong style={{ color: '#1890ff' }}>
+                  {v !== undefined && v !== null ? Number(v).toFixed(2) : '-'}
                 </strong>
               ),
             },
-            { title: 'Unit Price', dataIndex: 'unitPrice', key: 'unitPrice', width: 110, render: (v) => (v !== undefined ? Number(v).toFixed(2) : '-') },
-            { title: 'Total Amount', dataIndex: 'allPrice', key: 'allPrice', width: 120, render: (v) => (v !== undefined ? Number(v).toFixed(2) : '-') },
-            { title: 'Date', dataIndex: 'operTime', key: 'operTime', width: 150 },
+            {
+              title: 'Valuation Rate',
+              dataIndex: 'valuationRate',
+              key: 'valuationRate',
+              width: 110,
+              render: (v, r) => {
+                const rate = v !== undefined && v !== null ? v : r.unitPrice
+                return rate !== undefined && rate !== null ? `₹${Number(rate).toFixed(2)}` : '-'
+              },
+            },
+            {
+              title: 'Stock Value',
+              dataIndex: 'stockValue',
+              key: 'stockValue',
+              width: 120,
+              render: (v, r) => {
+                const val = v !== undefined && v !== null ? v : r.allPrice
+                return val !== undefined && val !== null ? `₹${Number(val).toFixed(2)}` : '-'
+              },
+            },
+            {
+              title: 'Posting Date',
+              dataIndex: 'postingTime',
+              key: 'postingTime',
+              width: 150,
+              render: (v, r) => {
+                const dateVal = v || r.operTime || r.createTime
+                if (!dateVal) return '-'
+                return typeof dateVal === 'string' ? dateVal : new Date(dateVal).toLocaleString()
+              },
+            },
           ]}
           pagination={{
             ...flowPagination,
+            showTotal: (tot) => `Total ${tot} records`,
             onChange: (p, s) => fetchFlowData(selectedMaterial, p, s),
           }}
         />

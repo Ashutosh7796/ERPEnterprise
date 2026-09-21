@@ -570,6 +570,23 @@ export const VendorListPage: React.FC = () => {
 
           <Row gutter={16}>
             <Col span={12}>
+              <Form.Item
+                name="taxNum"
+                label="Vendor GSTIN (Tax ID)"
+                rules={[{ max: 15, message: 'GSTIN cannot exceed 15 characters' }]}
+              >
+                <Input placeholder="e.g. 27AAACA1234A1Z1" maxLength={15} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="address" label="Registered Business Address">
+                <Input placeholder="e.g. Pune, Maharashtra..." />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
               <Form.Item name="email" label="Email Address">
                 <Input placeholder="e.g. vendor@company.com..." />
               </Form.Item>

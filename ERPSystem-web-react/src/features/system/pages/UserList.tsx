@@ -17,7 +17,7 @@ import {
   Popconfirm,
   Modal,
   Tree,
-  message,
+  App,
 } from 'antd'
 import type { TableColumnsType } from 'antd'
 import {
@@ -54,6 +54,7 @@ export interface UserRecord {
 }
 
 export const UserListPage: React.FC = () => {
+  const { message } = App.useApp()
   const [form] = Form.useForm()
   const [modalForm] = Form.useForm()
   const [resetPwdForm] = Form.useForm()
@@ -122,11 +123,13 @@ export const UserListPage: React.FC = () => {
         http.get<any>('/role/findUserRole'),
         http.get<any>('/organization/getOrganizationTree'),
       ])
-      if (Array.isArray(rolesRes)) {
-        setRoleList(rolesRes)
-      } else if (rolesRes?.data && Array.isArray(rolesRes.data)) {
-        setRoleList(rolesRes.data)
-      }
+      const rawRoles = Array.isArray(rolesRes) ? rolesRes : rolesRes?.data || []
+      const mappedRoles = rawRoles.map((r: any) => ({
+        ...r,
+        id: r.id,
+        name: r.name || r.text || '',
+      }))
+      setRoleList(mappedRoles)
       if (Array.isArray(orgsRes)) {
         setOrgList(orgsRes)
       } else if (orgsRes?.data && Array.isArray(orgsRes.data)) {
@@ -143,7 +146,7 @@ export const UserListPage: React.FC = () => {
         userName: searchValues.userName || '',
       }
 
-      const res = await http.get('/user/getUserList', {
+      const res: any = await http.get('/user/list', {
         search: JSON.stringify(searchObj),
         currentPage: page,
         pageSize,
@@ -393,7 +396,7 @@ export const UserListPage: React.FC = () => {
       width: 320,
       align: 'center' as const,
       render: (_: any, record: UserRecord) => (
-        <Space split={<Divider type="vertical" style={{ margin: '0 4px' }} />} size={0}>
+        <Space separator={<span style={{ color: '#d9d9d9', margin: '0 4px' }}>|</span>} size={0}>
           <a onClick={() => handleOpenAssignDepot(record)}>Assign Depot</a>
           <a onClick={() => handleOpenAssignCustomer(record)}>Assign Customer</a>
           <a onClick={() => handleOpenEdit(record)}>Edit</a>
@@ -643,7 +646,7 @@ export const UserListPage: React.FC = () => {
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}
         confirmLoading={submitting}
-        destroyOnHidden
+        forceRender
         width={650}
       >
         <Form form={modalForm} layout="vertical">
@@ -734,7 +737,7 @@ export const UserListPage: React.FC = () => {
         onCancel={() => setResetModalOpen(false)}
         onOk={handleResetPassword}
         confirmLoading={resetSubmitting}
-        destroyOnHidden
+        forceRender
         width={450}
       >
         <Form form={resetPwdForm} layout="vertical">
@@ -758,7 +761,7 @@ export const UserListPage: React.FC = () => {
         onCancel={() => setDepotModalOpen(false)}
         onOk={handleSaveDepot}
         confirmLoading={depotSubmitting}
-        destroyOnHidden
+        forceRender
         width={500}
       >
         <div style={{ maxHeight: 380, overflowY: 'auto' }}>
@@ -783,7 +786,7 @@ export const UserListPage: React.FC = () => {
         onCancel={() => setCustomerModalOpen(false)}
         onOk={handleSaveCustomer}
         confirmLoading={customerSubmitting}
-        destroyOnHidden
+        forceRender
         width={500}
       >
         <div style={{ maxHeight: 380, overflowY: 'auto' }}>

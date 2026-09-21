@@ -12,7 +12,7 @@ import {
   Typography,
   Divider,
   Spin,
-  message,
+  App,
 } from 'antd'
 import {
   SaveOutlined,
@@ -26,6 +26,7 @@ import { http } from '@core/api/client'
 const { Title, Text, Paragraph } = Typography
 
 export const SystemConfigListPage: React.FC = () => {
+  const { message } = App.useApp()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -35,7 +36,7 @@ export const SystemConfigListPage: React.FC = () => {
   const fetchConfig = async () => {
     setLoading(true)
     try {
-      const res = await http.get<any>('/systemConfig/getCurrentSystemConfig')
+      const res = await http.get<any>('/systemConfig/getCurrentInfo')
       const data = res?.data || res
       if (data) {
         setConfigId(data.id || null)

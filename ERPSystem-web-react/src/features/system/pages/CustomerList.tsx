@@ -621,6 +621,23 @@ export const CustomerListPage: React.FC = () => {
 
           <Row gutter={16}>
             <Col span={12}>
+              <Form.Item
+                name="taxNum"
+                label="Customer GSTIN (15-Digit, if B2B)"
+                rules={[{ max: 15, message: 'GSTIN cannot exceed 15 characters' }]}
+              >
+                <Input placeholder="e.g. 27AABCZ9988P1Z3 (leave blank if Retail/B2C)" maxLength={15} />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="address" label="Billing / Delivery Address">
+                <Input placeholder="e.g. Mumbai, Maharashtra..." />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
               <Form.Item name="phoneNum" label="Landline / Phone">
                 <Input placeholder="e.g. 022 2847 1234" />
               </Form.Item>

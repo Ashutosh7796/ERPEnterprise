@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
   Card,
   Table,
@@ -17,7 +17,7 @@ import {
   Popconfirm,
   Modal,
   Tree,
-  message,
+  App,
 } from 'antd'
 import type { TableColumnsType } from 'antd'
 import {
@@ -28,8 +28,6 @@ import {
   CheckOutlined,
   StopOutlined,
   SettingOutlined,
-  SafetyCertificateOutlined,
-  AppstoreOutlined,
 } from '@ant-design/icons'
 import { http } from '@core/api/client'
 import { ExportPrintButtons } from '@shared/components/ExportPrintButtons'
@@ -54,6 +52,7 @@ export interface PushBtnRow {
 }
 
 export const RoleListPage: React.FC = () => {
+  const { message } = App.useApp()
   const [form] = Form.useForm()
   const [modalForm] = Form.useForm()
 
@@ -101,7 +100,7 @@ export const RoleListPage: React.FC = () => {
         name: searchValues.name || '',
       }
 
-      const res = await http.get('/role/list', {
+      const res: any = await http.get('/role/list', {
         search: JSON.stringify(searchObj),
         currentPage: page,
         pageSize,
@@ -151,37 +150,50 @@ export const RoleListPage: React.FC = () => {
     }
   }
 
-  const handleBatchStatus = async (status: boolean) => {
+  const handleBatchStatus = async (enable: boolean) => {
     if (selectedRowKeys.length === 0) {
       message.warning('Please select roles first')
       return
     }
     try {
+      const status = enable ? '1' : '0'
       const ids = selectedRowKeys.join(',')
       await http.post(`/role/batchSetStatus?status=${status}&ids=${ids}`)
-      message.success(status ? 'Roles enabled' : 'Roles disabled')
+      message.success(`Selected roles ${enable ? 'enabled' : 'disabled'} successfully`)
       setSelectedRowKeys([])
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to update role status')
+      message.error(err?.message || 'Failed to update roles status')
     }
   }
 
   const handleOpenAdd = () => {
     setEditingRecord(null)
     modalForm.resetFields()
+    modalForm.setFieldsValue({
+      type: 'All Data',
+      sort: (dataSource.length + 1) * 10,
+      priceLimit: [],
+    })
     setModalOpen(true)
   }
 
   const handleOpenEdit = (record: RoleRecord) => {
     setEditingRecord(record)
-    const priceLimits = record.priceLimit ? record.priceLimit.split(',') : []
+    modalForm.resetFields()
+
+    // Map Chinese types to English for dropdown
+    let mappedType = record.type || 'All Data'
+    if (mappedType === '全部数据') mappedType = 'All Data'
+    else if (mappedType === '本机构数据') mappedType = 'Branch Data'
+    else if (mappedType === '个人数据') mappedType = 'Personal Data'
+
     modalForm.setFieldsValue({
       name: record.name,
-      type: record.type || '全部数据',
-      priceLimit: priceLimits,
+      type: mappedType,
       sort: record.sort || 1,
-      description: record.description,
+      description: record.description || '',
+      priceLimit: record.priceLimit ? record.priceLimit.split(',').filter(Boolean) : [],
     })
     setModalOpen(true)
   }
@@ -190,13 +202,13 @@ export const RoleListPage: React.FC = () => {
     try {
       const values = await modalForm.validateFields()
       setSubmitting(true)
-      const priceLimitStr = values.priceLimit && values.priceLimit.length > 0 ? values.priceLimit.join(',') : ''
+
       const payload: any = {
         name: values.name,
-        type: values.type || '全部数据',
-        priceLimit: priceLimitStr,
-        sort: values.sort || 1,
+        type: values.type,
+        sort: values.sort,
         description: values.description || '',
+        priceLimit: Array.isArray(values.priceLimit) ? values.priceLimit.join(',') : '',
       }
 
       if (editingRecord) {
@@ -259,14 +271,37 @@ export const RoleListPage: React.FC = () => {
     if (!permRole) return
     try {
       setPermSubmitting(true)
-      await http.post('/userBusiness/updateBtnStr', {
-        roleId: permRole.id,
-        btnStr: checkedFunctionKeys.join(','),
-      })
-      message.success(`Permissions saved for role: ${permRole.name}`)
+
+      // Extract checked function IDs
+      const rawKeys = Array.isArray(checkedFunctionKeys)
+        ? checkedFunctionKeys
+        : (checkedFunctionKeys as any).checked || []
+      const validKeys = rawKeys.filter((k: any) => k !== 0 && k !== '0')
+      const valueStr = validKeys.length > 0 ? `[${validKeys.join('][')}]` : ''
+
+      // Check if UserBusiness mapping exists
+      const existRes: any = await http.get(`/userBusiness/checkIsValueExist?type=RoleFunctions&keyId=${permRole.id}`)
+      const existId = existRes?.data?.id || existRes?.id
+
+      if (existId && Number(existId) > 0) {
+        await http.put('/userBusiness/update', {
+          id: existId,
+          type: 'RoleFunctions',
+          keyId: String(permRole.id),
+          value: valueStr,
+        })
+      } else {
+        await http.post('/userBusiness/add', {
+          type: 'RoleFunctions',
+          keyId: String(permRole.id),
+          value: valueStr,
+        })
+      }
+
+      message.success(`Menu permissions saved for role: ${permRole.name}`)
       setPermModalOpen(false)
     } catch (err: any) {
-      message.error(err?.message || 'Failed to save permissions')
+      message.error(err?.message || 'Failed to save menu permissions')
     } finally {
       setPermSubmitting(false)
     }
@@ -278,27 +313,16 @@ export const RoleListPage: React.FC = () => {
     setPushBtnModalOpen(true)
     setPushBtnLoading(true)
     try {
-      const res: any = await http.get('/function/findRoleFunction?UBType=RoleFunctions&UBKeyId=' + record.id)
-      const rawList = Array.isArray(res) ? res : res?.data || []
+      const res: any = await http.get(`/function/findRoleFunctionsById?roleId=${record.id}`)
+      const rawList = res?.data?.rows || res?.rows || []
 
-      const flatRows: PushBtnRow[] = []
-      const extractPushBtnRows = (nodes: any[]) => {
-        for (const node of nodes) {
-          if (node.pushBtn && node.pushBtn.trim() !== '') {
-            flatRows.push({
-              id: node.id,
-              text: node.text || node.title || node.name || '',
-              url: node.url || '',
-              pushBtn: node.pushBtn,
-              btnStr: node.btnStr || '',
-            })
-          }
-          if (node.children && node.children.length > 0) {
-            extractPushBtnRows(node.children)
-          }
-        }
-      }
-      extractPushBtnRows(rawList)
+      const flatRows: PushBtnRow[] = rawList.map((node: any) => ({
+        id: node.id,
+        text: node.name || node.text || '',
+        url: node.url || '',
+        pushBtn: node.pushBtn || '1,2,3,4,5,6,7',
+        btnStr: node.btnStr || '',
+      }))
       setPushBtnRows(flatRows)
     } catch (err) {
       message.error('Failed to load action buttons list')
@@ -344,21 +368,28 @@ export const RoleListPage: React.FC = () => {
     setPushBtnSubmitting(true)
     try {
       const payload = pushBtnRows.map((r) => ({
-        id: r.id,
-        btnStr: r.btnStr,
-        url: r.url,
+        funId: r.id,
+        btnStr: r.btnStr || '',
       }))
-      await http.post('/userBusiness/updateBtnStrByRoleId', {
-        roleId: pushBtnRole.id,
+      await http.post('/userBusiness/updateBtnStr', {
+        roleId: String(pushBtnRole.id),
         btnStr: JSON.stringify(payload),
       })
-      message.success(`Action buttons permissions saved for ${pushBtnRole.name}`)
+      message.success(`Action button permissions saved for ${pushBtnRole.name}`)
       setPushBtnModalOpen(false)
     } catch (err: any) {
       message.error(err?.message || 'Failed to save button permissions')
     } finally {
       setPushBtnSubmitting(false)
     }
+  }
+
+  const renderDataScopeType = (v: any) => {
+    if (!v || v === '全部数据' || v === 'All Data') return <Tag color="blue">All Data (Enterprise)</Tag>
+    if (v === '本机构数据' || v === 'Branch Data') return <Tag color="cyan">Branch / Dept Data</Tag>
+    if (v === '机构及以下数据' || v === 'Department & Sub-Departments') return <Tag color="geekblue">Branch & Sub-branches</Tag>
+    if (v === '个人数据' || v === 'Personal Data') return <Tag color="gold">Personal Data Only</Tag>
+    return <Tag>{v}</Tag>
   }
 
   const columnsConfig: Record<string, any> = {
@@ -376,7 +407,7 @@ export const RoleListPage: React.FC = () => {
       width: 280,
       align: 'center' as const,
       render: (_: any, record: RoleRecord) => (
-        <Space split={<Divider type="vertical" style={{ margin: '0 4px' }} />} size={0}>
+        <Space separator={<span style={{ color: '#d9d9d9', margin: '0 4px' }}>|</span>} size={0}>
           <a onClick={() => handleOpenPermissions(record)}>Assign Menus</a>
           <a onClick={() => handleOpenPushBtn(record)}>Assign Buttons</a>
           <a onClick={() => handleOpenEdit(record)}>Edit</a>
@@ -397,8 +428,8 @@ export const RoleListPage: React.FC = () => {
       title: 'Data Scope Type',
       dataIndex: 'type',
       key: 'type',
-      width: 140,
-      render: (v: any) => v || '全部数据',
+      width: 170,
+      render: (v: any) => renderDataScopeType(v),
     },
     priceLimit: {
       title: 'Price Shielding / Limits',
@@ -624,11 +655,11 @@ export const RoleListPage: React.FC = () => {
             <Input placeholder="e.g. Sales Manager" />
           </Form.Item>
 
-          <Form.Item name="type" label="Data Scope Type" initialValue="全部数据">
+          <Form.Item name="type" label="Data Scope Type" initialValue="All Data">
             <Select>
-              <Select.Option value="全部数据">All Data Scope (Enterprise wide)</Select.Option>
-              <Select.Option value="本机构数据">Department & Sub-departments</Select.Option>
-              <Select.Option value="个人数据">Personal User Data Scope</Select.Option>
+              <Select.Option value="All Data">All Data Scope (Enterprise wide)</Select.Option>
+              <Select.Option value="Branch Data">Current Department / Branch Data</Select.Option>
+              <Select.Option value="Personal Data">Personal User Data Scope Only</Select.Option>
             </Select>
           </Form.Item>
 

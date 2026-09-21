@@ -1,24 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Form, Input, Button, App, Typography, Row, Col, Space, Modal } from 'antd'
+import { Form, Input, Button, App, Row, Col, Modal, Tooltip } from 'antd'
 import {
   UserOutlined,
   LockOutlined,
   SyncOutlined,
-  RocketOutlined,
+  ReloadOutlined,
   SafetyCertificateOutlined,
-  DesktopOutlined,
-  MobileOutlined,
-  InfoCircleOutlined,
 } from '@ant-design/icons'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { http } from '@core/api/client'
 import { ENDPOINTS } from '@core/api/endpoints'
 import { useAuthStore } from '@core/auth/authStore'
 import { usePermissionStore } from '@core/auth/permissionStore'
+import { useAppStore } from '@store/useAppStore'
 import { md5 } from '@shared/utils/md5'
 import { LoginHeroIllustration } from '../components/LoginHeroIllustration'
-
-const { Title, Text } = Typography
 
 interface LoginFormValues {
   loginName: string
@@ -34,15 +30,22 @@ export const LoginPage: React.FC = () => {
   const login = useAuthStore((state) => state.login)
 
   const [loading, setLoading] = useState(false)
+  const [captchaLoading, setCaptchaLoading] = useState<boolean>(false)
   const [captchaImg, setCaptchaImg] = useState<string>('')
   const [uuid, setUuid] = useState<string>('')
-  const [hasCaptcha, setHasCaptcha] = useState<boolean>(true)
   const [forgotModalOpen, setForgotModalOpen] = useState(false)
 
   const [form] = Form.useForm<LoginFormValues>()
+  const resolutionCheckedRef = React.useRef(false)
 
-  // Screen resolution detection and browser zoom adjustment notification
+  // Screen resolution detection and browser zoom adjustment notification (triggers once per session)
   useEffect(() => {
+    if (resolutionCheckedRef.current || sessionStorage.getItem('resolution_notice_shown')) {
+      return
+    }
+    resolutionCheckedRef.current = true
+    sessionStorage.setItem('resolution_notice_shown', '1')
+
     const checkScreen = () => {
       let percentage = '100%'
       const basicWidth = 1920
@@ -78,11 +81,11 @@ export const LoginPage: React.FC = () => {
       // Check if current display scaling differs from recommended
       if (Math.abs(currentRatio - needRatio) > 0.05) {
         notification.warning({
-          message: 'Browser Zoom Adjustment Notice',
+          title: 'Browser Zoom Adjustment Notice',
           description: `Your monitor resolution was detected as ${currentWidth}*${currentHeight}. For an optimal viewing and operation experience, we recommend setting your browser zoom level to ${percentage}.`,
           placement: 'topRight',
-          duration: 10,
-        })
+          duration: 8,
+        } as any)
       }
     }
 
@@ -115,17 +118,18 @@ export const LoginPage: React.FC = () => {
   }, [location.search, login, navigate, message])
 
   const refreshCaptcha = useCallback(async () => {
+    setCaptchaLoading(true)
     try {
-      const res = await http.get<{ uuid: string; base64: string }>(ENDPOINTS.AUTH.RANDOM_IMAGE)
-      if (res && res.base64 && res.uuid) {
+      const res = await http.get<any>(ENDPOINTS.AUTH.RANDOM_IMAGE)
+      // http client unwraps BaseResponseInfo: res has uuid and base64 at top level
+      if (res?.uuid && res?.base64) {
         setCaptchaImg(res.base64)
         setUuid(res.uuid)
-        setHasCaptcha(true)
-      } else {
-        setHasCaptcha(false)
       }
-    } catch {
-      setHasCaptcha(false)
+    } catch (err) {
+      console.warn('Captcha fetch failed:', err)
+    } finally {
+      setCaptchaLoading(false)
     }
   }, [])
 
@@ -150,8 +154,19 @@ export const LoginPage: React.FC = () => {
         usePermissionStore.getState().fetchButtonPermissions()
         message.success('Welcome back! Login successful.')
 
-        const from = (location.state as any)?.from?.pathname || '/dashboard'
-        navigate(from, { replace: true })
+        await useAppStore.getState().fetchUserAuth()
+        const currentAuth = useAppStore.getState().userAuth
+        let targetPath = (location.state as any)?.from?.pathname
+        if (!targetPath || targetPath === '/' || targetPath === '/dashboard' || (currentAuth.authorityDomain !== 'PLATFORM' && targetPath.startsWith('/platform'))) {
+          if (currentAuth.authorityDomain === 'PLATFORM') {
+            targetPath = '/platform/dashboard'
+          } else if (currentAuth.authorityDomain === 'SUPPORT_OPERATIONS') {
+            targetPath = '/support/dashboard'
+          } else {
+            targetPath = '/dashboard'
+          }
+        }
+        navigate(targetPath, { replace: true })
       } else {
         const tipMap: Record<string, string> = {
           'user is not exist': 'User does not exist. Please check your username.',
@@ -176,20 +191,157 @@ export const LoginPage: React.FC = () => {
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        width: '100vw',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #eef2ff 0%, #e0e7ff 35%, #f0fdf4 70%, #f8fafc 100%)',
-        position: 'relative',
-        overflow: 'hidden',
-        padding: '32px 24px',
-        boxSizing: 'border-box',
-      }}
-    >
+    <div className="login-page-container">
+      {/* Embedded Responsive Styles */}
+      <style>{`
+        .login-page-container {
+          min-height: 100vh;
+          width: 100vw;
+          display: flex;
+          align-items: center;
+          justifyContent: center;
+          background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 35%, #f0fdf4 70%, #f8fafc 100%);
+          position: relative;
+          overflow-x: hidden;
+          padding: clamp(24px, 4vw, 56px) clamp(20px, 5vw, 80px);
+          box-sizing: border-box;
+        }
+        .login-page-wrapper {
+          max-width: 1440px;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justifyContent: space-between;
+          gap: clamp(32px, 5vw, 80px);
+          z-index: 1;
+        }
+        .login-hero-section {
+          flex: 1.2 1 540px;
+          min-width: 320px;
+          max-width: 780px;
+        }
+        .login-hero-title {
+          font-size: clamp(28px, 2.6vw, 42px);
+          font-weight: 800;
+          line-height: 1.28;
+          color: #0f172a;
+          margin-bottom: 18px;
+          letter-spacing: -0.025em;
+        }
+        .login-hero-desc {
+          font-size: clamp(15px, 1.1vw, 18px);
+          color: #475569;
+          margin-bottom: 36px;
+          font-weight: 400;
+          line-height: 1.6;
+        }
+        .login-hero-illustration {
+          position: relative;
+          width: 100%;
+          max-width: 620px;
+          display: flex;
+          align-items: center;
+          justifyContent: center;
+          padding: 8px 0;
+        }
+        .login-card-section {
+          flex: 0 0 450px;
+          width: 100%;
+          max-width: 480px;
+          background: rgba(255, 255, 255, 0.92);
+          backdrop-filter: blur(24px);
+          -webkit-backdrop-filter: blur(24px);
+          border-radius: 20px;
+          box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.14), 0 0 0 1px rgba(255, 255, 255, 0.9);
+          padding: 44px 38px;
+          box-sizing: border-box;
+        }
+        .login-captcha-box {
+          height: 44px;
+          width: 110px;
+          cursor: pointer;
+          border-radius: 8px;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid #cbd5e1;
+          background: #ffffff;
+          box-sizing: border-box;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          flex-shrink: 0;
+          user-select: none;
+        }
+        .login-captcha-box:hover {
+          border-color: #2563eb !important;
+          box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+        .login-refresh-btn {
+          height: 44px !important;
+          width: 44px !important;
+          border-radius: 8px !important;
+          border: 1px solid #cbd5e1 !important;
+          background: #ffffff !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          flex-shrink: 0 !important;
+          padding: 0 !important;
+          color: #475569 !important;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .login-refresh-btn:hover {
+          border-color: #2563eb !important;
+          color: #2563eb !important;
+          background: #eff6ff !important;
+          box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 1080px) {
+          .login-page-wrapper {
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+          }
+          .login-hero-section {
+            text-align: center;
+            max-width: 600px;
+          }
+          .login-hero-title {
+            font-size: 30px;
+            margin-bottom: 12px;
+          }
+          .login-hero-desc {
+            font-size: 15px;
+            margin-bottom: 24px;
+          }
+          .login-hero-illustration {
+            max-width: 460px;
+            margin: 0 auto;
+          }
+          .login-card-section {
+            flex: 1 1 auto;
+            max-width: 440px;
+            padding: 36px 30px;
+          }
+        }
+
+        @media (max-width: 540px) {
+          .login-page-container {
+            padding: 20px 14px;
+          }
+          .login-hero-section {
+            display: none;
+          }
+          .login-card-section {
+            padding: 28px 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.1);
+          }
+        }
+      `}</style>
+
       {/* Background Decorative Ambient Glows */}
       <div
         style={{
@@ -216,75 +368,24 @@ export const LoginPage: React.FC = () => {
         }}
       />
 
-      <div
-        style={{
-          maxWidth: 1200,
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: 48,
-          zIndex: 1,
-        }}
-      >
+      <div className="login-page-wrapper">
         {/* Left Side: Value Propositions & Modern UI Graphic */}
-        <div style={{ flex: '1 1 540px', minWidth: 320, maxWidth: 620 }}>
-          <h1
-            style={{
-              fontSize: '32px',
-              fontWeight: 700,
-              lineHeight: 1.35,
-              color: '#0f172a',
-              marginBottom: 16,
-              letterSpacing: '-0.02em',
-            }}
-          >
+        <div className="login-hero-section">
+          <h1 className="login-hero-title">
             Dedicated to Providing Small and Medium Enterprises with Efficient and Easy-to-Use ERP Software
           </h1>
-          <p
-            style={{
-              fontSize: '16px',
-              color: '#475569',
-              marginBottom: 36,
-              fontWeight: 400,
-              lineHeight: 1.6,
-            }}
-          >
+          <p className="login-hero-desc">
             1-Second Order Print, One-Click Sharing, Mobile Inventory & Profit Checking
           </p>
 
           {/* Vector-Sharp Crisp Hero Illustration */}
-          <div
-            style={{
-              position: 'relative',
-              width: '100%',
-              maxWidth: 580,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '10px 0',
-            }}
-          >
+          <div className="login-hero-illustration">
             <LoginHeroIllustration />
           </div>
         </div>
 
         {/* Right Side: Modern Glassmorphic Login Card */}
-        <div
-          style={{
-            flex: '0 0 420px',
-            width: '100%',
-            maxWidth: 440,
-            background: 'rgba(255, 255, 255, 0.85)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-            borderRadius: 20,
-            boxShadow: '0 20px 45px -10px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.9)',
-            padding: '40px 36px',
-            boxSizing: 'border-box',
-          }}
-        >
+        <div className="login-card-section">
           {/* Card Header */}
           <div style={{ textAlign: 'center', marginBottom: 28 }}>
             <h2
@@ -310,13 +411,16 @@ export const LoginPage: React.FC = () => {
           >
             <Form.Item
               name="loginName"
-              label={<span style={{ fontSize: 13, fontWeight: 500, color: '#475569' }}>Enter Email / Phone / Username</span>}
-              rules={[{ required: true, message: 'Please enter your username' }]}
+              htmlFor="loginName"
+              label={<span style={{ fontSize: 13, fontWeight: 500, color: '#475569' }}>Username or Mobile Number</span>}
+              rules={[{ required: true, message: 'Please enter your username or mobile number' }]}
               style={{ marginBottom: 18 }}
             >
               <Input
+                id="loginName"
+                name="loginName"
                 prefix={<UserOutlined style={{ color: '#94a3b8', marginRight: 4 }} />}
-                placeholder="admin"
+                placeholder="Username or Mobile Number"
                 size="large"
                 style={{
                   borderRadius: 8,
@@ -330,11 +434,14 @@ export const LoginPage: React.FC = () => {
 
             <Form.Item
               name="password"
+              htmlFor="password"
               label={<span style={{ fontSize: 13, fontWeight: 500, color: '#475569' }}>Enter Password</span>}
               rules={[{ required: true, message: 'Please enter your password' }]}
               style={{ marginBottom: 18 }}
             >
               <Input.Password
+                id="password"
+                name="password"
                 prefix={<LockOutlined style={{ color: '#94a3b8', marginRight: 4 }} />}
                 placeholder="••••••••"
                 size="large"
@@ -348,58 +455,70 @@ export const LoginPage: React.FC = () => {
               />
             </Form.Item>
 
-            {hasCaptcha && (
-              <Form.Item
-                name="code"
-                label={<span style={{ fontSize: 13, fontWeight: 500, color: '#475569' }}>Verification Code</span>}
-                rules={[{ required: true, message: 'Please enter the captcha code' }]}
-                style={{ marginBottom: 14 }}
+            <Form.Item
+              name="code"
+              htmlFor="code"
+              label={<span style={{ fontSize: 13, fontWeight: 500, color: '#475569' }}>Verification Code</span>}
+              rules={[{ required: true, message: 'Please enter the verification code' }]}
+              style={{ marginBottom: 14 }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  width: '100%',
+                  flexWrap: 'nowrap',
+                }}
               >
-                <Row gutter={10} align="middle">
-                  <Col flex="auto">
-                    <Input
-                      placeholder="Enter code from image"
-                      size="large"
+                <Input
+                  id="code"
+                  name="code"
+                  prefix={<SafetyCertificateOutlined style={{ color: '#94a3b8', marginRight: 4 }} />}
+                  placeholder="Enter code"
+                  size="large"
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    borderRadius: 8,
+                    borderColor: '#cbd5e1',
+                    height: 44,
+                    fontSize: 14,
+                  }}
+                  autoComplete="off"
+                />
+                <div
+                  onClick={refreshCaptcha}
+                  title="Click to refresh captcha"
+                  className="login-captcha-box"
+                >
+                  {captchaLoading ? (
+                    <SyncOutlined spin style={{ color: '#2563eb', fontSize: 16 }} />
+                  ) : captchaImg ? (
+                    <img
+                      src={captchaImg}
+                      alt="captcha"
                       style={{
-                        borderRadius: 8,
-                        borderColor: '#cbd5e1',
-                        height: 44,
-                        fontSize: 14,
-                      }}
-                      autoComplete="off"
-                    />
-                  </Col>
-                  <Col flex="115px">
-                    <div
-                      onClick={refreshCaptcha}
-                      style={{
-                        height: 44,
+                        height: '100%',
                         width: '100%',
-                        cursor: 'pointer',
-                        borderRadius: 8,
-                        overflow: 'hidden',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        border: '1px solid #cbd5e1',
-                        background: '#f8fafc',
+                        objectFit: 'contain',
+                        display: 'block',
                       }}
-                      title="Click to refresh captcha"
-                    >
-                      {captchaImg ? (
-                        <img
-                          src={captchaImg}
-                          alt="captcha"
-                          style={{ height: '100%', width: '100%', objectFit: 'cover' }}
-                        />
-                      ) : (
-                        <SyncOutlined spin style={{ color: '#64748b' }} />
-                      )}
-                    </div>
-                  </Col>
-                </Row>
-              </Form.Item>
-            )}
+                    />
+                  ) : (
+                    <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 500 }}>No image</span>
+                  )}
+                </div>
+                <Tooltip title="Refresh captcha">
+                  <Button
+                    type="default"
+                    icon={<ReloadOutlined spin={captchaLoading} style={{ fontSize: 15 }} />}
+                    onClick={refreshCaptcha}
+                    className="login-refresh-btn"
+                  />
+                </Tooltip>
+              </div>
+            </Form.Item>
 
             <div
               style={{
