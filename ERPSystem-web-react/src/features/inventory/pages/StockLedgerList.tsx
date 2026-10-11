@@ -120,7 +120,7 @@ export const StockLedgerListPage: React.FC = () => {
   const getVoucherTag = (type: string) => {
     switch (type) {
       case 'PURCHASE_RECEIPT':
-        return <Tag color="green">GRN Receipt</Tag>
+        return <Tag color="green">Goods Receipt (GRN)</Tag>
       case 'PURCHASE_RETURN':
         return <Tag color="volcano">Purchase Return</Tag>
       case 'SALES_DISPATCH':
@@ -135,13 +135,40 @@ export const StockLedgerListPage: React.FC = () => {
       case 'MANUFACTURING_CONSUMPTION':
         return <Tag color="gold">WIP Consumption</Tag>
       case 'MANUFACTURING_RECEIPT':
-        return <Tag color="purple">FG Receipt</Tag>
+        return <Tag color="purple">Production Receipt (FG)</Tag>
       case 'STOCK_SURPLUS':
         return <Tag color="lime">Stock Surplus</Tag>
       case 'STOCK_LOSS':
         return <Tag color="red">Stock Loss</Tag>
-      default:
-        return <Tag color="default">{type || 'Movement'}</Tag>
+      case 'MFG_REWORK_COMPLETION_IN':
+        return <Tag color="purple">Rework FG In</Tag>
+      case 'MFG_REWORK_MATERIAL_ISSUE':
+        return <Tag color="orange">Rework Issue</Tag>
+      case 'MFG_REWORK_WIP_RECEIPT':
+        return <Tag color="gold">Rework WIP In</Tag>
+      case 'MFG_REWORK_STAGING_IN':
+        return <Tag color="cyan">Rework Staging</Tag>
+      case 'DISASSEMBLY_SPLIT':
+        return <Tag color="default">Disassembly</Tag>
+      default: {
+        const label = (type || 'Movement').replace(/_/g, ' ')
+        return (
+          <Tag
+            color="default"
+            style={{
+              maxWidth: 160,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              display: 'inline-block',
+              verticalAlign: 'middle',
+            }}
+            title={type}
+          >
+            {label}
+          </Tag>
+        )
+      }
     }
   }
 
@@ -157,34 +184,52 @@ export const StockLedgerListPage: React.FC = () => {
       title: 'Voucher Type',
       dataIndex: 'voucherType',
       key: 'voucherType',
-      width: 140,
+      width: 170,
       render: (type) => getVoucherTag(type),
     },
     {
-      title: 'Voucher No',
+      title: 'Voucher Number',
       dataIndex: 'voucherNo',
       key: 'voucherNo',
-      width: 160,
-      render: (v) => <strong>{v || '-'}</strong>,
+      width: 240,
+      render: (v) => <strong style={{ wordBreak: 'break-word', display: 'inline-block' }}>{v || '-'}</strong>,
     },
     {
       title: 'Warehouse',
       dataIndex: 'depotName',
       key: 'depotName',
-      width: 130,
+      width: 150,
       render: (v) => v || '-',
     },
     {
-      title: 'Bin',
+      title: 'Storage Bin',
       dataIndex: 'binCode',
       key: 'binCode',
-      width: 100,
-      render: (v) => (v ? <Tag color="processing">{v}</Tag> : <Text type="secondary">Floor</Text>),
+      width: 170,
+      render: (v) => (
+        v ? (
+          <Tag
+            color="processing"
+            style={{
+              maxWidth: 150,
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              verticalAlign: 'middle',
+              display: 'inline-block',
+            }}
+          >
+            {v}
+          </Tag>
+        ) : (
+          <Text type="secondary">Floor</Text>
+        )
+      ),
     },
     {
-      title: 'Product / SKU',
+      title: 'Item / Material',
       key: 'product',
-      width: 220,
+      width: 260,
       render: (_, r) => (
         <div>
           <div style={{ fontWeight: 600, color: '#262626' }}>{r.materialName || 'Material #' + r.materialId}</div>
@@ -197,7 +242,7 @@ export const StockLedgerListPage: React.FC = () => {
       ),
     },
     {
-      title: 'Qty Change',
+      title: 'Quantity Change',
       dataIndex: 'actualQty',
       key: 'actualQty',
       width: 120,
@@ -228,7 +273,7 @@ export const StockLedgerListPage: React.FC = () => {
       ),
     },
     {
-      title: 'Incoming Rate',
+      title: 'Transaction Rate (₹)',
       dataIndex: 'incomingRate',
       key: 'incomingRate',
       width: 120,
@@ -238,7 +283,7 @@ export const StockLedgerListPage: React.FC = () => {
     {
       title: (
         <Tooltip title="Updated weighted moving average valuation rate after this transaction">
-          <span>Valuation Rate</span>
+          <span>Valuation Rate (₹)</span>
         </Tooltip>
       ),
       dataIndex: 'valuationRate',
@@ -248,7 +293,7 @@ export const StockLedgerListPage: React.FC = () => {
       render: (rate) => (rate !== undefined && rate !== null ? `₹${Number(rate).toFixed(2)}` : '-'),
     },
     {
-      title: 'Value Delta',
+      title: 'Valuation Change (₹)',
       dataIndex: 'stockValueDifference',
       key: 'stockValueDifference',
       width: 120,
@@ -264,7 +309,7 @@ export const StockLedgerListPage: React.FC = () => {
       },
     },
     {
-      title: 'Remark',
+      title: 'Remarks',
       dataIndex: 'remark',
       key: 'remark',
       ellipsis: true,
@@ -277,10 +322,10 @@ export const StockLedgerListPage: React.FC = () => {
       title={
         <Space>
           <HistoryOutlined style={{ color: '#1890ff' }} />
-          <span>Authoritative Stock Ledger</span>
+          <span>Stock Ledger Register</span>
         </Space>
       }
-      bordered={false}
+      variant="borderless"
       style={{ margin: 16 }}
     >
       {/* Search & Filter Form */}
@@ -313,8 +358,8 @@ export const StockLedgerListPage: React.FC = () => {
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={4}>
-            <Form.Item name="materialParam" label="Product/SKU" style={{ width: '100%', margin: 0 }}>
-              <Input placeholder="Name / Barcode" allowClear prefix={<SearchOutlined />} />
+            <Form.Item name="materialParam" label="Item / Material" style={{ width: '100%', margin: 0 }}>
+              <Input placeholder="Search item / barcode..." allowClear prefix={<SearchOutlined />} />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={4}>
@@ -333,7 +378,7 @@ export const StockLedgerListPage: React.FC = () => {
       {/* Action Toolbar */}
       <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'flex-end' }}>
         <ExportPrintButtons
-          title="Authoritative Stock Ledger"
+          title="Stock Ledger Register"
           columns={columns as any}
           dataSource={dataSource}
           summaryItems={[
@@ -350,7 +395,7 @@ export const StockLedgerListPage: React.FC = () => {
         loading={loading}
         columns={columns}
         dataSource={dataSource}
-        scroll={{ x: 1550 }}
+        scroll={{ x: 1850 }}
         pagination={{
           ...pagination,
           showTotal: (tot, range) => `Total ${tot} ledger entries (${range[0]}-${range[1]})`,

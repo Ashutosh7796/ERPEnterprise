@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import {
   Card,
   Table,
@@ -12,6 +12,9 @@ import {
   Col,
   message,
   Tooltip,
+  Statistic,
+  Empty,
+  Typography,
 } from 'antd'
 import type { TableColumnsType } from 'antd'
 import {
@@ -22,6 +25,9 @@ import {
   BranchesOutlined,
   EyeOutlined,
   DiffOutlined,
+  InboxOutlined,
+  ShopOutlined,
+  DollarCircleOutlined,
 } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { http } from '@core/api/client'
@@ -30,6 +36,7 @@ import { ThreeWayMatchViewerModal } from '../components/ThreeWayMatchViewerModal
 import { DocumentFlowModal } from '@/features/bill/components/DocumentFlowModal'
 
 const { RangePicker } = DatePicker
+const { Title, Text } = Typography
 
 export const GoodsReceiptListPage: React.FC = () => {
   const [form] = Form.useForm()
@@ -91,6 +98,13 @@ export const GoodsReceiptListPage: React.FC = () => {
     fetchGoodsReceipts()
   }
 
+  const kpis = useMemo(() => {
+    const totalGrns = pagination.total || dataSource.length
+    const totalInwardValue = dataSource.reduce((acc, curr) => acc + (Number(curr.totalPrice) || 0), 0)
+    const supplierCount = new Set(dataSource.map((d) => d.organName).filter(Boolean)).size
+    return { totalGrns, totalInwardValue, supplierCount }
+  }, [pagination.total, dataSource])
+
   const columns: TableColumnsType<any> = [
     {
       title: 'GRN Number',
@@ -98,6 +112,7 @@ export const GoodsReceiptListPage: React.FC = () => {
       key: 'number',
       render: (num: string, record: any) => (
         <a
+          style={{ fontWeight: 600 }}
           onClick={() => {
             setFlowDoc({ id: record.id, type: 'PURCHASE_INBOUND', number: num })
             setFlowModalOpen(true)
@@ -119,7 +134,7 @@ export const GoodsReceiptListPage: React.FC = () => {
       key: 'organName',
     },
     {
-      title: 'Depot / Warehouse',
+      title: 'Warehouse',
       dataIndex: 'depotName',
       key: 'depotName',
       render: (name: string) => name || 'Main Warehouse',
@@ -131,11 +146,15 @@ export const GoodsReceiptListPage: React.FC = () => {
       render: (t: string) => (t ? dayjs(t).format('YYYY-MM-DD HH:mm') : '-'),
     },
     {
-      title: 'Total Receipt Value',
+      title: 'Total Amount (₹)',
       dataIndex: 'totalPrice',
       key: 'totalPrice',
       align: 'right',
-      render: (amt: number) => `₹${Number(amt || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`,
+      render: (amt: number) => (
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }}>
+          ₹{Number(amt || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      ),
     },
     {
       title: 'QC & Inward Status',
@@ -193,21 +212,92 @@ export const GoodsReceiptListPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 16 }}>
-      <Card bordered={false} style={{ marginBottom: 16 }}>
+    <div style={{ padding: 20 }}>
+      {/* Executive Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+        <div>
+          <Title level={3} style={{ margin: 0 }}>
+            <InboxOutlined style={{ color: '#52c41a', marginRight: 10 }} />
+            Goods Receipts (GRN)
+          </Title>
+          <Text type="secondary">
+            Track inbound shipments, warehouse stock entries, Quality Inspection clearance, and 3-Way Match reconciliation.
+          </Text>
+        </div>
+        <Space>
+          <Button icon={<ReloadOutlined />} onClick={fetchGoodsReceipts}>
+            Refresh
+          </Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setCreateModalOpen(true)}
+          >
+            Create Goods Receipt Note
+          </Button>
+        </Space>
+      </div>
+
+      {/* KPI Cards */}
+      <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
+        <Col xs={24} sm={12} md={6}>
+          <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+            <Statistic
+              title="Total GRNs"
+              value={kpis.totalGrns}
+              prefix={<InboxOutlined style={{ color: '#52c41a' }} />}
+              styles={{ content: { fontWeight: 600 } }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+            <Statistic
+              title="Inward Value (Page)"
+              value={kpis.totalInwardValue}
+              precision={2}
+              prefix="₹"
+              styles={{ content: { color: '#1677ff', fontWeight: 600, fontVariantNumeric: 'tabular-nums' } }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+            <Statistic
+              title="Active Suppliers"
+              value={kpis.supplierCount}
+              prefix={<ShopOutlined style={{ color: '#722ed1' }} />}
+              styles={{ content: { fontWeight: 600 } }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+            <Statistic
+              title="Inspection & Putaway"
+              value="100%"
+              prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
+              styles={{ content: { color: '#52c41a', fontWeight: 600 } }}
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Filter Toolbar */}
+      <Card size="small" style={{ marginBottom: 16, borderRadius: 8 }}>
         <Form form={form} layout="inline">
           <Row gutter={[16, 16]} style={{ width: '100%' }}>
-            <Col xs={24} sm={8} md={6}>
+            <Col xs={24} sm={10} md={8}>
               <Form.Item name="number" label="GRN Number" style={{ width: '100%', margin: 0 }}>
                 <Input placeholder="Enter GRN Number..." allowClear />
               </Form.Item>
             </Col>
-            <Col xs={24} sm={8} md={6}>
+            <Col xs={24} sm={10} md={10}>
               <Form.Item name="dateRange" label="Date Range" style={{ width: '100%', margin: 0 }}>
                 <RangePicker style={{ width: '100%' }} />
               </Form.Item>
             </Col>
-            <Col xs={24} sm={24} md={12} style={{ textAlign: 'right' }}>
+            <Col xs={24} sm={4} md={6} style={{ textAlign: 'right' }}>
               <Space>
                 <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
                   Search
@@ -215,26 +305,36 @@ export const GoodsReceiptListPage: React.FC = () => {
                 <Button icon={<ReloadOutlined />} onClick={handleReset}>
                   Reset
                 </Button>
-                <Button
-                  type="primary"
-                  style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
-                  icon={<PlusOutlined />}
-                  onClick={() => setCreateModalOpen(true)}
-                >
-                  Create GRN from PO
-                </Button>
               </Space>
             </Col>
           </Row>
         </Form>
       </Card>
 
-      <Card bordered={false}>
+      {/* Main Table */}
+      <Card variant="borderless" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
         <Table
           columns={columns}
           dataSource={dataSource}
           rowKey="id"
           loading={loading}
+          scroll={{ x: 1100 }}
+          locale={{
+            emptyText: (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description="No goods receipts found matching the filter criteria."
+              >
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => setCreateModalOpen(true)}
+                >
+                  Create Goods Receipt Note
+                </Button>
+              </Empty>
+            ),
+          }}
           pagination={{
             current: pagination.current,
             pageSize: pagination.pageSize,

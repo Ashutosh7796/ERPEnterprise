@@ -139,7 +139,7 @@ export const PriceListListPage: React.FC = () => {
         </Col>
       </Row>
 
-      <Card bordered={false} style={{ borderRadius: 8 }}>
+      <Card variant="borderless" style={{ borderRadius: 8 }}>
         <Table
           dataSource={data}
           columns={columns}

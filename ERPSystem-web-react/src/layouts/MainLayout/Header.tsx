@@ -8,7 +8,6 @@ import {
   LogoutOutlined,
   SettingOutlined,
   KeyOutlined,
-  GlobalOutlined,
   FullscreenOutlined,
   FullscreenExitOutlined,
   DownCircleOutlined,
@@ -18,7 +17,7 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
 } from '@ant-design/icons'
-import { Popover, Badge, List, Card } from 'antd'
+import { Popover, Badge, Card } from 'antd'
 import { getTenantPendingRequests, approveSupportSession, rejectSupportSession } from '@features/support/api/supportApi'
 import { useSSE } from '@features/support/hooks/useSSE'
 import { useAppStore } from '@store/useAppStore'
@@ -190,18 +189,6 @@ export const Header: React.FC = () => {
     }
   }
 
-  const langMenuItems: MenuProps['items'] = [
-    {
-      key: 'english',
-      label: '🇬🇧 English',
-      onClick: () => updateThemeSettings({ language: 'english' }),
-    },
-    {
-      key: 'chinese_simplified',
-      label: '🇨🇳 简体中文 (Chinese)',
-      onClick: () => updateThemeSettings({ language: 'chinese_simplified' }),
-    },
-  ]
 
   const userMenuItems: MenuProps['items'] = [
     {
@@ -277,7 +264,7 @@ export const Header: React.FC = () => {
         )}
         {domain === 'TENANT' && userAuth.tenantId && (
           <Tag color="geekblue" style={{ margin: 0, fontWeight: 600, border: 'none' }}>
-            Tenant #{userAuth.tenantId}
+            {userAuth.tenantName || 'Enterprise Workspace'}
           </Tag>
         )}
       </Space>
@@ -294,16 +281,6 @@ export const Header: React.FC = () => {
           />
         </Tooltip>
 
-        {/* Language Switcher */}
-        <Dropdown menu={{ items: langMenuItems }} placement="bottomRight">
-          <Button
-            type="text"
-            style={{ color: '#fff', display: 'flex', alignItems: 'center', gap: 4 }}
-          >
-            <GlobalOutlined style={{ fontSize: 16 }} />
-            <span>{themeSettings.language === 'english' ? 'English' : '简体中文'}</span>
-          </Button>
-        </Dropdown>
 
         {/* Notification Bell & Consent Center */}
         <Popover

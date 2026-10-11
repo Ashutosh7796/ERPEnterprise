@@ -163,7 +163,7 @@ export const FinancialBillManager: React.FC<FinancialBillManagerProps> = ({
       const ids = selectedRowKeys.join(',')
       const res = await http.delete(`/accountHead/deleteBatch?ids=${ids}`)
       if (res && (res.code === 200 || res.status === 200)) {
-        message.success('Batch delete successful')
+        message.success('Selected vouchers deleted successfully.')
         setSelectedRowKeys([])
         fetchData(pagination.current, pagination.pageSize)
       } else {
@@ -409,7 +409,7 @@ export const FinancialBillManager: React.FC<FinancialBillManagerProps> = ({
           setModalOpen(true)
         }}
       >
-        Add New
+        Create Voucher
       </Button>
       <Popconfirm
         title="Delete selected documents?"
@@ -417,7 +417,7 @@ export const FinancialBillManager: React.FC<FinancialBillManagerProps> = ({
         disabled={selectedRowKeys.length === 0}
       >
         <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-          Batch Delete
+          Delete Selected Vouchers
         </Button>
       </Popconfirm>
       <Button

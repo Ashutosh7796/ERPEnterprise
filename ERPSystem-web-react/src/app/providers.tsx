@@ -1,7 +1,6 @@
 import React, { type ReactNode } from 'react'
 import { ConfigProvider, App as AntdApp, theme as antdTheme } from 'antd'
 import enUS from 'antd/locale/en_US'
-import zhCN from 'antd/locale/zh_CN'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useAppStore } from '@store/useAppStore'
 
@@ -26,7 +25,7 @@ export const Providers: React.FC<ProvidersProps> = ({ children }) => {
   return (
     <QueryClientProvider client={queryClient}>
       <ConfigProvider
-        locale={themeSettings.language === 'chinese_simplified' ? zhCN : enUS}
+        locale={enUS}
         theme={{
           algorithm: darkMode ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
           token: {

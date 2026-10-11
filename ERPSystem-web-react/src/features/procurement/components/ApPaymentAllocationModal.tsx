@@ -140,7 +140,7 @@ export const ApPaymentAllocationModal: React.FC<ApPaymentAllocationModalProps> =
 
     const payload: ApPaymentAllocationRequest = {
       supplierId: supplierId || 1,
-      supplierName: supplierName || 'Vendor',
+      supplierName: supplierName || 'Supplier',
       bankAccountId,
       totalPaymentAmount: netBankRemitted,
       totalTdsWithheld: totalTds,
@@ -244,7 +244,7 @@ export const ApPaymentAllocationModal: React.FC<ApPaymentAllocationModalProps> =
   return (
     <Modal
       title={
-        <Space direction="vertical" size={2}>
+        <Space orientation="vertical" size={2}>
           <Title level={4} style={{ margin: 0 }}>
             Accounts Payable (AP) Multi-Invoice Payment Allocation
           </Title>
@@ -268,9 +268,9 @@ export const ApPaymentAllocationModal: React.FC<ApPaymentAllocationModalProps> =
       <Card size="small" style={{ marginBottom: 16, backgroundColor: '#fcfcfc' }}>
         <Row gutter={16} align="middle">
           <Col span={6}>
-            <Text type="secondary">Supplier / Vendor:</Text>
+            <Text type="secondary">Supplier:</Text>
             <div>
-              <Text strong style={{ fontSize: 16 }}>{supplierName || 'Selected Vendor'}</Text>
+              <Text strong style={{ fontSize: 16 }}>{supplierName || 'Selected Supplier'}</Text>
             </div>
           </Col>
           <Col span={6}>

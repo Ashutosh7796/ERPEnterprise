@@ -15,7 +15,7 @@ import {
   Tag,
   Popconfirm,
   Modal,
-  message,
+  App,
 } from 'antd'
 import type { TableColumnsType } from 'antd'
 import {
@@ -50,6 +50,7 @@ export interface VendorRecord {
 }
 
 export const VendorListPage: React.FC = () => {
+  const { message, modal } = App.useApp()
   const [form] = Form.useForm()
   const [modalForm] = Form.useForm()
   const [loading, setLoading] = useState(false)
@@ -96,7 +97,7 @@ export const VendorListPage: React.FC = () => {
     setLoading(true)
     try {
       const searchObj: Record<string, any> = {
-        type: '供应商',
+        type: 'Vendor',
         supplier: searchValues.supplier || '',
         contacts: searchValues.contacts || '',
         telephone: searchValues.telephone || '',
@@ -115,8 +116,8 @@ export const VendorListPage: React.FC = () => {
       setDataSource(rows)
       setPagination({ current: page, pageSize, total })
     } catch (err: any) {
-      console.error('Failed to load vendors:', err)
-      message.error(err?.message || 'Failed to load vendor list.')
+      console.error('Failed to load suppliers:', err)
+      message.error(err?.message || 'Failed to load supplier list.')
       setDataSource([])
     } finally {
       setLoading(false)
@@ -130,42 +131,42 @@ export const VendorListPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       await http.delete(`/supplier/delete?id=${id}`)
-      message.success('Vendor deleted successfully')
+      message.success('Supplier deleted successfully.')
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to delete vendor')
+      message.error(err?.message || 'Failed to delete supplier.')
     }
   }
 
   const handleBatchDelete = async () => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Please select vendors first')
+      message.warning('Please select at least one supplier.')
       return
     }
     try {
       const ids = selectedRowKeys.join(',')
       await http.delete(`/supplier/deleteBatch?ids=${ids}`)
-      message.success('Selected vendors deleted successfully')
+      message.success('Selected suppliers deleted successfully.')
       setSelectedRowKeys([])
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to delete selected vendors')
+      message.error(err?.message || 'Failed to delete selected suppliers.')
     }
   }
 
   const handleBatchStatus = async (status: boolean) => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Please select vendors first')
+      message.warning('Please select at least one supplier.')
       return
     }
     try {
       const ids = selectedRowKeys.join(',')
       await http.post(`/supplier/batchSetStatus?status=${status}&ids=${ids}`)
-      message.success(status ? 'Vendors enabled' : 'Vendors disabled')
+      message.success(status ? 'Suppliers enabled successfully.' : 'Suppliers disabled successfully.')
       setSelectedRowKeys([])
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to update vendor status')
+      message.error(err?.message || 'Failed to update supplier status.')
     }
   }
 
@@ -196,7 +197,7 @@ export const VendorListPage: React.FC = () => {
       const values = await modalForm.validateFields()
       setSubmitting(true)
       const payload: any = {
-        type: '供应商',
+        type: 'Vendor',
         supplier: values.supplier,
         contacts: values.contacts || '',
         telephone: values.telephone || '',
@@ -211,16 +212,16 @@ export const VendorListPage: React.FC = () => {
       if (editingRecord) {
         payload.id = editingRecord.id
         await http.put('/supplier/update', payload)
-        message.success('Vendor updated successfully')
+        message.success('Supplier updated successfully.')
       } else {
         await http.post('/supplier/add', payload)
-        message.success('Vendor created successfully')
+        message.success('Supplier created successfully.')
       }
 
       setModalOpen(false)
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to save vendor')
+      message.error(err?.message || 'Failed to save supplier.')
     } finally {
       setSubmitting(false)
     }
@@ -236,21 +237,25 @@ export const VendorListPage: React.FC = () => {
         (pagination.current - 1) * pagination.pageSize + idx + 1,
     },
     action: {
-      title: 'Action',
+      title: 'Actions',
       key: 'action',
       width: 130,
       align: 'center' as const,
       render: (_: any, record: VendorRecord) => (
         <Space split={<Divider type="vertical" style={{ margin: '0 4px' }} />} size={0}>
           <a onClick={() => handleOpenEdit(record)}>Edit</a>
-          <Popconfirm title="Delete this vendor?" onConfirm={() => handleDelete(record.id)}>
+          <Popconfirm
+            title="Delete this supplier?"
+            description="Inactive suppliers with historical transactions will be archived."
+            onConfirm={() => handleDelete(record.id)}
+          >
             <a style={{ color: '#ff4d4f' }}>Delete</a>
           </Popconfirm>
         </Space>
       ),
     },
     supplier: {
-      title: 'Vendor Name',
+      title: 'Supplier Name',
       dataIndex: 'supplier',
       key: 'supplier',
       width: 180,
@@ -330,7 +335,7 @@ export const VendorListPage: React.FC = () => {
 
   const columnSettingsContent = (
     <div style={{ width: 420 }}>
-      <div style={{ fontWeight: 600, marginBottom: 8 }}>Vendor Column Display Settings</div>
+      <div style={{ fontWeight: 600, marginBottom: 8 }}>Supplier Column Display Settings</div>
       <Checkbox.Group
         value={visibleColumns}
         onChange={(vals) => setVisibleColumns(vals as string[])}
@@ -383,12 +388,12 @@ export const VendorListPage: React.FC = () => {
           <Col xs={24} sm={12} md={6}>
             <Form.Item
               name="supplier"
-              label="Vendor Name:"
-              labelCol={{ flex: '95px' }}
+              label="Supplier Name:"
+              labelCol={{ flex: '105px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
-              <Input placeholder="Enter vendor name..." allowClear style={{ width: '100%' }} />
+              <Input placeholder="Enter supplier name..." allowClear style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={6}>
@@ -468,15 +473,16 @@ export const VendorListPage: React.FC = () => {
       >
         <Space size="small" wrap>
           <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
-            Add New
+            Create Supplier
           </Button>
           <Popconfirm
-            title="Delete selected vendors?"
+            title="Delete selected suppliers?"
+            description="Inactive suppliers with historical transactions will be archived."
             onConfirm={handleBatchDelete}
             disabled={selectedRowKeys.length === 0}
           >
             <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-              Batch Delete
+              Delete Selected Suppliers
             </Button>
           </Popconfirm>
           <Button
@@ -484,17 +490,17 @@ export const VendorListPage: React.FC = () => {
             onClick={() => handleBatchStatus(true)}
             disabled={selectedRowKeys.length === 0}
           >
-            Enable
+            Enable Suppliers
           </Button>
           <Button
             icon={<StopOutlined />}
             onClick={() => handleBatchStatus(false)}
             disabled={selectedRowKeys.length === 0}
           >
-            Disable
+            Disable Suppliers
           </Button>
           <ExportPrintButtons
-            title="Vendor / Supplier Master List"
+            title="Supplier Master Directory"
             columns={columns as any}
             dataSource={dataSource}
           />
@@ -529,7 +535,7 @@ export const VendorListPage: React.FC = () => {
 
       {/* Vendor Modal */}
       <Modal
-        title={editingRecord ? 'Edit Vendor Info' : 'Add New Vendor'}
+        title={editingRecord ? 'Edit Supplier' : 'Create Supplier'}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}
@@ -542,8 +548,8 @@ export const VendorListPage: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="supplier"
-                label="Vendor Name"
-                rules={[{ required: true, message: 'Please enter vendor name' }]}
+                label="Supplier Name"
+                rules={[{ required: true, message: 'Please enter supplier name' }]}
               >
                 <Input placeholder="e.g. Acme Supplies Ltd..." />
               </Form.Item>
@@ -572,7 +578,7 @@ export const VendorListPage: React.FC = () => {
             <Col span={12}>
               <Form.Item
                 name="taxNum"
-                label="Vendor GSTIN (Tax ID)"
+                label="Supplier GSTIN (Tax ID)"
                 rules={[{ max: 15, message: 'GSTIN cannot exceed 15 characters' }]}
               >
                 <Input placeholder="e.g. 27AAACA1234A1Z1" maxLength={15} />
@@ -588,7 +594,7 @@ export const VendorListPage: React.FC = () => {
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item name="email" label="Email Address">
-                <Input placeholder="e.g. vendor@company.com..." />
+                <Input placeholder="e.g. supplier@company.com..." />
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -612,7 +618,7 @@ export const VendorListPage: React.FC = () => {
           </Row>
 
           <Form.Item name="description" label="Remarks / Notes">
-            <Input.TextArea rows={2} placeholder="Additional vendor information..." />
+            <Input.TextArea rows={2} placeholder="Additional supplier notes..." />
           </Form.Item>
         </Form>
       </Modal>

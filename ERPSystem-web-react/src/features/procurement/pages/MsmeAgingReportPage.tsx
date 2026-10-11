@@ -113,7 +113,7 @@ export const MsmeAgingReportPage: React.FC = () => {
       key: 'supplier',
       render: (_: any, record: MsmeAgingItem) => (
         <Space direction="vertical" size={2}>
-          <Text strong>{record.supplierName || 'Vendor'}</Text>
+          <Text strong>{record.supplierName || 'Supplier'}</Text>
           <Space>
             <Tag color={record.msmeType === 'MICRO' ? 'magenta' : record.msmeType === 'SMALL' ? 'volcano' : 'default'}>
               {record.msmeType}
@@ -197,10 +197,10 @@ export const MsmeAgingReportPage: React.FC = () => {
         <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
           <Col>
             <Title level={3} style={{ margin: 0 }}>
-              MSME Vendor Aging & Payment Schedule
+              MSME Supplier Aging & Payment Schedule
             </Title>
             <Text type="secondary">
-              Monitor vendor payment timelines, MSME payment status, and year-end compliance aging.
+              Monitor supplier payment timelines, MSME payment status, and statutory compliance aging.
             </Text>
           </Col>
           <Col>

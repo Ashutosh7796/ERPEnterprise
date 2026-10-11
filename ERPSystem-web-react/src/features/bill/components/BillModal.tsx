@@ -13,9 +13,10 @@ import {
   Col,
   Divider,
   Typography,
-  message,
+  App,
   Popconfirm,
   Alert,
+  Tag,
 } from 'antd'
 import { PlusOutlined, DeleteOutlined, FileProtectOutlined } from '@ant-design/icons'
 import { useNavigate } from 'react-router-dom'
@@ -64,11 +65,12 @@ export const BillModal: React.FC<BillModalProps> = ({
   subType,
   prefixNo,
   partnerType = 'vendor',
-  partnerLabel = 'Vendor / Supplier',
+  partnerLabel = 'Supplier',
   editingRecord,
   onClose,
   onSuccess,
 }) => {
+  const { message } = App.useApp()
   const navigate = useNavigate()
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
@@ -467,8 +469,18 @@ export const BillModal: React.FC<BillModalProps> = ({
     }
   }
 
+  const isRequisition =
+    subType === '请购单' ||
+    subType === 'PurchaseRequisition' ||
+    subType.includes('请购') ||
+    subType.includes('Requisition')
   const isTransfer = subType === '调拨出库'
-  const isSimpleBill = subType === '其它入库' || subType === '其它出库' || subType === '组装单' || subType === '拆卸单'
+  const isSimpleBill =
+    isRequisition ||
+    subType === '其它入库' ||
+    subType === '其它出库' ||
+    subType === '组装单' ||
+    subType === '拆卸单'
 
   // Build product options with fallbacks for existing bill items
   const productOptions = useMemo(() => {
@@ -487,7 +499,7 @@ export const BillModal: React.FC<BillModalProps> = ({
       if (it.materialId && !opts.some((o) => o.value === Number(it.materialId))) {
         opts.push({
           value: Number(it.materialId),
-          label: `${it.barCode ? `${it.barCode} - ` : ''}${it.name || `Product #${it.materialId}`}${it.standard ? ` (${it.standard})` : ''}`,
+          label: `${it.barCode ? `${it.barCode} - ` : ''}${it.name || `Item #${it.materialId}`}${it.standard ? ` (${it.standard})` : ''}`,
         })
       }
     })
@@ -502,14 +514,14 @@ export const BillModal: React.FC<BillModalProps> = ({
       render: (_: any, __: any, index: number) => index + 1,
     },
     {
-      title: 'Product (Barcode / Name)',
+      title: 'Item (Barcode / Name)',
       key: 'materialId',
       width: 250,
       render: (_: any, record: BillItem, index: number) => (
         <Select
           style={{ width: '100%' }}
           showSearch
-          placeholder="Select product..."
+          placeholder="Select item..."
           optionFilterProp="label"
           value={record.materialId ? Number(record.materialId) : undefined}
           onChange={(val) => handleItemChange(index, 'materialId', val)}
@@ -556,7 +568,7 @@ export const BillModal: React.FC<BillModalProps> = ({
         ]
       : []),
     {
-      title: 'Qty',
+      title: 'Quantity',
       key: 'operNumber',
       width: 90,
       render: (_: any, record: BillItem, index: number) => (
@@ -607,7 +619,7 @@ export const BillModal: React.FC<BillModalProps> = ({
             ),
           },
           {
-            title: 'Total w/ Tax (₹)',
+            title: 'Total Amount Incl. Tax (₹)',
             key: 'taxLastMoney',
             width: 120,
             render: (_: any, record: BillItem) => (
@@ -631,7 +643,7 @@ export const BillModal: React.FC<BillModalProps> = ({
       ),
     },
     {
-      title: 'Action',
+      title: 'Actions',
       key: 'action',
       width: 60,
       align: 'center' as const,
@@ -647,7 +659,7 @@ export const BillModal: React.FC<BillModalProps> = ({
     <Modal
       title={title}
       open={open}
-      width={1100}
+      width={1180}
       onCancel={onClose}
       onOk={handleSave}
       confirmLoading={loading}
@@ -686,13 +698,13 @@ export const BillModal: React.FC<BillModalProps> = ({
               <Form.Item
                 name="organId"
                 label={partnerLabel}
-                rules={[{ required: subType !== '请购单', message: `Please select ${partnerLabel}` }]}
+                rules={[{ required: !isRequisition, message: `Please select ${partnerLabel}` }]}
               >
                 <Select
                   showSearch
                   allowClear
                   placeholder={`Select ${partnerLabel}...`}
-                  optionFilterProp="children"
+                  optionFilterProp="label"
                   options={partnerList.map((v) => ({
                     value: v.id,
                     label: v.supplier || v.name,
@@ -770,54 +782,122 @@ export const BillModal: React.FC<BillModalProps> = ({
           columns={itemColumns}
           dataSource={items}
           pagination={false}
-          scroll={{ x: 1000 }}
+          scroll={{ x: 1050 }}
           style={{ marginBottom: 16 }}
         />
 
         {/* Footer Financial Breakdown */}
         {!isSimpleBill && (
-          <Row gutter={16} style={{ background: '#fafafa', padding: '12px 16px', borderRadius: 6, marginBottom: 12 }}>
-            <Col span={4}>
-              <Form.Item label="Discount Rate (%)" name="discount" style={{ marginBottom: 0 }}>
-                <InputNumber min={0} max={100} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col span={5}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  Discount Amount:
-                </Text>
-                <Text strong style={{ fontSize: 14, color: '#f5222d' }}>
-                  -₹{discountMoney.toFixed(2)}
-                </Text>
-              </div>
-            </Col>
-            <Col span={5}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  Net Total with Tax:
-                </Text>
-                <Text strong style={{ fontSize: 16, color: '#1890ff' }}>
-                  ₹{finalAmount.toFixed(2)}
-                </Text>
-              </div>
-            </Col>
-            <Col span={5}>
-              <Form.Item label="This Payment (₹)" name="changeAmount" style={{ marginBottom: 0 }}>
-                <InputNumber min={0} step={0.01} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col span={5}>
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <Text type="secondary" style={{ fontSize: 12 }}>
-                  Outstanding Debt:
-                </Text>
-                <Text strong style={{ fontSize: 15, color: debt > 0 ? '#fa8c16' : '#52c41a' }}>
-                  ₹{debt.toFixed(2)}
-                </Text>
-              </div>
-            </Col>
-          </Row>
+          <div
+            style={{
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: 8,
+              padding: '14px 18px',
+              marginBottom: 16,
+            }}
+          >
+            <Row gutter={[16, 12]} align="middle">
+              <Col xs={12} sm={8} md={4}>
+                <div style={{ fontSize: 12, color: '#64748b' }}>Subtotal (Excl. Tax)</div>
+                <div style={{ fontSize: 15, fontWeight: 600, color: '#334155', fontVariantNumeric: 'tabular-nums' }}>
+                  ₹{totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+              </Col>
+              <Col xs={12} sm={8} md={4}>
+                <div style={{ fontSize: 12, color: '#64748b' }}>Tax Amount</div>
+                <div style={{ fontSize: 15, fontWeight: 600, color: '#475569', fontVariantNumeric: 'tabular-nums' }}>
+                  +₹{Math.max(0, totalWithTax - totalAmount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+              </Col>
+              <Col xs={12} sm={8} md={4}>
+                <Form.Item label="Discount Rate (%)" name="discount" style={{ marginBottom: 0 }}>
+                  <InputNumber min={0} max={100} style={{ width: '100%' }} />
+                </Form.Item>
+                {discountMoney > 0 && (
+                  <div style={{ fontSize: 11, color: '#dc2626', marginTop: 2, fontVariantNumeric: 'tabular-nums' }}>
+                    -₹{discountMoney.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </div>
+                )}
+              </Col>
+              <Col xs={12} sm={8} md={4}>
+                <div style={{ fontSize: 12, color: '#1e40af', fontWeight: 600 }}>Invoice Net Total</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#1d4ed8', fontVariantNumeric: 'tabular-nums' }}>
+                  ₹{finalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+              </Col>
+              <Col xs={12} sm={8} md={4}>
+                <Form.Item label="This Payment (₹)" name="changeAmount" style={{ marginBottom: 0 }}>
+                  <InputNumber min={0} step={0.01} style={{ width: '100%' }} />
+                </Form.Item>
+              </Col>
+              <Col xs={12} sm={8} md={4}>
+                {finalAmount === 0 ? (
+                  <>
+                    <div style={{ fontSize: 12, color: '#64748b', fontWeight: 600 }}>Settlement Status</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: '#94a3b8' }}>
+                      Pending Items & Rate
+                    </div>
+                  </>
+                ) : Number(changeAmount) >= finalAmount ? (
+                  <>
+                    <div style={{ fontSize: 12, color: '#15803d', fontWeight: 600 }}>Settlement Status</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#15803d' }}>
+                      Fully Settled
+                    </div>
+                  </>
+                ) : Number(changeAmount) > 0 ? (
+                  <>
+                    <div style={{ fontSize: 12, color: '#d97706', fontWeight: 600 }}>Remaining Balance</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#b45309', fontVariantNumeric: 'tabular-nums' }}>
+                      ₹{debt.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} (Partial)
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: 12, color: '#dc2626', fontWeight: 600 }}>Settlement Status</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#dc2626', fontVariantNumeric: 'tabular-nums' }}>
+                      Unsettled (Due: ₹{finalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
+                    </div>
+                  </>
+                )}
+              </Col>
+            </Row>
+          </div>
+        )}
+
+        {/* Requisition Summary for Purchase Requisitions */}
+        {isRequisition && (
+          <div
+            style={{
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: 8,
+              padding: '14px 18px',
+              marginBottom: 16,
+            }}
+          >
+            <Row gutter={[16, 12]} align="middle">
+              <Col xs={12} sm={8} md={8}>
+                <div style={{ fontSize: 12, color: '#64748b' }}>Total Requested Items</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#1e293b' }}>
+                  {items.filter((i) => i.materialId || i.operNumber > 0).length} Line Item(s)
+                </div>
+              </Col>
+              <Col xs={12} sm={8} md={8}>
+                <div style={{ fontSize: 12, color: '#64748b' }}>Estimated Requisition Value</div>
+                <div style={{ fontSize: 18, fontWeight: 700, color: '#2563eb', fontVariantNumeric: 'tabular-nums' }}>
+                  ₹{totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </div>
+              </Col>
+              <Col xs={12} sm={8} md={8}>
+                <div style={{ fontSize: 12, color: '#64748b' }}>Approval Lifecycle</div>
+                <Tag color="orange" style={{ marginTop: 2, fontSize: 13, padding: '2px 10px' }}>
+                  Pending Approval
+                </Tag>
+              </Col>
+            </Row>
+          </div>
         )}
 
         <Form.Item name="remark" label="Document Remarks" style={{ marginBottom: 0 }}>

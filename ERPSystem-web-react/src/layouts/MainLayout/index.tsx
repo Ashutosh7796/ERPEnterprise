@@ -80,7 +80,7 @@ export const MainLayout: React.FC = () => {
           </ErrorBoundary>
         </Content>
         <Footer style={{ textAlign: 'center', padding: '8px 24px', fontSize: 12, color: token.colorTextSecondary }}>
-          © 2015-2030 ERP System Pro V3.6 · Indian Enterprise Edition
+          © 2015-2030 ERP System V4.09 · Enterprise Edition
         </Footer>
       </Layout>
 

@@ -548,7 +548,7 @@ export const JournalVoucherPage: React.FC<JournalVoucherPageProps> = ({ defaultT
               </div>
             )}
 
-            <Divider titlePlacement="start" style={{ margin: '12px 0' }}>Double-Entry GL Facts (erp_gl_entry)</Divider>
+            <Divider titlePlacement="start" style={{ margin: '12px 0' }}>Double-Entry General Ledger Entries</Divider>
             <Table
               dataSource={selectedVoucher.lines || []}
               columns={detailColumns}

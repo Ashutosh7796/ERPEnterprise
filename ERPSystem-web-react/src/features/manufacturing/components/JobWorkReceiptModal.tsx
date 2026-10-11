@@ -308,8 +308,8 @@ export const JobWorkReceiptModal: React.FC<JobWorkReceiptModalProps> = ({
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item name="supplierChallanNumber" label="Job Worker DC / Return No.">
-              <Input placeholder="Vendor delivery challan number" />
+            <Form.Item name="supplierChallanNumber" label="Job Worker Delivery Note / Return Reference">
+              <Input placeholder="Supplier delivery challan number" />
             </Form.Item>
           </Col>
         </Row>
@@ -344,7 +344,7 @@ export const JobWorkReceiptModal: React.FC<JobWorkReceiptModalProps> = ({
           </Col>
         </Row>
 
-        <Divider style={{ margin: '12px 0' }}>Authoritative Cost Absorption Preview</Divider>
+        <Divider style={{ margin: '12px 0' }}>Manufacturing Cost Absorption Preview</Divider>
 
         <Card size="small" style={{ background: '#fafafa', marginBottom: 16 }}>
           <Row gutter={16}>

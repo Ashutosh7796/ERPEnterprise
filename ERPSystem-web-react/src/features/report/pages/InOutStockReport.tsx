@@ -115,23 +115,23 @@ export const InOutStockReportPage: React.FC = () => {
 
   const columnsConfig: Record<string, any> = {
     barCode: {
-      title: 'Barcode',
+      title: 'Item Code / Barcode',
       dataIndex: 'barCode',
       key: 'barCode',
       width: 140,
     },
     materialName: {
-      title: 'Product Name',
+      title: 'Item Name',
       dataIndex: 'materialName',
       key: 'materialName',
       width: 170,
       ellipsis: true,
     },
     materialStandard: {
-      title: 'Spec',
+      title: 'Specification',
       dataIndex: 'materialStandard',
       key: 'materialStandard',
-      width: 90,
+      width: 110,
       ellipsis: true,
     },
     materialModel: {
@@ -142,41 +142,41 @@ export const InOutStockReportPage: React.FC = () => {
       ellipsis: true,
     },
     unitName: {
-      title: 'Unit',
+      title: 'Unit of Measure',
       dataIndex: 'unitName',
       key: 'unitName',
-      width: 70,
+      width: 90,
     },
     prevSum: {
-      title: 'Opening Qty',
+      title: 'Opening Quantity',
       dataIndex: 'prevSum',
       key: 'prevSum',
-      width: 110,
+      width: 120,
       render: (val: any) => val || 0,
     },
     inSum: {
-      title: 'Inbound Qty',
+      title: 'Inbound Quantity',
       dataIndex: 'inSum',
       key: 'inSum',
-      width: 110,
+      width: 120,
       render: (val: any) => <span style={{ color: '#52c41a' }}>{val || 0}</span>,
     },
     outSum: {
-      title: 'Outbound Qty',
+      title: 'Outbound Quantity',
       dataIndex: 'outSum',
       key: 'outSum',
-      width: 110,
+      width: 120,
       render: (val: any) => <span style={{ color: '#f5222d' }}>{val || 0}</span>,
     },
     thisSum: {
-      title: 'Closing Qty',
+      title: 'Closing Quantity',
       dataIndex: 'thisSum',
       key: 'thisSum',
-      width: 110,
+      width: 120,
       render: (val: any) => <strong style={{ color: '#1890ff' }}>{val || 0}</strong>,
     },
     thisSumPrice: {
-      title: 'Ending Valuation (₹)',
+      title: 'Closing Valuation (₹)',
       dataIndex: 'thisSumPrice',
       key: 'thisSumPrice',
       width: 150,
@@ -219,8 +219,8 @@ export const InOutStockReportPage: React.FC = () => {
           <Col xs={24} sm={12} md={8}>
             <Form.Item
               name="materialParam"
-              label="Product Info:"
-              labelCol={{ flex: '90px' }}
+              label="Item Information:"
+              labelCol={{ flex: '120px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
@@ -305,21 +305,21 @@ export const InOutStockReportPage: React.FC = () => {
           </Text>
           <Divider type="vertical" />
           <Text>
-            Ending Valuation:{' '}
+            Closing Valuation:{' '}
             <strong style={{ color: '#1890ff', fontSize: 15 }}>₹{thisSumPrice.toFixed(2)}</strong>
           </Text>
         </Space>
 
         <Space size="small">
           <ExportPrintButtons
-            title="Inventory Flow & Valuation Report"
+            title="Inventory Movement Summary"
             columns={columns as any}
             dataSource={dataSource}
             summaryItems={[
               { label: 'Opening Valuation', value: `₹${prevSumPrice.toFixed(2)}` },
               { label: 'Inbound Valuation', value: `₹${inSumPrice.toFixed(2)}` },
               { label: 'Outbound Valuation', value: `₹${outSumPrice.toFixed(2)}` },
-              { label: 'Ending Valuation', value: `₹${thisSumPrice.toFixed(2)}` },
+              { label: 'Closing Valuation', value: `₹${thisSumPrice.toFixed(2)}` },
             ]}
           />
           <Popover content={columnSettingsContent} trigger="click" placement="bottomRight">

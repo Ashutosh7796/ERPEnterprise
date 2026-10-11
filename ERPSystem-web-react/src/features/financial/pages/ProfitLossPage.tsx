@@ -115,7 +115,7 @@ export const ProfitLossPage: React.FC = () => {
                   Schedule III Profit & Loss Statement
                 </Title>
                 <Text type="secondary" style={{ fontSize: 13 }}>
-                  Statutory Statement of Profit & Loss with Moving-Average COGS directly from erp_gl_entry
+                  Statutory Statement of Profit & Loss with Moving-Average Cost of Goods Sold sourced directly from the General Ledger
                 </Text>
               </div>
             </Space>

@@ -8,7 +8,7 @@ export const PurchaseBillManager: React.FC<PurchaseBillManagerProps> = (props) =
     <BillManager
       {...props}
       partnerType="vendor"
-      partnerLabel="Vendor / Supplier"
+      partnerLabel="Supplier"
     />
   )
 }

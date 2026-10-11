@@ -360,7 +360,7 @@ export const InOutItemListPage: React.FC = () => {
       >
         <Space size="small" wrap>
           <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
-            Add New
+            Create Item
           </Button>
           <Popconfirm
             title="Delete selected items?"
@@ -368,7 +368,7 @@ export const InOutItemListPage: React.FC = () => {
             disabled={selectedRowKeys.length === 0}
           >
             <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-              Batch Delete
+              Delete Selected Items
             </Button>
           </Popconfirm>
           <Button
@@ -421,7 +421,7 @@ export const InOutItemListPage: React.FC = () => {
 
       {/* Modal */}
       <Modal
-        title={editingRecord ? 'Edit Income/Expense Item' : 'Add New Item'}
+        title={editingRecord ? 'Edit Income/Expense Item' : 'Create Income/Expense Item'}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}

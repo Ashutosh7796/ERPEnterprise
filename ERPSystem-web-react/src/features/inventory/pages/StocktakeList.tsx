@@ -97,7 +97,7 @@ export const StocktakeListPage: React.FC = () => {
         depotId: values.depotId,
         remark: values.remark,
       })
-      message.success('Stocktake session initiated successfully')
+      message.success('Stocktake session initiated successfully.')
       setCreateModalOpen(false)
       createForm.resetFields()
       fetchData()
@@ -108,7 +108,7 @@ export const StocktakeListPage: React.FC = () => {
         setDetailModalOpen(true)
       }
     } catch (err: any) {
-      message.error(err.message || 'Failed to initiate stocktake')
+      message.error(err.message || 'Failed to initiate stocktake session.')
     } finally {
       setCreating(false)
     }
@@ -153,7 +153,7 @@ export const StocktakeListPage: React.FC = () => {
       render: (v) => (v ? new Date(v).toLocaleDateString() : '-'),
     },
     {
-      title: 'Total SKUs',
+      title: 'Total Items',
       dataIndex: 'totalItems',
       key: 'totalItems',
       width: 90,
@@ -161,7 +161,7 @@ export const StocktakeListPage: React.FC = () => {
       render: (v) => v || 0,
     },
     {
-      title: 'Variance Qty',
+      title: 'Variance Quantity',
       dataIndex: 'totalVarianceQty',
       key: 'totalVarianceQty',
       width: 110,
@@ -176,7 +176,7 @@ export const StocktakeListPage: React.FC = () => {
       },
     },
     {
-      title: 'Variance Valuation',
+      title: 'Variance Valuation (₹)',
       dataIndex: 'totalVarianceValue',
       key: 'totalVarianceValue',
       width: 130,
@@ -305,12 +305,12 @@ export const StocktakeListPage: React.FC = () => {
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={5}>
-            <Form.Item name="sessionNumber" label="Session#:" style={{ marginBottom: 0 }}>
+            <Form.Item name="sessionNumber" label="Session Number:" style={{ marginBottom: 0 }}>
               <Input placeholder="Search session no." allowClear />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={8}>
-            <Form.Item name="dateRange" label="Date:" style={{ marginBottom: 0 }}>
+            <Form.Item name="dateRange" label="Date Range:" style={{ marginBottom: 0 }}>
               <RangePicker style={{ width: '100%' }} />
             </Form.Item>
           </Col>
@@ -322,7 +322,7 @@ export const StocktakeListPage: React.FC = () => {
             onClick={() => setCreateModalOpen(true)}
             style={{ background: '#1890ff' }}
           >
-            New Stocktake Session
+            Initiate Stocktake Session
           </Button>
           <Space>
             <Button
@@ -335,7 +335,7 @@ export const StocktakeListPage: React.FC = () => {
               Reset
             </Button>
             <Button type="primary" htmlType="submit" icon={<SearchOutlined />}>
-              Query
+              Search
             </Button>
           </Space>
         </div>
@@ -361,12 +361,12 @@ export const StocktakeListPage: React.FC = () => {
 
       {/* Initialize Stocktake Modal */}
       <Modal
-        title="Initiate Physical Stocktake & Audit Session"
+        title="Initiate Physical Stocktake Session"
         open={createModalOpen}
         onCancel={() => setCreateModalOpen(false)}
         onOk={() => createForm.submit()}
         confirmLoading={creating}
-        okText="Initialize Baseline"
+        okText="Initialize Session"
       >
         <Form form={createForm} layout="vertical" onFinish={handleCreateSubmit} style={{ marginTop: 16 }}>
           <Form.Item

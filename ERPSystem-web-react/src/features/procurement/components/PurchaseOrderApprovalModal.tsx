@@ -75,7 +75,7 @@ export const PurchaseOrderApprovalModal: React.FC<Props> = ({
     >
       <Descriptions size="small" bordered column={1} style={{ marginBottom: 16 }}>
         <Descriptions.Item label="PO Number">{poNumber}</Descriptions.Item>
-        <Descriptions.Item label="Total Order Value">
+        <Descriptions.Item label="Total Amount (₹)">
           ₹{Number(orderTotal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
         </Descriptions.Item>
       </Descriptions>

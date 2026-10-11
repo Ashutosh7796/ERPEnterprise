@@ -279,7 +279,7 @@ export function exportToExcel(options: ExportExcelOptions): void {
 export function printTableReport(options: PrintReportOptions): void {
   const {
     title,
-    companyName = 'jshERP Enterprise',
+    companyName = 'ERPSystem',
     subtitle,
     summaryItems = [],
     columns,
@@ -472,7 +472,7 @@ export function printTableReport(options: PrintReportOptions): void {
         </table>
 
         <div class="footer">
-          <span>jshERP Enterprise Management System</span>
+          <span>ERPSystem Management System</span>
           <span>Sign / Stamp: ______________________</span>
         </div>
       </body>

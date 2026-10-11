@@ -103,7 +103,7 @@ export const StocktakeModal: React.FC<StocktakeModalProps> = ({
         remark: i.remark || '',
       }))
       await stocktakeApi.recordCount(stocktakeId, payload)
-      message.success('Counts recorded successfully')
+      message.success('Physical counts saved successfully.')
       fetchDetail(stocktakeId)
       onSuccess()
     } catch (err: any) {
@@ -118,7 +118,7 @@ export const StocktakeModal: React.FC<StocktakeModalProps> = ({
     setApproving(true)
     try {
       await stocktakeApi.approveStocktake(stocktakeId)
-      message.success('Stocktake approved! Physical stock adjustments and immutable stock ledger entries created.')
+      message.success('Stocktake approved successfully. Physical stock adjustments posted to the Stock Ledger.')
       fetchDetail(stocktakeId)
       onSuccess()
     } catch (err: any) {
@@ -137,21 +137,21 @@ export const StocktakeModal: React.FC<StocktakeModalProps> = ({
       render: (_, __, idx) => idx + 1,
     },
     {
-      title: 'Barcode',
+      title: 'Item Code / Barcode',
       dataIndex: 'barCode',
       key: 'barCode',
       width: 120,
       render: (v) => v || '-',
     },
     {
-      title: 'Material Name',
+      title: 'Item Name',
       dataIndex: 'materialName',
       key: 'materialName',
       width: 160,
       ellipsis: true,
     },
     {
-      title: 'Specification / Model',
+      title: 'Specification',
       key: 'spec',
       width: 130,
       ellipsis: true,
@@ -165,7 +165,7 @@ export const StocktakeModal: React.FC<StocktakeModalProps> = ({
       render: (v) => (v ? <Tag color="geekblue">{v}</Tag> : '-'),
     },
     {
-      title: 'Book Qty',
+      title: 'Book Quantity',
       dataIndex: 'bookQty',
       key: 'bookQty',
       width: 100,
@@ -173,7 +173,7 @@ export const StocktakeModal: React.FC<StocktakeModalProps> = ({
       render: (v) => <strong>{Number(v || 0).toFixed(2)}</strong>,
     },
     {
-      title: 'Physical Count',
+      title: 'Physical Count Quantity',
       dataIndex: 'countedQty',
       key: 'countedQty',
       width: 130,
@@ -192,7 +192,7 @@ export const StocktakeModal: React.FC<StocktakeModalProps> = ({
         ),
     },
     {
-      title: 'Variance Qty',
+      title: 'Variance Quantity',
       dataIndex: 'varianceQty',
       key: 'varianceQty',
       width: 110,
@@ -207,7 +207,7 @@ export const StocktakeModal: React.FC<StocktakeModalProps> = ({
       },
     },
     {
-      title: 'Unit Cost',
+      title: 'Valuation Rate (₹)',
       dataIndex: 'unitPrice',
       key: 'unitPrice',
       width: 100,
@@ -215,7 +215,7 @@ export const StocktakeModal: React.FC<StocktakeModalProps> = ({
       render: (v) => (v !== undefined && v !== null ? `₹${Number(v).toFixed(2)}` : '-'),
     },
     {
-      title: 'Variance Amount',
+      title: 'Variance Valuation (₹)',
       dataIndex: 'varianceValue',
       key: 'varianceValue',
       width: 120,
@@ -230,7 +230,7 @@ export const StocktakeModal: React.FC<StocktakeModalProps> = ({
       },
     },
     {
-      title: 'Item Remark',
+      title: 'Remarks',
       dataIndex: 'remark',
       key: 'remark',
       width: 140,
@@ -275,14 +275,14 @@ export const StocktakeModal: React.FC<StocktakeModalProps> = ({
             loading={saving}
             onClick={handleSaveCounts}
           >
-            Save Counts
+            Save Physical Counts
           </Button>
         ),
         !isApproved && !isCancelled && (
           <Popconfirm
             key="approve"
             title="Approve Physical Stocktake?"
-            description="Authoritative physical adjustments will be executed via StockMutationService and posted to the Stock Ledger. This action cannot be reversed."
+            description="Physical inventory adjustments will be posted to the Stock Ledger for all variance quantities. This action cannot be reversed."
             onConfirm={handleApprove}
             okText="Approve & Post"
             cancelText="Cancel"
@@ -294,7 +294,7 @@ export const StocktakeModal: React.FC<StocktakeModalProps> = ({
               loading={approving}
               style={{ background: '#52c41a', borderColor: '#52c41a' }}
             >
-              Approve & Mutate Stock
+              Approve & Post Stock Adjustments
             </Button>
           </Popconfirm>
         ),

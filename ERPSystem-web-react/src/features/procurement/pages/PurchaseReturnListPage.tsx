@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import {
   Card,
   Row,
@@ -14,6 +14,7 @@ import {
   Tooltip,
   Popconfirm,
   message,
+  Empty,
 } from 'antd'
 import {
   RollbackOutlined,
@@ -123,6 +124,17 @@ export const PurchaseReturnListPage: React.FC = () => {
     .filter((r) => r.isItcEligible)
     .reduce((sum, r) => sum + (r.cgstAmount || 0) + (r.sgstAmount || 0) + (r.igstAmount || 0), 0)
 
+  const filteredData = useMemo(() => {
+    if (!searchTerm.trim()) return data
+    const term = searchTerm.toLowerCase().trim()
+    return data.filter(
+      (r) =>
+        (r.returnNumber && r.returnNumber.toLowerCase().includes(term)) ||
+        (r.supplierName && r.supplierName.toLowerCase().includes(term)) ||
+        (r.originalInvoiceNumber && r.originalInvoiceNumber.toLowerCase().includes(term))
+    )
+  }, [data, searchTerm])
+
   const columns = [
     {
       title: 'Return Number & Date',
@@ -170,16 +182,22 @@ export const PurchaseReturnListPage: React.FC = () => {
       title: 'Taxable Amount (₹)',
       dataIndex: 'taxableAmount',
       key: 'taxableAmount',
-      render: (val: number) => `₹${(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`,
+      align: 'right' as const,
+      render: (val: number) => (
+        <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+          ₹{(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      ),
     },
     {
       title: 'Gross Return (₹)',
       dataIndex: 'totalReturnAmount',
       key: 'totalReturnAmount',
+      align: 'right' as const,
       render: (val: number) => (
-        <Text strong style={{ color: '#cf1322' }}>
-          ₹{(val || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-        </Text>
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: '#cf1322' }}>
+          ₹{(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
       ),
     },
     {
@@ -202,7 +220,7 @@ export const PurchaseReturnListPage: React.FC = () => {
           )
         }
         return (
-          <Tooltip title="Pending vendor Credit Note appearance in GSTR-2B">
+          <Tooltip title="Pending supplier Credit Note appearance in GSTR-2B">
             <Tag color="warning" icon={<ClockCircleOutlined />}>PENDING 2B</Tag>
           </Tooltip>
         )
@@ -212,7 +230,7 @@ export const PurchaseReturnListPage: React.FC = () => {
       title: 'Statutory Documents',
       key: 'docs',
       render: (_: any, row: ProcurementReturn) => (
-        <Space direction="vertical" size={2}>
+        <Space orientation="vertical" size={2}>
           {row.deliveryChallanNumber && (
             <Button
               type="link"
@@ -288,7 +306,7 @@ export const PurchaseReturnListPage: React.FC = () => {
             Purchase Returns & Debit Notes
           </Title>
           <Text type="secondary">
-            Manage vendor goods returns, outward delivery challans, debit notes, and tax adjustments.
+            Manage supplier goods returns, outward delivery challans, debit notes, and tax adjustments.
           </Text>
         </div>
         <Space>
@@ -309,44 +327,44 @@ export const PurchaseReturnListPage: React.FC = () => {
       {/* KPI Cards */}
       <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
         <Col xs={24} sm={12} md={6}>
-          <Card bordered size="small" style={{ borderLeft: '4px solid #ff4d4f' }}>
+          <Card size="small" style={{ borderLeft: '4px solid #ff4d4f' }}>
             <Statistic
               title="Total Cumulative Returns"
               value={totalReturnAmount}
               precision={2}
               prefix="₹"
-              valueStyle={{ color: '#cf1322', fontWeight: 'bold' }}
+              styles={{ content: { color: '#cf1322', fontWeight: 'bold' } }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card bordered size="small" style={{ borderLeft: '4px solid #13c2c2' }}>
+          <Card size="small" style={{ borderLeft: '4px solid #13c2c2' }}>
             <Statistic
               title="Physical Returns (Challans)"
               value={physicalCount}
               suffix="docs"
-              valueStyle={{ color: '#08979c' }}
+              styles={{ content: { color: '#08979c' } }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card bordered size="small" style={{ borderLeft: '4px solid #faad14' }}>
+          <Card size="small" style={{ borderLeft: '4px solid #faad14' }}>
             <Statistic
               title="Pending Matching"
               value={pendingMatchCount}
               suffix="reversals"
-              valueStyle={{ color: '#d48806' }}
+              styles={{ content: { color: '#d48806' } }}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card bordered size="small" style={{ borderLeft: '4px solid #52c41a' }}>
+          <Card size="small" style={{ borderLeft: '4px solid #52c41a' }}>
             <Statistic
               title="Total Tax Credit Reversals"
               value={totalItcReversed}
               precision={2}
               prefix="₹"
-              valueStyle={{ color: '#389e0d' }}
+              styles={{ content: { color: '#389e0d' } }}
             />
           </Card>
         </Col>
@@ -407,11 +425,28 @@ export const PurchaseReturnListPage: React.FC = () => {
       <Table
         loading={loading}
         columns={columns}
-        dataSource={data}
+        dataSource={filteredData}
         rowKey="id"
         scroll={{ x: 1350 }}
         bordered
         size="middle"
+        locale={{
+          emptyText: (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description="No purchase returns found matching the filter criteria."
+            >
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                style={{ background: '#ff4d4f', borderColor: '#ff4d4f' }}
+                onClick={() => setCreateModalVisible(true)}
+              >
+                Create Purchase Return
+              </Button>
+            </Empty>
+          ),
+        }}
         pagination={{
           current: currentPage,
           pageSize: pageSize,

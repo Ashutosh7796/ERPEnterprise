@@ -470,7 +470,7 @@ export const DictListPage: React.FC = () => {
       >
         <Space size="small" wrap>
           <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
-            Add New Dictionary
+            Create Dictionary
           </Button>
           <Popconfirm
             title="Delete selected dictionaries?"
@@ -478,7 +478,7 @@ export const DictListPage: React.FC = () => {
             disabled={selectedRowKeys.length === 0}
           >
             <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-              Batch Delete
+              Delete Selected Dictionaries
             </Button>
           </Popconfirm>
           <Button icon={<SyncOutlined />} onClick={handleRefreshCache}>

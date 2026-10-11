@@ -73,7 +73,7 @@ export const TdsRegisterReportPage: React.FC = () => {
       key: 'supplier',
       render: (_: any, record: TdsRegisterItem) => (
         <Space direction="vertical" size={2}>
-          <Text strong>{record.supplierName || 'Vendor'}</Text>
+          <Text strong>{record.supplierName || 'Supplier'}</Text>
           <Space>
             <Tag color={record.isPanValid ? 'blue' : 'error'}>
               {record.pan || 'NO PAN'}

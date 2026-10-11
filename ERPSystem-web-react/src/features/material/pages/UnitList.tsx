@@ -83,42 +83,42 @@ export const UnitListPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       await http.delete(`/unit/delete?id=${id}`)
-      message.success('Unit deleted successfully')
+      message.success('Unit of measure deleted successfully.')
       fetchData(pagination.current, pagination.pageSize, form.getFieldValue('name'))
     } catch (err: any) {
-      message.error(err?.message || 'Failed to delete unit')
+      message.error(err?.message || 'Cannot delete unit of measure.')
     }
   }
 
   const handleBatchDelete = async () => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Please select at least one unit')
+      message.warning('Please select at least one unit of measure.')
       return
     }
     try {
       const ids = selectedRowKeys.join(',')
       await http.delete(`/unit/deleteBatch?ids=${ids}`)
-      message.success('Selected units deleted successfully')
+      message.success('Selected units of measure deleted successfully.')
       setSelectedRowKeys([])
       fetchData(pagination.current, pagination.pageSize, form.getFieldValue('name'))
     } catch (err: any) {
-      message.error(err?.message || 'Failed to delete selected units')
+      message.error(err?.message || 'Cannot delete selected units of measure.')
     }
   }
 
   const handleBatchStatus = async (status: boolean) => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Please select at least one unit')
+      message.warning('Please select at least one unit of measure.')
       return
     }
     try {
       const ids = selectedRowKeys.join(',')
       await http.post(`/unit/batchSetStatus?status=${status}&ids=${ids}`)
-      message.success(status ? 'Units enabled' : 'Units disabled')
+      message.success(status ? 'Units of measure enabled successfully.' : 'Units of measure disabled successfully.')
       setSelectedRowKeys([])
       fetchData(pagination.current, pagination.pageSize, form.getFieldValue('name'))
     } catch (err: any) {
-      message.error(err?.message || 'Failed to update unit status')
+      message.error(err?.message || 'Cannot update unit of measure status.')
     }
   }
 
@@ -160,16 +160,16 @@ export const UnitListPage: React.FC = () => {
       if (editingRecord) {
         payload.id = editingRecord.id
         await http.put('/unit/update', payload)
-        message.success('Unit updated successfully')
+        message.success('Unit of measure updated successfully.')
       } else {
         await http.post('/unit/add', payload)
-        message.success('Unit added successfully')
+        message.success('Unit of measure created successfully.')
       }
 
       setModalOpen(false)
       fetchData(pagination.current, pagination.pageSize, form.getFieldValue('name'))
     } catch (err: any) {
-      message.error(err?.message || 'Failed to save unit')
+      message.error(err?.message || 'Cannot save unit of measure.')
     } finally {
       setSubmitting(false)
     }
@@ -199,7 +199,7 @@ export const UnitListPage: React.FC = () => {
             Edit
           </Button>
           <Popconfirm
-            title="Delete this unit?"
+            title="Delete this unit of measure? Items referencing this unit may be affected."
             onConfirm={() => handleDelete(record.id)}
           >
             <Button type="link" size="small" danger icon={<DeleteOutlined />}>
@@ -210,7 +210,7 @@ export const UnitListPage: React.FC = () => {
       ),
     },
     {
-      title: 'UnitName',
+      title: 'Unit of Measure Name',
       dataIndex: 'name',
       key: 'name',
       width: 250,
@@ -231,7 +231,7 @@ export const UnitListPage: React.FC = () => {
       render: (val: string) => val || '-',
     },
     {
-      title: 'Alt Unit',
+      title: 'Secondary Unit',
       dataIndex: 'otherUnit',
       key: 'otherUnit',
       width: 160,
@@ -244,7 +244,7 @@ export const UnitListPage: React.FC = () => {
       },
     },
     {
-      title: 'Alt Unit2',
+      title: 'Tertiary Unit',
       dataIndex: 'otherUnitTwo',
       key: 'otherUnitTwo',
       width: 160,
@@ -257,7 +257,7 @@ export const UnitListPage: React.FC = () => {
       },
     },
     {
-      title: 'Alt Unit3',
+      title: 'Quaternary Unit',
       dataIndex: 'otherUnitThree',
       key: 'otherUnitThree',
       width: 160,
@@ -294,12 +294,12 @@ export const UnitListPage: React.FC = () => {
           <Col xs={24} sm={12} md={6}>
             <Form.Item
               name="name"
-              label="Unit Name:"
-              labelCol={{ flex: '90px' }}
+              label="Unit of Measure Name:"
+              labelCol={{ flex: '160px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
-              <Input placeholder="Please enter UnitName search..." allowClear style={{ width: '100%' }} />
+              <Input placeholder="Search unit of measure name..." allowClear style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={6}>
@@ -324,15 +324,15 @@ export const UnitListPage: React.FC = () => {
       {/* Action Controls */}
       <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
-          Add New
+          Create Unit of Measure
         </Button>
         <Popconfirm
-          title="Delete selected units?"
+          title="Delete selected units of measure? Items referencing these units may be affected."
           onConfirm={handleBatchDelete}
           disabled={selectedRowKeys.length === 0}
         >
           <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-            Delete
+            Delete Selected Units
           </Button>
         </Popconfirm>
         <Button
@@ -340,14 +340,14 @@ export const UnitListPage: React.FC = () => {
           onClick={() => handleBatchStatus(true)}
           disabled={selectedRowKeys.length === 0}
         >
-          Enable
+          Enable Units
         </Button>
         <Button
           icon={<StopOutlined />}
           onClick={() => handleBatchStatus(false)}
           disabled={selectedRowKeys.length === 0}
         >
-          Disable
+          Disable Units
         </Button>
       </div>
 
@@ -365,7 +365,7 @@ export const UnitListPage: React.FC = () => {
         }}
         pagination={{
           ...pagination,
-          showTotal: (tot, range) => `${range[0]}-${range[1]} total ${tot} items`,
+          showTotal: (tot, range) => `${range[0]}-${range[1]} total ${tot} units`,
           showSizeChanger: true,
           pageSizeOptions: ['10', '20', '30', '50'],
           onChange: (page, size) => fetchData(page, size, form.getFieldValue('name')),
@@ -374,7 +374,7 @@ export const UnitListPage: React.FC = () => {
 
       {/* Unit Modal */}
       <Modal
-        title={editingRecord ? 'Edit Unit of Measure' : 'Add Unit of Measure'}
+        title={editingRecord ? 'Edit Unit of Measure' : 'Create Unit of Measure'}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}
@@ -386,14 +386,14 @@ export const UnitListPage: React.FC = () => {
           <Form.Item
             name="basicUnit"
             label="Base Unit"
-            rules={[{ required: true, message: 'Please enter base unit' }]}
+            rules={[{ required: true, message: 'Base Unit is required. Enter the primary unit of measure.' }]}
           >
-            <Input placeholder="e.g. Bottle, Piece, Box..." />
+            <Input placeholder="e.g. Piece, Bottle, Kilogram, Meter..." />
           </Form.Item>
 
           <Row gutter={12} align="middle">
             <Col span={11}>
-              <Form.Item name="otherUnit" label="Alt Unit 1">
+              <Form.Item name="otherUnit" label="Secondary Unit">
                 <Input placeholder="e.g. Box, Carton..." />
               </Form.Item>
             </Col>
@@ -401,7 +401,7 @@ export const UnitListPage: React.FC = () => {
               =
             </Col>
             <Col span={11}>
-              <Form.Item name="ratio" label="Ratio (Base Units)">
+              <Form.Item name="ratio" label="Conversion Ratio (Base Units)">
                 <InputNumber style={{ width: '100%' }} placeholder="e.g. 12" />
               </Form.Item>
             </Col>
@@ -409,7 +409,7 @@ export const UnitListPage: React.FC = () => {
 
           <Row gutter={12} align="middle">
             <Col span={11}>
-              <Form.Item name="otherUnitTwo" label="Alt Unit 2">
+              <Form.Item name="otherUnitTwo" label="Tertiary Unit">
                 <Input placeholder="e.g. Case, Pack..." />
               </Form.Item>
             </Col>
@@ -417,7 +417,7 @@ export const UnitListPage: React.FC = () => {
               =
             </Col>
             <Col span={11}>
-              <Form.Item name="ratioTwo" label="Ratio 2 (Base Units)">
+              <Form.Item name="ratioTwo" label="Conversion Ratio 2 (Base Units)">
                 <InputNumber style={{ width: '100%' }} placeholder="e.g. 24" />
               </Form.Item>
             </Col>
@@ -425,7 +425,7 @@ export const UnitListPage: React.FC = () => {
 
           <Row gutter={12} align="middle">
             <Col span={11}>
-              <Form.Item name="otherUnitThree" label="Alt Unit 3">
+              <Form.Item name="otherUnitThree" label="Quaternary Unit">
                 <Input placeholder="e.g. Pallet..." />
               </Form.Item>
             </Col>
@@ -433,7 +433,7 @@ export const UnitListPage: React.FC = () => {
               =
             </Col>
             <Col span={11}>
-              <Form.Item name="ratioThree" label="Ratio 3 (Base Units)">
+              <Form.Item name="ratioThree" label="Conversion Ratio 3 (Base Units)">
                 <InputNumber style={{ width: '100%' }} placeholder="e.g. 100" />
               </Form.Item>
             </Col>

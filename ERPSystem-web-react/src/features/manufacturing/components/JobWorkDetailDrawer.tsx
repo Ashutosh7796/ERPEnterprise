@@ -229,8 +229,8 @@ export const JobWorkDetailDrawer: React.FC<JobWorkDetailDrawerProps> = ({
               <Descriptions.Item label="Originating Work Order">
                 {order.workOrderNumber || 'Independent Subcontracting'}
               </Descriptions.Item>
-              <Descriptions.Item label="Plant Depot">
-                {order.depotName || `Depot #${order.depotId}`}
+              <Descriptions.Item label="Plant Warehouse">
+                {order.depotName || `Warehouse #${order.depotId}`}
               </Descriptions.Item>
               <Descriptions.Item label="Statutory Due Date" span={2}>
                 <span style={{ fontWeight: 600, color: '#d46b08' }}>
@@ -303,7 +303,7 @@ export const JobWorkDetailDrawer: React.FC<JobWorkDetailDrawerProps> = ({
                       items={[
                         {
                           key: '1',
-                          label: 'View NIC E-Way Bill Integration JSON Payload (Rule 138)',
+                          label: 'View NIC E-Way Bill Dispatch Details (Rule 138)',
                           children: (
                             <pre style={{ background: '#f5f5f5', padding: 8, fontSize: 11, maxHeight: 150, overflow: 'auto' }}>
                               {ch.ewayBillPayload}

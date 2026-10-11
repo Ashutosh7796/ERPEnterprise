@@ -397,7 +397,7 @@ export const LoginPage: React.FC = () => {
                 letterSpacing: '-0.01em',
               }}
             >
-              jshERP Pro <span style={{ fontSize: '14px', fontWeight: 500, color: '#64748b' }}>v3.6</span>
+              ERP Enterprise Edition <span style={{ fontSize: '14px', fontWeight: 500, color: '#64748b' }}>v3.6</span>
             </h2>
           </div>
 

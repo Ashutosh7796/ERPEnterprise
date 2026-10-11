@@ -17,6 +17,7 @@ import {
   Card,
   Popconfirm,
   Tag,
+  Alert,
 } from 'antd'
 import { PlusOutlined, DeleteOutlined, SaveOutlined } from '@ant-design/icons'
 import { http } from '@core/api/client'
@@ -104,6 +105,12 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
           enableSerialNumber: String(record.enableSerialNumber || 0),
           enableBatchNumber: String(record.enableBatchNumber || 0),
           remark: record.remark,
+          revisionNo: record.revisionNo || '1.0',
+          drawingNo: record.drawingNo,
+          materialGrade: record.materialGrade,
+          noOfCavity: record.noOfCavity,
+          weightPerUnit: record.weightPerUnit,
+          weightUomId: record.weightUomId,
         })
 
         // Fetch SKU / Barcode items
@@ -294,6 +301,12 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
         enableSerialNumber: values.enableSerialNumber || '0',
         enableBatchNumber: values.enableBatchNumber || '0',
         remark: values.remark || '',
+        revisionNo: values.revisionNo || '1.0',
+        drawingNo: values.drawingNo || '',
+        materialGrade: values.materialGrade || '',
+        noOfCavity: values.noOfCavity,
+        weightPerUnit: values.weightPerUnit,
+        weightUomId: values.weightUomId,
         meList: skuList.map((sku) => ({
           id: sku.id,
           barCode: sku.barCode,
@@ -314,10 +327,10 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
       if (record && record.id) {
         payload.id = record.id
         await http.put('/material/update', payload)
-        message.success('Product updated successfully!')
+        message.success('Item updated successfully.')
       } else {
         await http.post('/material/add', payload)
-        message.success('Product created successfully!')
+        message.success('Item created successfully.')
       }
 
       onSuccess()
@@ -327,7 +340,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
         setActiveTab('1')
         return
       }
-      message.error(err?.message || 'Failed to save product.')
+      message.error(err?.message || 'Cannot save item.')
     } finally {
       setSubmitting(false)
     }
@@ -335,7 +348,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
 
   const skuColumns = [
     {
-      title: 'Barcode',
+      title: 'Item Code / Barcode',
       dataIndex: 'barCode',
       key: 'barCode',
       width: 170,
@@ -348,10 +361,10 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
       ),
     },
     {
-      title: 'Unit/SKU',
+      title: 'Unit of Measure (UOM)',
       dataIndex: 'commodityUnit',
       key: 'commodityUnit',
-      width: 110,
+      width: 130,
       render: (val: string, _: any, index: number) => (
         <Input
           value={val}
@@ -361,7 +374,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
       ),
     },
     {
-      title: 'Purchase Price (₹)',
+      title: 'Valuation Rate (₹)',
       dataIndex: 'purchaseDecimal',
       key: 'purchaseDecimal',
       width: 140,
@@ -489,7 +502,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
 
   return (
     <Modal
-      title={record ? `Edit Product: ${record.name || ''}` : 'Add New Product / Goods SKU'}
+      title={record ? `Edit Item: ${record.name || ''}` : 'Create Item Master'}
       open={open}
       onCancel={onClose}
       width={1150}
@@ -504,7 +517,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
           loading={submitting}
           onClick={handleSave}
         >
-          Save Product
+          Save Item
         </Button>,
       ]}
       destroyOnHidden
@@ -516,10 +529,10 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
               <Col xs={24} sm={12} md={6}>
                 <Form.Item
                   name="name"
-                  label="Product Name"
-                  rules={[{ required: true, message: 'Please enter product name' }]}
+                  label="Item Name"
+                  rules={[{ required: true, message: 'Item Name is required. Enter a descriptive title for this item.' }]}
                 >
-                  <Input placeholder="Enter product name..." onChange={handleNameChange} />
+                  <Input placeholder="Enter item name..." onChange={handleNameChange} />
                 </Form.Item>
               </Col>
               <Col xs={24} sm={12} md={6}>
@@ -573,7 +586,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
 
             <Row gutter={16}>
               <Col xs={24} sm={12} md={6}>
-                <Form.Item name="categoryId" label="Product Category">
+                <Form.Item name="categoryId" label="Item Category">
                   <Select
                     placeholder="Select category..."
                     allowClear
@@ -649,7 +662,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     getValueProps={(value) => ({ checked: value === '1' })}
                     noStyle
                   >
-                    <Checkbox>Serial No (SN)</Checkbox>
+                    <Checkbox>Track Serial Number (SN)</Checkbox>
                   </Form.Item>
                   <Form.Item
                     name="enableBatchNumber"
@@ -658,7 +671,7 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                     getValueProps={(value) => ({ checked: value === '1' })}
                     noStyle
                   >
-                    <Checkbox>Batch No</Checkbox>
+                    <Checkbox>Track Batch / Lot Number</Checkbox>
                   </Form.Item>
                 </Space>
               </Col>
@@ -674,9 +687,9 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
                   marginBottom: 8,
                 }}
               >
-                <div style={{ fontWeight: 600, fontSize: 13 }}>SKU Barcodes & Price Tiers</div>
+                <div style={{ fontWeight: 600, fontSize: 13 }}>Item Codes / Barcodes & Valuation Rates</div>
                 <Button size="small" type="dashed" icon={<PlusOutlined />} onClick={handleAddSkuRow}>
-                  Add SKU Row
+                  Add Barcode / Unit Row
                 </Button>
               </div>
 
@@ -692,11 +705,11 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
             </div>
 
             <Form.Item name="remark" label="Remarks / Description">
-              <Input.TextArea rows={2} placeholder="Additional product notes..." />
+              <Input.TextArea rows={2} placeholder="Additional item notes..." />
             </Form.Item>
           </Tabs.TabPane>
 
-          <Tabs.TabPane tab="Warehouse Initial Stocks" key="2">
+          <Tabs.TabPane tab="Initial Stock & Safety Stock Levels" key="2">
             <div style={{ marginBottom: 12, color: '#595959', fontSize: 12 }}>
               Configure opening inventory balance and safety stock thresholds across your warehouses:
             </div>
@@ -708,6 +721,58 @@ export const MaterialModal: React.FC<MaterialModalProps> = ({
               columns={depotColumns as any}
               dataSource={depotStockList}
             />
+          </Tabs.TabPane>
+
+          <Tabs.TabPane tab="Engineering & Tooling Specifications" key="3">
+            <Alert
+              type="info"
+              showIcon
+              message="Discrete Manufacturing Specifications & Revision Tracking"
+              description="Engineering drawings, tooling cavity counts, material grade/chemistry, and revision history are tracked per Item Master."
+              style={{ marginBottom: 16 }}
+            />
+            <Row gutter={16}>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item name="revisionNo" label="Revision Number">
+                  <Input placeholder="e.g. 1.0, A, Rev-2..." />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item name="drawingNo" label="Drawing Number">
+                  <Input placeholder="e.g. DWG-2026-X01..." />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item name="materialGrade" label="Material Grade">
+                  <Input placeholder="e.g. SS304, AL6061-T6, EN8, Mild Steel..." />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item name="noOfCavity" label="Tool Cavity Count">
+                  <InputNumber min={1} max={999} style={{ width: '100%' }} placeholder="e.g. 1, 2, 4, 8..." />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item name="weightPerUnit" label="Weight per Unit">
+                  <InputNumber min={0} precision={4} style={{ width: '100%' }} placeholder="0.0000" />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Form.Item name="weightUomId" label="Weight Unit of Measure (UOM)">
+                  <Select
+                    placeholder="Select weight UoM..."
+                    allowClear
+                    options={unitList.map((u) => ({
+                      value: u.id,
+                      label: u.name,
+                    }))}
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
           </Tabs.TabPane>
         </Tabs>
       </Form>

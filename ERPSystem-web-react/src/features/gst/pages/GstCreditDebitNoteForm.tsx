@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Card, Form, Input, Select, Button, Table, Space, Tag, InputNumber, Row, Col, Typography, message, Modal, Switch, Divider, Steps, Tooltip } from 'antd'
 import { PlusOutlined, DeleteOutlined, PrinterOutlined, CheckCircleOutlined, CloseCircleOutlined, CalculatorOutlined, ArrowLeftOutlined, ThunderboltOutlined, SendOutlined } from '@ant-design/icons'
 import { gstApi } from '../api/gstApi'
@@ -24,11 +25,22 @@ interface NoteLineItem {
   adjustedTaxableValue?: number
 }
 
-export const GstCreditDebitNoteForm: React.FC<{ noteId?: number; onBack?: () => void; onPrint?: (id: number) => void }> = ({
-  noteId,
-  onBack,
-  onPrint,
+export const GstCreditDebitNoteForm: React.FC<{
+  noteId?: number
+  onBack?: () => void
+  onPrint?: (id: number) => void
+}> = ({
+  noteId: propNoteId,
+  onBack: propOnBack,
+  onPrint: propOnPrint,
 }) => {
+  const navigate = useNavigate()
+  const params = useParams<{ id: string }>()
+  const [searchParams] = useSearchParams()
+  const routeNoteId = params.id ? Number(params.id) : undefined
+  const queryInvoiceId = searchParams.get('invoiceId') ? Number(searchParams.get('invoiceId')) : undefined
+  const noteId = propNoteId || routeNoteId
+
   const [form] = Form.useForm()
   const [activeNoteId, setActiveNoteId] = useState<number | undefined>(noteId)
   const [noteType, setNoteType] = useState<'CREDIT_NOTE' | 'DEBIT_NOTE'>('CREDIT_NOTE')
@@ -81,7 +93,7 @@ export const GstCreditDebitNoteForm: React.FC<{ noteId?: number; onBack?: () => 
         // Automatically save draft first
         const values = await form.validateFields()
         const payload = {
-          tenantId: 63,
+          tenantId: undefined,
           id: undefined,
           noteType,
           originalInvoiceId: values.originalInvoiceId,
@@ -152,6 +164,13 @@ export const GstCreditDebitNoteForm: React.FC<{ noteId?: number; onBack?: () => 
       loadNoteDetails(target)
     }
   }, [noteId])
+
+  useEffect(() => {
+    if (queryInvoiceId && !noteId && !form.getFieldValue('originalInvoiceId')) {
+      form.setFieldsValue({ originalInvoiceId: queryInvoiceId })
+      handleInvoiceSelect(queryInvoiceId)
+    }
+  }, [queryInvoiceId, noteId, eligibleInvoices])
 
   const loadEligibleInvoices = async () => {
     try {
@@ -406,11 +425,29 @@ export const GstCreditDebitNoteForm: React.FC<{ noteId?: number; onBack?: () => 
     },
   ]
 
+  const handleBack = () => {
+    if (propOnBack) {
+      propOnBack()
+    } else {
+      navigate('/sales/invoices')
+    }
+  }
+
+  const handlePrint = (id: number) => {
+    if (propOnPrint) {
+      propOnPrint(id)
+    } else {
+      navigate(`/sales/${noteType === 'DEBIT_NOTE' ? 'debit_notes' : 'credit_notes'}/${id}/print`)
+    }
+  }
+
   return (
     <Card
       title={
         <Space>
-          {onBack && <Button icon={<ArrowLeftOutlined />} onClick={onBack} />}
+          <Button icon={<ArrowLeftOutlined />} onClick={handleBack}>
+            Back
+          </Button>
           <Title level={4} style={{ margin: 0 }}>
             {noteType === 'CREDIT_NOTE' ? 'GST Credit Note (Section 34 & Rule 53)' : 'GST Debit Note (Section 34 & Rule 53)'}
           </Title>
@@ -422,8 +459,8 @@ export const GstCreditDebitNoteForm: React.FC<{ noteId?: number; onBack?: () => 
       }
       extra={
         <Space>
-          {(activeNoteId || noteId) && onPrint && (
-            <Button icon={<PrinterOutlined />} onClick={() => onPrint((activeNoteId || noteId)!)}>
+          {(activeNoteId || noteId) && (
+            <Button icon={<PrinterOutlined />} onClick={() => handlePrint((activeNoteId || noteId)!)}>
               Print Rule 53 Note
             </Button>
           )}

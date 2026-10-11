@@ -84,23 +84,23 @@ export const StockWarningReportPage: React.FC = () => {
 
   const columnsConfig: Record<string, any> = {
     barCode: {
-      title: 'Barcode',
+      title: 'Item Code / Barcode',
       dataIndex: 'barCode',
       key: 'barCode',
       width: 140,
     },
     materialName: {
-      title: 'Product Name',
+      title: 'Item Name',
       dataIndex: 'materialName',
       key: 'materialName',
       width: 170,
       ellipsis: true,
     },
     materialStandard: {
-      title: 'Spec',
+      title: 'Specification',
       dataIndex: 'materialStandard',
       key: 'materialStandard',
-      width: 90,
+      width: 110,
       ellipsis: true,
     },
     materialModel: {
@@ -111,10 +111,10 @@ export const StockWarningReportPage: React.FC = () => {
       ellipsis: true,
     },
     unitName: {
-      title: 'Unit',
+      title: 'Unit of Measure',
       dataIndex: 'unitName',
       key: 'unitName',
-      width: 70,
+      width: 90,
     },
     depotName: {
       title: 'Warehouse',
@@ -124,30 +124,30 @@ export const StockWarningReportPage: React.FC = () => {
       ellipsis: true,
     },
     currentNumber: {
-      title: 'Current Stock',
+      title: 'On-Hand Stock',
       dataIndex: 'currentNumber',
       key: 'currentNumber',
       width: 110,
       render: (val: any) => <strong>{val || 0}</strong>,
     },
     lowSafeStock: {
-      title: 'Min Safety Stock',
+      title: 'Safety Stock',
       dataIndex: 'lowSafeStock',
       key: 'lowSafeStock',
       width: 130,
       render: (val: any) => val || '-',
     },
     highSafeStock: {
-      title: 'Max Safety Stock',
+      title: 'Maximum Stock Level',
       dataIndex: 'highSafeStock',
       key: 'highSafeStock',
-      width: 130,
+      width: 140,
       render: (val: any) => val || '-',
     },
     warningType: {
-      title: 'Warning Alert',
+      title: 'Stock Alert Status',
       key: 'warningType',
-      width: 130,
+      width: 140,
       align: 'center' as const,
       render: (_: any, record: any) => {
         const cur = Number(record.currentNumber || 0)
@@ -206,12 +206,12 @@ export const StockWarningReportPage: React.FC = () => {
           <Col xs={24} sm={12} md={8}>
             <Form.Item
               name="materialParam"
-              label="Product Info:"
-              labelCol={{ flex: '90px' }}
+              label="Item Information:"
+              labelCol={{ flex: '120px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
-              <Input placeholder="Enter barcode, name, spec..." allowClear style={{ width: '100%' }} />
+              <Input placeholder="Search item code, name..." allowClear style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={8}>
@@ -263,7 +263,7 @@ export const StockWarningReportPage: React.FC = () => {
         }}
       >
         <ExportPrintButtons
-          title="Stock Safety Warning & Alert Report"
+          title="Safety Stock Alerts"
           columns={columns as any}
           dataSource={dataSource}
         />

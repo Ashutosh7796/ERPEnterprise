@@ -128,30 +128,30 @@ export const InboundOutboundDetailReportPage: React.FC<DetailReportProps> = ({ t
 
   const columnsConfig: Record<string, any> = {
     number: {
-      title: 'Doc Number',
+      title: 'Document Number',
       dataIndex: 'number',
       key: 'number',
       width: 160,
       render: (val: any) => <a style={{ color: '#1890ff' }}>{val}</a>,
     },
     barCode: {
-      title: 'Barcode',
+      title: 'Item Code / Barcode',
       dataIndex: 'barCode',
       key: 'barCode',
-      width: 130,
+      width: 140,
     },
     mname: {
-      title: 'Product Name',
+      title: 'Item Name',
       dataIndex: 'mname',
       key: 'mname',
       width: 170,
       ellipsis: true,
     },
     standard: {
-      title: 'Spec',
+      title: 'Specification',
       dataIndex: 'standard',
       key: 'standard',
-      width: 90,
+      width: 110,
       ellipsis: true,
     },
     model: {
@@ -162,16 +162,16 @@ export const InboundOutboundDetailReportPage: React.FC<DetailReportProps> = ({ t
       ellipsis: true,
     },
     mUnit: {
-      title: 'Unit',
+      title: 'Unit of Measure',
       dataIndex: 'mUnit',
       key: 'mUnit',
-      width: 70,
+      width: 90,
     },
     operNumber: {
-      title: 'Qty',
+      title: 'Quantity',
       dataIndex: 'operNumber',
       key: 'operNumber',
-      width: 80,
+      width: 90,
       render: (val: any) => val || 0,
     },
     unitPrice: {
@@ -189,17 +189,17 @@ export const InboundOutboundDetailReportPage: React.FC<DetailReportProps> = ({ t
       render: (val: any) => (val ? `₹${Number(val).toFixed(2)}` : '-'),
     },
     sname: {
-      title: type === '调拨' ? 'Target WH' : 'Related Party',
+      title: type === '调拨' ? 'Target Warehouse' : 'Related Party',
       dataIndex: 'sname',
       key: 'sname',
       width: 140,
       ellipsis: true,
     },
     dname: {
-      title: type === '调拨' ? 'Source WH' : 'Warehouse',
+      title: type === '调拨' ? 'Source Warehouse' : 'Warehouse',
       dataIndex: 'dname',
       key: 'dname',
-      width: 130,
+      width: 140,
       ellipsis: true,
     },
     operTime: {
@@ -251,8 +251,8 @@ export const InboundOutboundDetailReportPage: React.FC<DetailReportProps> = ({ t
           <Col xs={24} sm={12} md={6}>
             <Form.Item
               name="materialParam"
-              label="Product Info:"
-              labelCol={{ flex: '90px' }}
+              label="Item Information:"
+              labelCol={{ flex: '120px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
@@ -262,12 +262,12 @@ export const InboundOutboundDetailReportPage: React.FC<DetailReportProps> = ({ t
           <Col xs={24} sm={12} md={6}>
             <Form.Item
               name="number"
-              label="Doc Number:"
-              labelCol={{ flex: '90px' }}
+              label="Document Number:"
+              labelCol={{ flex: '125px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
-              <Input placeholder="Enter doc number..." allowClear style={{ width: '100%' }} />
+              <Input placeholder="Enter document number..." allowClear style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={6}>
@@ -338,7 +338,7 @@ export const InboundOutboundDetailReportPage: React.FC<DetailReportProps> = ({ t
                   style={{ marginBottom: 0 }}
                 >
                   <Select
-                    placeholder="Select Party / Supplier..."
+                    placeholder="Select Supplier / Customer..."
                     allowClear
                     showSearch
                     optionFilterProp="children"
@@ -404,11 +404,11 @@ export const InboundOutboundDetailReportPage: React.FC<DetailReportProps> = ({ t
       >
         <Space size="middle" wrap>
           <Text>
-            Total Item Qty: <strong>{totalQty}</strong>
+            Total Quantity: <strong>{totalQty}</strong>
           </Text>
           <Divider type="vertical" />
           <Text>
-            Total Net Amount: <strong style={{ color: '#1890ff' }}>₹{totalAmount.toFixed(2)}</strong>
+            Total Amount (₹): <strong style={{ color: '#1890ff' }}>₹{totalAmount.toFixed(2)}</strong>
           </Text>
         </Space>
 
@@ -418,8 +418,8 @@ export const InboundOutboundDetailReportPage: React.FC<DetailReportProps> = ({ t
             columns={columns as any}
             dataSource={dataSource}
             summaryItems={[
-              { label: 'Total Item Qty', value: totalQty },
-              { label: 'Total Net Amount', value: `₹${totalAmount.toFixed(2)}` },
+              { label: 'Total Quantity', value: totalQty },
+              { label: 'Total Amount', value: `₹${totalAmount.toFixed(2)}` },
             ]}
           />
           <Popover content={columnSettingsContent} trigger="click" placement="bottomRight">

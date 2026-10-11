@@ -43,7 +43,7 @@ export const GstRule53NotePrint: React.FC<{ noteId?: number }> = ({ noteId: prop
   }
 
   if (loading || !data) {
-    return <Spin tip="Loading GST Rule 53 Document..." />
+    return <Spin description="Loading GST Rule 53 Document..." />
   }
 
   const isCreditNote = data.noteType === 'CREDIT_NOTE'

@@ -73,26 +73,26 @@ export const MaterialAttributeListPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       await http.delete(`/materialAttribute/delete?id=${id}`)
-      message.success('Attribute deleted successfully')
+      message.success('Item attribute deleted successfully.')
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to delete attribute')
+      message.error(err?.message || 'Failed to delete attribute.')
     }
   }
 
   const handleBatchDelete = async () => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Please select attributes first')
+      message.warning('Please select at least one item attribute.')
       return
     }
     try {
       const ids = selectedRowKeys.join(',')
       await http.delete(`/materialAttribute/deleteBatch?ids=${ids}`)
-      message.success('Selected attributes deleted')
+      message.success('Selected item attributes deleted successfully.')
       setSelectedRowKeys([])
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to delete selected attributes')
+      message.error(err?.message || 'Failed to delete selected attributes.')
     }
   }
 
@@ -122,15 +122,15 @@ export const MaterialAttributeListPage: React.FC = () => {
       if (editingRecord) {
         payload.id = editingRecord.id
         await http.put('/materialAttribute/update', payload)
-        message.success('Attribute updated successfully')
+        message.success('Item attribute updated successfully.')
       } else {
         await http.post('/materialAttribute/add', payload)
-        message.success('Attribute added successfully')
+        message.success('Item attribute created successfully.')
       }
       setModalOpen(false)
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to save attribute')
+      message.error(err?.message || 'Failed to save item attribute.')
     } finally {
       setSubmitting(false)
     }
@@ -160,7 +160,8 @@ export const MaterialAttributeListPage: React.FC = () => {
             Edit
           </Button>
           <Popconfirm
-            title="Delete this attribute?"
+            title="Delete this item attribute?"
+            description="Are you sure you want to delete this attribute specification?"
             onConfirm={() => handleDelete(record.id)}
           >
             <Button type="link" size="small" danger icon={<DeleteOutlined />}>
@@ -212,7 +213,7 @@ export const MaterialAttributeListPage: React.FC = () => {
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
-              <Input placeholder="Enter attribute name..." allowClear style={{ width: '100%' }} />
+              <Input placeholder="Search by attribute name..." allowClear style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={6}>
@@ -223,7 +224,7 @@ export const MaterialAttributeListPage: React.FC = () => {
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
-              <Input placeholder="Enter attribute value..." allowClear style={{ width: '100%' }} />
+              <Input placeholder="Search by attribute value..." allowClear style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={6}>
@@ -247,15 +248,16 @@ export const MaterialAttributeListPage: React.FC = () => {
 
       <div style={{ marginBottom: 16, display: 'flex', gap: 8 }}>
         <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
-          Add Attribute
+          Create Item Attribute
         </Button>
         <Popconfirm
-          title="Delete selected attributes?"
+          title="Delete selected item attributes?"
+          description="Are you sure you want to delete the selected item attributes?"
           onConfirm={handleBatchDelete}
           disabled={selectedRowKeys.length === 0}
         >
           <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-            Batch Delete
+            Delete Selected Attributes
           </Button>
         </Popconfirm>
       </div>
@@ -280,7 +282,7 @@ export const MaterialAttributeListPage: React.FC = () => {
       />
 
       <Modal
-        title={editingRecord ? 'Edit Attribute' : 'New Attribute'}
+        title={editingRecord ? 'Edit Item Attribute' : 'Create Item Attribute'}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}

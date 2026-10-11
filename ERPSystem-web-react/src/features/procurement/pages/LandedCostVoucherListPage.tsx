@@ -107,7 +107,7 @@ export const LandedCostVoucherListPage: React.FC = () => {
       },
     },
     {
-      title: 'Service Provider / Vendor',
+      title: 'Service Provider / Supplier',
       dataIndex: 'vendorName',
       key: 'vendorName',
       render: (name: string) => name || 'N/A',
@@ -123,7 +123,7 @@ export const LandedCostVoucherListPage: React.FC = () => {
       ),
     },
     {
-      title: 'Total Landed Cost',
+      title: 'Total Landed Cost (₹)',
       dataIndex: 'totalCostAmount',
       key: 'totalCostAmount',
       align: 'right',
@@ -158,13 +158,13 @@ export const LandedCostVoucherListPage: React.FC = () => {
             {!isPosted && (
               <Popconfirm
                 title="Post Landed Cost Voucher"
-                description="This will capitalize acquisition costs into on-hand inventory valuation and post GL entries. Proceed?"
+                description="Post this Landed Cost Voucher? Acquisition costs will be capitalized into inventory valuation and posted to the General Ledger."
                 onConfirm={() => handlePostVoucher(record)}
-                okText="Yes, Post"
-                cancelText="No"
+                okText="Post Voucher"
+                cancelText="Dismiss"
               >
                 <Button size="small" type="primary" icon={<FileDoneOutlined />}>
-                  Post GL
+                  Post Voucher
                 </Button>
               </Popconfirm>
             )}
@@ -177,11 +177,11 @@ export const LandedCostVoucherListPage: React.FC = () => {
 
   return (
     <div style={{ padding: 16 }}>
-      <Card bordered={false} style={{ marginBottom: 16 }}>
+      <Card variant="borderless" style={{ marginBottom: 16 }}>
         <Form form={form} layout="inline">
           <Row gutter={[16, 16]} style={{ width: '100%' }}>
             <Col xs={24} sm={8} md={6}>
-              <Form.Item name="voucherNumber" label="Voucher No." style={{ width: '100%', margin: 0 }}>
+              <Form.Item name="voucherNumber" label="Voucher Number" style={{ width: '100%', margin: 0 }}>
                 <Input placeholder="Search voucher..." allowClear />
               </Form.Item>
             </Col>
@@ -216,7 +216,7 @@ export const LandedCostVoucherListPage: React.FC = () => {
         </Form>
       </Card>
 
-      <Card bordered={false}>
+      <Card variant="borderless">
         <Table
           columns={columns}
           dataSource={dataSource}

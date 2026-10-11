@@ -80,41 +80,41 @@ export const ThreeWayMatchViewerModal: React.FC<Props> = ({
 
   const columns: TableColumnsType<ThreeWayMatchItemComparison> = [
     {
-      title: 'Material ID',
+      title: 'Item ID',
       dataIndex: 'materialId',
       key: 'materialId',
       width: 110,
     },
     {
-      title: 'PO Ordered Qty',
+      title: 'PO Ordered Quantity',
       dataIndex: 'orderedQuantity',
       key: 'orderedQuantity',
       align: 'right',
       render: (v: number) => Number(v || 0).toFixed(2),
     },
     {
-      title: 'GRN Accepted Qty',
+      title: 'GRN Accepted Quantity',
       dataIndex: 'acceptedQuantity',
       key: 'acceptedQuantity',
       align: 'right',
       render: (v: number) => <Text type="success">{Number(v || 0).toFixed(2)}</Text>,
     },
     {
-      title: 'Invoiced Qty',
+      title: 'Invoiced Quantity',
       dataIndex: 'invoicedQuantity',
       key: 'invoicedQuantity',
       align: 'right',
       render: (v: number) => Number(v || 0).toFixed(2),
     },
     {
-      title: 'PO Rate',
+      title: 'PO Unit Rate (₹)',
       dataIndex: 'poUnitPrice',
       key: 'poUnitPrice',
       align: 'right',
       render: (v: number) => `₹${Number(v || 0).toFixed(2)}`,
     },
     {
-      title: 'Invoiced Rate',
+      title: 'Invoiced Unit Rate (₹)',
       dataIndex: 'invoicedUnitPrice',
       key: 'invoicedUnitPrice',
       align: 'right',
@@ -137,7 +137,7 @@ export const ThreeWayMatchViewerModal: React.FC<Props> = ({
       key: 'lineMatchStatus',
       align: 'center',
       render: (st: string, record: ThreeWayMatchItemComparison) => (
-        <Space direction="vertical" size={2}>
+        <Space orientation="vertical" size={2}>
           {getStatusBadge(st)}
           {record.lineRemarks && <Text type="secondary" style={{ fontSize: 12 }}>{record.lineRemarks}</Text>}
         </Space>
@@ -155,7 +155,7 @@ export const ThreeWayMatchViewerModal: React.FC<Props> = ({
     >
       <Spin spinning={loading}>
         {matchResult && (
-          <Space direction="vertical" size={16} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={16} style={{ width: '100%' }}>
             {/* Status Alert Banner */}
             {matchResult.matchStatus === 'PASS' && (
               <Alert

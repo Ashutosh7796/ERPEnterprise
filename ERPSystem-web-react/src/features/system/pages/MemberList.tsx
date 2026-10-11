@@ -443,7 +443,7 @@ export const MemberListPage: React.FC = () => {
       >
         <Space size="small" wrap>
           <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
-            Add New
+            Create Member
           </Button>
           <Popconfirm
             title="Delete selected members?"
@@ -451,7 +451,7 @@ export const MemberListPage: React.FC = () => {
             disabled={selectedRowKeys.length === 0}
           >
             <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-              Batch Delete
+              Delete Selected Members
             </Button>
           </Popconfirm>
           <Button
@@ -504,7 +504,7 @@ export const MemberListPage: React.FC = () => {
 
       {/* Member Modal */}
       <Modal
-        title={editingRecord ? 'Edit Member Info' : 'Add New Member'}
+        title={editingRecord ? 'Edit Member' : 'Create Member'}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}

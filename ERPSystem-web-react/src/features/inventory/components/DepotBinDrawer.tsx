@@ -116,7 +116,7 @@ export const DepotBinDrawer: React.FC<DepotBinDrawerProps> = ({
         binType: 'WIP',
         isDefault: false,
       })
-      message.success('Shop Floor WIP bin (WIP-FLOOR) created successfully')
+      message.success('Shop Floor WIP staging bin (WIP-FLOOR) created successfully.')
       loadBins()
     } catch (err: any) {
       message.error(err?.message || 'Failed to create WIP bin')
@@ -137,7 +137,7 @@ export const DepotBinDrawer: React.FC<DepotBinDrawerProps> = ({
           binType: values.binType,
           isDefault: values.isDefault,
         })
-        message.success(`Storage bin ${values.binCode} updated`)
+        message.success(`Storage bin '${values.binCode}' updated successfully.`)
       } else {
         await createDepotBin({
           depotId: depot.id,
@@ -146,7 +146,7 @@ export const DepotBinDrawer: React.FC<DepotBinDrawerProps> = ({
           binType: values.binType,
           isDefault: values.isDefault,
         })
-        message.success(`Storage bin ${values.binCode} created`)
+        message.success(`Storage bin '${values.binCode}' created successfully.`)
       }
       setModalOpen(false)
       loadBins()
@@ -162,7 +162,7 @@ export const DepotBinDrawer: React.FC<DepotBinDrawerProps> = ({
     if (!binId) return
     try {
       await deleteDepotBin(binId)
-      message.success('Storage bin deleted')
+      message.success('Storage bin deleted successfully.')
       loadBins()
     } catch (err: any) {
       message.error(err?.message || 'Failed to delete storage bin')
@@ -176,7 +176,7 @@ export const DepotBinDrawer: React.FC<DepotBinDrawerProps> = ({
         ...bin,
         isDefault: true,
       })
-      message.success(`Bin ${bin.binCode} is now the default storage location`)
+      message.success(`Storage bin '${bin.binCode}' set as default storage location successfully.`)
       loadBins()
     } catch (err: any) {
       message.error(err?.message || 'Failed to set default bin')
@@ -280,7 +280,7 @@ export const DepotBinDrawer: React.FC<DepotBinDrawerProps> = ({
         extra={
           <Space>
             {!hasWipBin && (
-              <Tooltip title="Quick create Phase 2 shop-floor staging bin (WIP-FLOOR)">
+              <Tooltip title="Quick create shop-floor staging bin (WIP-FLOOR)">
                 <Button
                   icon={<ThunderboltOutlined />}
                   onClick={handleQuickCreateWip}
@@ -294,7 +294,7 @@ export const DepotBinDrawer: React.FC<DepotBinDrawerProps> = ({
               icon={<PlusOutlined />}
               onClick={handleOpenAdd}
             >
-              Add Storage Bin
+              Create Storage Bin
             </Button>
           </Space>
         }
@@ -318,7 +318,7 @@ export const DepotBinDrawer: React.FC<DepotBinDrawerProps> = ({
 
       {/* Add / Edit Bin Modal */}
       <Modal
-        title={editingBin ? `Edit Storage Bin: ${editingBin.binCode}` : 'Add Storage Bin'}
+        title={editingBin ? `Edit Storage Bin: ${editingBin.binCode}` : 'Create Storage Bin'}
         open={modalOpen}
         onOk={handleSave}
         confirmLoading={submitting}

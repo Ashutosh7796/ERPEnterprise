@@ -394,7 +394,7 @@ export const RoleListPage: React.FC = () => {
 
   const columnsConfig: Record<string, any> = {
     rowIndex: {
-      title: '#',
+      title: 'Sr No.',
       key: 'rowIndex',
       width: 50,
       align: 'center' as const,
@@ -577,7 +577,7 @@ export const RoleListPage: React.FC = () => {
       >
         <Space size="small" wrap>
           <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
-            Add New Role
+            Create Role
           </Button>
           <Popconfirm
             title="Delete selected roles?"
@@ -585,7 +585,7 @@ export const RoleListPage: React.FC = () => {
             disabled={selectedRowKeys.length === 0}
           >
             <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-              Batch Delete
+              Delete Selected Roles
             </Button>
           </Popconfirm>
           <Button
@@ -593,14 +593,14 @@ export const RoleListPage: React.FC = () => {
             onClick={() => handleBatchStatus(true)}
             disabled={selectedRowKeys.length === 0}
           >
-            Enable
+            Enable Roles
           </Button>
           <Button
             icon={<StopOutlined />}
             onClick={() => handleBatchStatus(false)}
             disabled={selectedRowKeys.length === 0}
           >
-            Disable
+            Disable Roles
           </Button>
           <ExportPrintButtons
             title="Role Management Directory"
@@ -638,7 +638,7 @@ export const RoleListPage: React.FC = () => {
 
       {/* Add / Edit Role Modal */}
       <Modal
-        title={editingRecord ? 'Edit Role' : 'New Role'}
+        title={editingRecord ? 'Edit Role' : 'Create Role'}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}

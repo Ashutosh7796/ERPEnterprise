@@ -40,31 +40,31 @@ export const PoLineFulfillmentDrawer: React.FC<Props> = ({ visible, poId, poNumb
 
   const columns = [
     {
-      title: 'Material ID',
+      title: 'Item ID',
       dataIndex: 'materialId',
       key: 'materialId',
       width: 100,
     },
     {
-      title: 'Ordered',
+      title: 'Ordered Quantity',
       dataIndex: 'orderedQuantity',
       key: 'orderedQuantity',
       render: (v: number) => <Text strong>{Number(v).toFixed(2)}</Text>,
     },
     {
-      title: 'Received (Gross)',
+      title: 'Received Quantity (Gross)',
       dataIndex: 'receivedQuantity',
       key: 'receivedQuantity',
       render: (v: number) => Number(v).toFixed(2),
     },
     {
-      title: 'Accepted',
+      title: 'Accepted Quantity',
       dataIndex: 'acceptedQuantity',
       key: 'acceptedQuantity',
       render: (v: number) => <Text type="success">{Number(v).toFixed(2)}</Text>,
     },
     {
-      title: 'Rejected',
+      title: 'Rejected Quantity',
       dataIndex: 'rejectedQuantity',
       key: 'rejectedQuantity',
       render: (v: number) => (
@@ -74,13 +74,13 @@ export const PoLineFulfillmentDrawer: React.FC<Props> = ({ visible, poId, poNumb
       ),
     },
     {
-      title: 'Invoiced',
+      title: 'Invoiced Quantity',
       dataIndex: 'invoicedQuantity',
       key: 'invoicedQuantity',
       render: (v: number) => Number(v).toFixed(2),
     },
     {
-      title: 'Open Receipt Balance',
+      title: 'Remaining Balance',
       dataIndex: 'remainingReceiptQuantity',
       key: 'remainingReceiptQuantity',
       render: (v: number, record: PoFulfillmentLine) => {
@@ -115,15 +115,15 @@ export const PoLineFulfillmentDrawer: React.FC<Props> = ({ visible, poId, poNumb
     <Drawer
       title={`PO Fulfillment Lineage: ${poNumber || ''}`}
       placement="right"
-      width={850}
+      size={850}
       onClose={onClose}
       open={visible}
     >
       <Spin spinning={loading}>
         <Descriptions bordered size="small" style={{ marginBottom: 16 }}>
-          <Descriptions.Item label="Total Ordered Qty">{totalOrdered.toFixed(2)}</Descriptions.Item>
-          <Descriptions.Item label="Total Accepted Qty">{totalAccepted.toFixed(2)}</Descriptions.Item>
-          <Descriptions.Item label="Total Invoiced Qty">{totalInvoiced.toFixed(2)}</Descriptions.Item>
+          <Descriptions.Item label="Total Ordered Quantity">{totalOrdered.toFixed(2)}</Descriptions.Item>
+          <Descriptions.Item label="Total Accepted Quantity">{totalAccepted.toFixed(2)}</Descriptions.Item>
+          <Descriptions.Item label="Total Invoiced Quantity">{totalInvoiced.toFixed(2)}</Descriptions.Item>
         </Descriptions>
 
         <Table

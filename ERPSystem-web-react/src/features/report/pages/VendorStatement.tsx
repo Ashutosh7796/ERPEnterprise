@@ -88,7 +88,7 @@ export const VendorStatementPage: React.FC = () => {
       setFirstTotal(`₹${Number(first).toFixed(2)}`)
       setLastTotal(`₹${Number(last).toFixed(2)}`)
     } catch (err) {
-      console.error('Failed to load vendor statement:', err)
+      console.error('Failed to load supplier statement:', err)
       setDataSource([])
     } finally {
       setLoading(false)
@@ -101,7 +101,7 @@ export const VendorStatementPage: React.FC = () => {
 
   const columnsConfig: Record<string, any> = {
     supplier: {
-      title: 'Vendor Name',
+      title: 'Supplier Name',
       dataIndex: 'supplier',
       key: 'supplier',
       width: 180,
@@ -114,13 +114,13 @@ export const VendorStatementPage: React.FC = () => {
       width: 130,
     },
     telephone: {
-      title: 'Phone',
+      title: 'Mobile Phone',
       dataIndex: 'telephone',
       key: 'telephone',
       width: 130,
     },
     preNeed: {
-      title: 'Opening Payable (₹)',
+      title: 'Opening Balance (₹)',
       dataIndex: 'preNeed',
       key: 'preNeed',
       width: 160,
@@ -149,7 +149,7 @@ export const VendorStatementPage: React.FC = () => {
       ),
     },
     allNeed: {
-      title: 'Ending Payable (₹)',
+      title: 'Closing Balance (₹)',
       dataIndex: 'allNeed',
       key: 'allNeed',
       width: 160,
@@ -196,13 +196,13 @@ export const VendorStatementPage: React.FC = () => {
           <Col xs={24} sm={12} md={6}>
             <Form.Item
               name="organId"
-              label="Vendor:"
+              label="Supplier:"
               labelCol={{ flex: '85px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
               <Select
-                placeholder="Select Vendor..."
+                placeholder="Select Supplier..."
                 allowClear
                 showSearch
                 optionFilterProp="children"
@@ -217,7 +217,7 @@ export const VendorStatementPage: React.FC = () => {
           <Col xs={24} sm={12} md={6}>
             <Form.Item
               name="dateRange"
-              label="Bill Cycle:"
+              label="Date Range:"
               labelCol={{ flex: '85px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
@@ -256,8 +256,8 @@ export const VendorStatementPage: React.FC = () => {
             <Col xs={24} sm={12} md={6}>
               <Form.Item
                 name="hasDebt"
-                label="Debt Status:"
-                labelCol={{ flex: '85px' }}
+                label="Balance Status:"
+                labelCol={{ flex: '95px' }}
                 wrapperCol={{ flex: 'auto' }}
                 style={{ marginBottom: 0 }}
               >
@@ -265,8 +265,8 @@ export const VendorStatementPage: React.FC = () => {
                   placeholder="All Payables"
                   allowClear
                   options={[
-                    { value: '1', label: 'With Outstanding Debt' },
-                    { value: '0', label: 'Settled (No Debt)' },
+                    { value: '1', label: 'With Outstanding Balance' },
+                    { value: '0', label: 'Settled (Zero Balance)' },
                   ]}
                   style={{ width: '100%' }}
                 />
@@ -293,23 +293,23 @@ export const VendorStatementPage: React.FC = () => {
       >
         <Space size="middle" wrap>
           <Text>
-            Total Beginning Payable: <strong>{firstTotal}</strong>
+            Total Opening Balance: <strong>{firstTotal}</strong>
           </Text>
           <Divider vertical />
           <Text>
-            Total Ending Payable:{' '}
+            Total Closing Balance:{' '}
             <strong style={{ color: '#fa541c', fontSize: 15 }}>{lastTotal}</strong>
           </Text>
         </Space>
 
         <Space size="small">
           <ExportPrintButtons
-            title="Vendor Statement Report"
+            title="Supplier Statement (AP)"
             columns={columns as any}
             dataSource={dataSource}
             summaryItems={[
-              { label: 'Total Beginning Payable', value: firstTotal },
-              { label: 'Total Ending Payable', value: lastTotal },
+              { label: 'Total Opening Balance', value: firstTotal },
+              { label: 'Total Closing Balance', value: lastTotal },
             ]}
           />
           <Popover content={columnSettingsContent} trigger="click" placement="bottomRight">

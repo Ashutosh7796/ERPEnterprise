@@ -76,11 +76,11 @@ export const MaterialPropertyListPage: React.FC = () => {
         nativeName: values.nativeName,
         anotherName: values.anotherName,
       })
-      message.success('Property alias updated successfully')
+      message.success('Item property alias updated successfully.')
       setModalOpen(false)
       fetchData(pagination.current, pagination.pageSize)
     } catch (err: any) {
-      message.error(err?.message || 'Failed to update property')
+      message.error(err?.message || 'Failed to update item property.')
     } finally {
       setSubmitting(false)
     }
@@ -122,7 +122,7 @@ export const MaterialPropertyListPage: React.FC = () => {
           <Button icon={<ReloadOutlined />} onClick={() => fetchData(pagination.current, pagination.pageSize)}>
             Refresh
           </Button>
-          <ExportPrintButtons title="Product Property Attributes" columns={columns as any} dataSource={dataSource} />
+          <ExportPrintButtons title="Item Property Attributes" columns={columns as any} dataSource={dataSource} />
         </Space>
       </div>
 

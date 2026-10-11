@@ -24,9 +24,9 @@ const DEFAULT_THEME: ThemeSettings = {
 
 const loadSavedTheme = (): ThemeSettings => {
   try {
-    const saved = localStorage.getItem('jsh_react_theme_settings')
+    const saved = localStorage.getItem('erp_react_theme_settings') || localStorage.getItem('jsh_react_theme_settings')
     if (saved) {
-      return { ...DEFAULT_THEME, ...JSON.parse(saved) }
+      return { ...DEFAULT_THEME, ...JSON.parse(saved), language: 'english' }
     }
   } catch {
     // fallback
@@ -36,7 +36,7 @@ const loadSavedTheme = (): ThemeSettings => {
 
 const saveTheme = (settings: ThemeSettings) => {
   try {
-    localStorage.setItem('jsh_react_theme_settings', JSON.stringify(settings))
+    localStorage.setItem('erp_react_theme_settings', JSON.stringify(settings))
   } catch {
     // ignore
   }
@@ -120,7 +120,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   collapsed: false,
   darkMode: false,
   activeTenantId: null,
-  platformName: 'ERP System Pro',
+  platformName: 'ERPSystem',
   themeSettings: initialTheme,
   settingDrawerVisible: false,
   changePasswordVisible: false,

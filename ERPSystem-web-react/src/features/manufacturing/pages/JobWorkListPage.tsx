@@ -13,7 +13,7 @@ import {
   Popconfirm,
   Tooltip,
   Badge,
-  message,
+  App,
 } from 'antd'
 import {
   PlusOutlined,
@@ -36,6 +36,7 @@ import { JobWorkDetailDrawer } from '../components/JobWorkDetailDrawer'
 const { Title, Text } = Typography
 
 export const JobWorkListPage: React.FC = () => {
+  const { message } = App.useApp()
   const [orders, setOrders] = useState<JobWorkOrder[]>([])
   const [loading, setLoading] = useState(false)
   const [total, setTotal] = useState(0)
@@ -163,10 +164,10 @@ export const JobWorkListPage: React.FC = () => {
       ),
     },
     {
-      title: 'Work Order Ref',
+      title: 'Work Order Reference',
       dataIndex: 'workOrderNumber',
       key: 'workOrderNumber',
-      width: 140,
+      width: 150,
       render: (v: string) => v || <Text type="secondary">-</Text>,
     },
     {
@@ -194,26 +195,26 @@ export const JobWorkListPage: React.FC = () => {
       },
     },
     {
-      title: 'Dispatched',
+      title: 'Dispatched Quantity',
       dataIndex: 'totalDispatchedQty',
       key: 'totalDispatchedQty',
-      width: 110,
+      width: 130,
       align: 'right' as const,
       render: (v: number) => v || 0,
     },
     {
-      title: 'Received',
+      title: 'Received Quantity',
       dataIndex: 'totalReceivedQty',
       key: 'totalReceivedQty',
-      width: 110,
+      width: 130,
       align: 'right' as const,
       render: (v: number) => <span style={{ color: '#52c41a' }}>{v || 0}</span>,
     },
     {
-      title: 'Pending Qty',
+      title: 'Pending Quantity',
       dataIndex: 'totalPendingQty',
       key: 'totalPendingQty',
-      width: 120,
+      width: 130,
       align: 'right' as const,
       render: (v: number) => (
         <span style={{ fontWeight: 600, color: v > 0 ? '#cf1322' : '#52c41a' }}>
@@ -296,7 +297,7 @@ export const JobWorkListPage: React.FC = () => {
 
   return (
     <div style={{ padding: 24 }}>
-      <Card bordered={false} style={{ marginBottom: 16 }}>
+      <Card variant="borderless" style={{ marginBottom: 16 }}>
         <Row justify="space-between" align="middle">
           <Col>
             <Title level={4} style={{ margin: 0 }}>
@@ -319,7 +320,7 @@ export const JobWorkListPage: React.FC = () => {
         </Row>
       </Card>
 
-      <Card bordered={false} style={{ marginBottom: 16 }}>
+      <Card variant="borderless" style={{ marginBottom: 16 }}>
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} md={6}>
             <Select
@@ -374,7 +375,7 @@ export const JobWorkListPage: React.FC = () => {
         </Row>
       </Card>
 
-      <Card bordered={false}>
+      <Card variant="borderless">
         <Table
           dataSource={orders}
           columns={columns}

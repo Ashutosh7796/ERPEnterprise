@@ -73,7 +73,7 @@ export const TaxRateModal: React.FC<TaxRateModalProps> = ({
 
   return (
     <Modal
-      title={initialValues ? 'Edit GST Tax Slab' : 'Add New GST Tax Slab'}
+      title={initialValues ? 'Edit GST Tax Slab' : 'Create GST Tax Slab'}
       open={open}
       onCancel={onClose}
       onOk={handleSubmit}

@@ -21,7 +21,7 @@ export const DeliveryChallanViewerModal: React.FC<DeliveryChallanViewerModalProp
   const handleCopyEwb = () => {
     if (challan.ewayBillPayload) {
       navigator.clipboard.writeText(challan.ewayBillPayload)
-      message.success('E-Way Bill JSON payload copied to clipboard')
+      message.success('E-Way Bill payload copied to clipboard successfully.')
     }
   }
 
@@ -115,7 +115,7 @@ export const DeliveryChallanViewerModal: React.FC<DeliveryChallanViewerModalProp
             <Col span={12}>
               <Text strong>Challan No:</Text> <Text code>{challan.challanNumber}</Text><br />
               <Text strong>Challan Date:</Text> {challan.challanDate ? String(challan.challanDate).split('T')[0] : 'N/A'}<br />
-              <Text strong>Return Ref:</Text> {challan.returnNumber}
+              <Text strong>Return Reference:</Text> {challan.returnNumber}
             </Col>
             <Col span={12}>
               <Text strong>Transport Mode:</Text> {challan.transportMode || 'ROAD'}<br />
@@ -127,7 +127,7 @@ export const DeliveryChallanViewerModal: React.FC<DeliveryChallanViewerModalProp
 
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col span={12}>
-            <Card title="Consignor (Sender / Buyer Enterprise)" size="small" bordered>
+            <Card title="Consignor (Sender / Buyer Enterprise)" size="small" variant="outlined">
               <Text strong>{challan.consignorName}</Text><br />
               <Text type="secondary">{challan.consignorAddress || 'Plot 42, MIDC Industrial Area, Pune 411018'}</Text><br />
               <Text strong>GSTIN:</Text> <Text code>{challan.consignorGstin || '27AAACE1234E1Z1'}</Text><br />
@@ -135,9 +135,9 @@ export const DeliveryChallanViewerModal: React.FC<DeliveryChallanViewerModalProp
             </Card>
           </Col>
           <Col span={12}>
-            <Card title="Consignee (Recipient / Supplier)" size="small" bordered>
+            <Card title="Consignee (Recipient / Supplier)" size="small" variant="outlined">
               <Text strong>{challan.consigneeName}</Text><br />
-              <Text type="secondary">{challan.consigneeAddress || 'Supplier Depot / Manufacturing Plant'}</Text><br />
+              <Text type="secondary">{challan.consigneeAddress || 'Supplier Warehouse / Manufacturing Plant'}</Text><br />
               <Text strong>GSTIN:</Text> <Text code>{challan.consigneeGstin || '27AAAAA0000A1Z5'}</Text><br />
               <Text strong>State Code:</Text> {challan.consigneeStateCode || '27 (Maharashtra)'}
             </Card>

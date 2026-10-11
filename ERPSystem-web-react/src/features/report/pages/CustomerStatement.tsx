@@ -120,17 +120,17 @@ export const CustomerStatementPage: React.FC = () => {
       width: 130,
     },
     preNeed: {
-      title: 'Opening Receivable (₹)',
+      title: 'Opening Balance (₹)',
       dataIndex: 'preNeed',
       key: 'preNeed',
       width: 160,
       render: (val: any) => (val ? `₹${Number(val).toFixed(2)}` : '₹0.00'),
     },
     debtMoney: {
-      title: 'Period Sales (₹)',
+      title: 'Invoiced Amount (₹)',
       dataIndex: 'debtMoney',
       key: 'debtMoney',
-      width: 150,
+      width: 160,
       render: (val: any) => (
         <span style={{ color: '#fa541c', fontWeight: 600 }}>
           {val ? `₹${Number(val).toFixed(2)}` : '₹0.00'}
@@ -138,7 +138,7 @@ export const CustomerStatementPage: React.FC = () => {
       ),
     },
     backMoney: {
-      title: 'Period Collected (₹)',
+      title: 'Payment Received (₹)',
       dataIndex: 'backMoney',
       key: 'backMoney',
       width: 160,
@@ -149,7 +149,7 @@ export const CustomerStatementPage: React.FC = () => {
       ),
     },
     allNeed: {
-      title: 'Ending Receivable (₹)',
+      title: 'Closing Balance (₹)',
       dataIndex: 'allNeed',
       key: 'allNeed',
       width: 160,
@@ -217,8 +217,8 @@ export const CustomerStatementPage: React.FC = () => {
           <Col xs={24} sm={12} md={6}>
             <Form.Item
               name="dateRange"
-              label="Bill Cycle:"
-              labelCol={{ flex: '85px' }}
+              label="Statement Period:"
+              labelCol={{ flex: '120px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
@@ -256,8 +256,8 @@ export const CustomerStatementPage: React.FC = () => {
             <Col xs={24} sm={12} md={6}>
               <Form.Item
                 name="hasDebt"
-                label="Debt Status:"
-                labelCol={{ flex: '85px' }}
+                label="Balance Status:"
+                labelCol={{ flex: '100px' }}
                 wrapperCol={{ flex: 'auto' }}
                 style={{ marginBottom: 0 }}
               >
@@ -265,8 +265,8 @@ export const CustomerStatementPage: React.FC = () => {
                   placeholder="All Receivables"
                   allowClear
                   options={[
-                    { value: '1', label: 'With Outstanding Debt' },
-                    { value: '0', label: 'Settled (No Debt)' },
+                    { value: '1', label: 'With Outstanding Balance' },
+                    { value: '0', label: 'Settled (Zero Balance)' },
                   ]}
                   style={{ width: '100%' }}
                 />
@@ -293,11 +293,11 @@ export const CustomerStatementPage: React.FC = () => {
       >
         <Space size="middle" wrap>
           <Text>
-            Total Beginning Receivable: <strong>{firstTotal}</strong>
+            Total Opening Balance: <strong>{firstTotal}</strong>
           </Text>
           <Divider vertical />
           <Text>
-            Total Ending Receivable:{' '}
+            Total Closing Balance:{' '}
             <strong style={{ color: '#1890ff', fontSize: 15 }}>{lastTotal}</strong>
           </Text>
         </Space>
@@ -308,8 +308,8 @@ export const CustomerStatementPage: React.FC = () => {
             columns={columns as any}
             dataSource={dataSource}
             summaryItems={[
-              { label: 'Total Beginning Receivable', value: firstTotal },
-              { label: 'Total Ending Receivable', value: lastTotal },
+              { label: 'Total Opening Balance', value: firstTotal },
+              { label: 'Total Closing Balance', value: lastTotal },
             ]}
           />
           <Popover content={columnSettingsContent} trigger="click" placement="bottomRight">

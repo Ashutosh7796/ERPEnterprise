@@ -47,7 +47,7 @@ export const Gstr2bReconciliationPage: React.FC = () => {
       key: 'supp',
       render: (_: any, r: any) => (
         <div>
-          <Text strong>{r.supplierTradeName || 'Vendor'}</Text>
+          <Text strong>{r.supplierTradeName || 'Supplier'}</Text>
           <br />
           <Text type="secondary" style={{ fontSize: 12 }}>{r.supplierGstin}</Text>
         </div>

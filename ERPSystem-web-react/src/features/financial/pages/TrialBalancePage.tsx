@@ -256,7 +256,7 @@ export const TrialBalancePage: React.FC = () => {
                   Pure-GL Trial Balance
                 </Title>
                 <Text type="secondary" style={{ fontSize: 13 }}>
-                  Statutory Double-Entry Trial Balance aggregated from immutable GL facts (erp_gl_entry)
+                  Statutory Double-Entry Trial Balance aggregated from immutable General Ledger entries
                 </Text>
               </div>
             </Space>

@@ -632,7 +632,7 @@ export const GstSalesInvoiceForm: React.FC = () => {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <Space>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/gst/sales-invoice')}>
+          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/sales/invoices')}>
             Back to Invoices
           </Button>
           <h2 style={{ margin: 0 }}>
@@ -657,7 +657,7 @@ export const GstSalesInvoiceForm: React.FC = () => {
             </Button>
           )}
           {(currentId || id) && (
-            <Button icon={<PrinterOutlined />} onClick={() => navigate(`/gst/sales-invoice/print/${currentId || id}`)}>
+            <Button icon={<PrinterOutlined />} onClick={() => navigate(`/sales/invoices/${currentId || id}/print`)}>
               Print Rule 46 View
             </Button>
           )}

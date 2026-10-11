@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   Table,
   Card,
@@ -15,12 +15,16 @@ import {
   InputNumber,
   DatePicker,
   message,
+  Statistic,
+  Empty,
 } from 'antd'
 import {
   PlusOutlined,
   DollarCircleOutlined,
   CheckCircleOutlined,
   SyncOutlined,
+  SafetyCertificateOutlined,
+  ClockCircleOutlined,
 } from '@ant-design/icons'
 import {
   getSupplierAdvances,
@@ -145,12 +149,21 @@ export const SupplierAdvanceListPage: React.FC = () => {
     }
   }
 
+  const kpis = useMemo(() => {
+    const totalCount = total || advances.length
+    const activeCount = advances.filter((a) => a.status === 'ACTIVE').length
+    const totalGross = advances.reduce((acc, curr) => acc + (Number(curr.grossAdvanceAmount) || 0), 0)
+    const unallocated = advances.reduce((acc, curr) => acc + (Number(curr.unallocatedBalance) || 0), 0)
+    const totalTds = advances.reduce((acc, curr) => acc + (Number(curr.tdsWithheldAmount) || 0), 0)
+    return { totalCount, activeCount, totalGross, unallocated, totalTds }
+  }, [total, advances])
+
   const columns = [
     {
       title: 'Advance No.',
       dataIndex: 'advanceNumber',
       key: 'advanceNumber',
-      render: (text: string) => <Text strong>{text}</Text>,
+      render: (text: string) => <Text strong code>{text}</Text>,
     },
     {
       title: 'Supplier',
@@ -167,39 +180,54 @@ export const SupplierAdvanceListPage: React.FC = () => {
       title: 'Gross Amount',
       dataIndex: 'grossAdvanceAmount',
       key: 'grossAdvanceAmount',
-      render: (val: number) => `₹${(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`,
+      align: 'right' as const,
+      render: (val: number) => (
+        <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+          ₹{(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      ),
     },
     {
       title: 'TDS Withheld',
       dataIndex: 'tdsWithheldAmount',
       key: 'tdsWithheldAmount',
+      align: 'right' as const,
       render: (val: number) =>
         val > 0 ? (
-          <Tag color="orange">₹{(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</Tag>
+          <Tag color="orange" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            ₹{(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </Tag>
         ) : (
-          '₹0.00'
+          <span style={{ fontVariantNumeric: 'tabular-nums', color: '#8c8c8c' }}>₹0.00</span>
         ),
     },
     {
       title: 'Net Disbursed',
       dataIndex: 'netDisbursedAmount',
       key: 'netDisbursedAmount',
-      render: (val: number) => `₹${(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`,
+      align: 'right' as const,
+      render: (val: number) => (
+        <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+          ₹{(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      ),
     },
     {
       title: 'Unallocated Balance',
       dataIndex: 'unallocatedBalance',
       key: 'unallocatedBalance',
+      align: 'right' as const,
       render: (val: number) => (
-        <Text strong style={{ color: val > 0 ? '#1890ff' : '#8c8c8c' }}>
-          ₹{(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-        </Text>
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: val > 0 ? '#1677ff' : '#8c8c8c' }}>
+          ₹{(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
       ),
     },
     {
       title: 'Status',
       dataIndex: 'status',
       key: 'status',
+      align: 'center' as const,
       render: (status: string) => {
         if (status === 'ACTIVE') return <Tag color="processing">Active / Open</Tag>
         if (status === 'FULLY_SETTLED') return <Tag color="success">Fully Settled</Tag>
@@ -209,6 +237,7 @@ export const SupplierAdvanceListPage: React.FC = () => {
     {
       title: 'Actions',
       key: 'actions',
+      align: 'center' as const,
       render: (_: any, record: SupplierAdvance) => (
         <Space>
           {record.status === 'ACTIVE' && record.unallocatedBalance > 0 && (
@@ -227,35 +256,82 @@ export const SupplierAdvanceListPage: React.FC = () => {
   ]
 
   return (
-    <div style={{ padding: 24 }}>
-      <Card>
-        <Row justify="space-between" align="middle" style={{ marginBottom: 16 }}>
-          <Col>
-            <Title level={3} style={{ margin: 0 }}>
-              Supplier Advance Payments & Invoice Settlement
-            </Title>
-            <Text type="secondary">
-              Disburse pre-invoice vendor advances with date-effective statutory TDS withholding and offset against purchase invoices
-            </Text>
-          </Col>
-          <Col>
-            <Space>
-              <Button icon={<SyncOutlined />} onClick={fetchAdvances}>
-                Refresh
-              </Button>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => setCreateModalVisible(true)}
-              >
-                Disburse New Advance
-              </Button>
-            </Space>
-          </Col>
-        </Row>
+    <div style={{ padding: 20 }}>
+      {/* Executive Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+        <div>
+          <Title level={3} style={{ margin: 0 }}>
+            <DollarCircleOutlined style={{ color: '#1677ff', marginRight: 10 }} />
+            Supplier Advances & Settlement
+          </Title>
+          <Text type="secondary">
+            Disburse pre-invoice supplier advances with date-effective statutory TDS withholding and offset against purchase invoices.
+          </Text>
+        </div>
+        <Space>
+          <Button icon={<SyncOutlined />} onClick={fetchAdvances}>
+            Refresh
+          </Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setCreateModalVisible(true)}
+          >
+            Disburse New Advance
+          </Button>
+        </Space>
+      </div>
 
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={6}>
+      {/* KPI Statistic Cards */}
+      <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
+        <Col xs={24} sm={12} md={6}>
+          <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+            <Statistic
+              title="Total Advances Disbursed"
+              value={kpis.totalGross}
+              precision={2}
+              prefix="₹"
+              styles={{ content: { color: '#1677ff', fontWeight: 600, fontVariantNumeric: 'tabular-nums' } }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+            <Statistic
+              title="Active / Open Advances"
+              value={kpis.activeCount}
+              prefix={<ClockCircleOutlined style={{ color: kpis.activeCount > 0 ? '#fa8c16' : '#8c8c8c' }} />}
+              styles={{ content: { color: kpis.activeCount > 0 ? '#fa8c16' : undefined, fontWeight: 600 } }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+            <Statistic
+              title="Unallocated Offset Balance"
+              value={kpis.unallocated}
+              precision={2}
+              prefix="₹"
+              styles={{ content: { color: '#52c41a', fontWeight: 600, fontVariantNumeric: 'tabular-nums' } }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+            <Statistic
+              title="Statutory TDS Withheld"
+              value={kpis.totalTds}
+              precision={2}
+              prefix="₹"
+              styles={{ content: { color: '#d48806', fontWeight: 600, fontVariantNumeric: 'tabular-nums' } }}
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      <Card size="small" style={{ marginBottom: 16, borderRadius: 8 }}>
+        <Row gutter={16}>
+          <Col xs={24} sm={12} md={6}>
             <Select
               placeholder="Filter by Status"
               allowClear
@@ -269,16 +345,36 @@ export const SupplierAdvanceListPage: React.FC = () => {
             />
           </Col>
         </Row>
+      </Card>
 
+      <Card variant="borderless" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
         <Table
           dataSource={advances}
           columns={columns}
           rowKey="id"
           loading={loading}
+          locale={{
+            emptyText: (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description="No supplier advances found matching the filter criteria."
+              >
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => setCreateModalVisible(true)}
+                >
+                  Disburse New Advance
+                </Button>
+              </Empty>
+            ),
+          }}
           pagination={{
             current: currentPage,
             pageSize,
             total,
+            showTotal: (t) => `Total ${t} Supplier Advances`,
+            showSizeChanger: true,
             onChange: (p, ps) => {
               setCurrentPage(p)
               setPageSize(ps)
@@ -299,7 +395,7 @@ export const SupplierAdvanceListPage: React.FC = () => {
         <Form form={createForm} layout="vertical" onFinish={handleCreateAdvance}>
           <Form.Item
             name="supplierId"
-            label="Supplier / Vendor ID"
+            label="Supplier ID"
             rules={[{ required: true, message: 'Please enter Supplier ID' }]}
           >
             <InputNumber style={{ width: '100%' }} placeholder="Enter Supplier ID" />
@@ -357,7 +453,7 @@ export const SupplierAdvanceListPage: React.FC = () => {
         width={650}
       >
         {selectedAdvance && (
-          <Space direction="vertical" style={{ width: '100%' }} size="middle">
+          <Space orientation="vertical" style={{ width: '100%' }} size="middle">
             <Card size="small" style={{ backgroundColor: '#fafafa' }}>
               <Row gutter={16}>
                 <Col span={12}>

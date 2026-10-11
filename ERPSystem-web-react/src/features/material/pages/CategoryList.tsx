@@ -257,12 +257,12 @@ export const CategoryListPage: React.FC = () => {
       }
 
       await http.post('/materialCategory/add', payload)
-      message.success('Category created successfully!')
+      message.success('Item category created successfully.')
       setAddModalOpen(false)
       addModalForm.resetFields()
       loadTree()
     } catch (err: any) {
-      message.error(err?.message || 'Failed to create category')
+      message.error(err?.message || 'Cannot create item category.')
     } finally {
       setAddingSubmitting(false)
     }
@@ -344,15 +344,15 @@ export const CategoryListPage: React.FC = () => {
                 setAddModalOpen(true)
               }}
             >
-              Add Category
+              Create Item Category
             </Button>
             <Popconfirm
-              title="Delete selected categories?"
+              title="Delete selected item categories? Child categories may also be affected."
               onConfirm={handleBatchDelete}
               disabled={checkedKeys.length === 0}
             >
               <Button icon={<DeleteOutlined />} danger disabled={checkedKeys.length === 0}>
-                Batch Delete
+                Delete Selected Categories
               </Button>
             </Popconfirm>
             <Button icon={<ReloadOutlined />} onClick={() => loadTree()}>
@@ -360,7 +360,7 @@ export const CategoryListPage: React.FC = () => {
             </Button>
             <Dropdown menu={treeActionMenu} trigger={['click']}>
               <Button>
-                Tree Action <DownOutlined />
+                Tree View Options <DownOutlined />
               </Button>
             </Dropdown>
           </Space>
@@ -411,7 +411,7 @@ export const CategoryListPage: React.FC = () => {
                 onCheck={handleCheck}
               />
             ) : (
-              <Empty description="No Categories" style={{ margin: '40px 0' }} />
+              <Empty description="No item categories defined. Click 'Create Item Category' to establish category hierarchy." style={{ margin: '40px 0' }} />
             )}
           </div>
         </Card>
@@ -423,12 +423,12 @@ export const CategoryListPage: React.FC = () => {
           {currSelected ? (
             <Form form={form} layout="horizontal" labelCol={{ span: 6 }} wrapperCol={{ span: 16 }}>
               <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 20 }}>
-                Category Details: {currSelected.title || currSelected.name}
+                Item Category Details: {currSelected.title || currSelected.name}
               </div>
 
               <Form.Item
                 name="name"
-                label="Name"
+                label="Category Name"
                 rules={[{ required: true, message: 'Please enter category name' }]}
               >
                 <Input placeholder="Enter category name..." />
@@ -436,7 +436,7 @@ export const CategoryListPage: React.FC = () => {
 
               <Form.Item
                 name="serialNo"
-                label="Code"
+                label="Category Code"
                 rules={[{ required: true, message: 'Please enter category code' }]}
               >
                 <Input placeholder="Enter category code..." />
@@ -487,7 +487,7 @@ export const CategoryListPage: React.FC = () => {
 
       {/* Add Category Modal */}
       <Modal
-        title="Add New Category"
+        title="Create Item Category"
         open={addModalOpen}
         onCancel={() => setAddModalOpen(false)}
         onOk={handleAddCategory}

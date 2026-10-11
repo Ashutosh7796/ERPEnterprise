@@ -35,8 +35,23 @@ import { StockLedgerListPage } from '@features/inventory/pages/StockLedgerList'
 import { StocktakeListPage } from '@features/inventory/pages/StocktakeList'
 import { BomListPage } from '@features/manufacturing/pages/BomListPage'
 import { WorkOrderListPage } from '@features/manufacturing/pages/WorkOrderListPage'
+import { WipReconciliationPage } from '@features/manufacturing/pages/WipReconciliationPage'
+import { ProductionPlanListPage } from '@features/manufacturing/pages/ProductionPlanListPage'
 import { JobWorkListPage } from '@features/manufacturing/pages/JobWorkListPage'
 import { JobWorkAgingPage } from '@features/manufacturing/pages/JobWorkAgingPage'
+import { JobCardListPage } from '@features/manufacturing/pages/JobCardListPage'
+import { ShopFloorExecutionPage } from '@features/manufacturing/pages/ShopFloorExecutionPage'
+import { OeeDashboardPage } from '@features/manufacturing/pages/OeeDashboardPage'
+import { MachineUtilizationPage } from '@features/manufacturing/pages/MachineUtilizationPage'
+import { DowntimeParetoPage } from '@features/manufacturing/pages/DowntimeParetoPage'
+import { PlanVsActualPage } from '@features/manufacturing/pages/PlanVsActualPage'
+import {
+  QualityCockpitPage,
+  InspectionWorkbenchPage,
+  QualityTemplateListPage,
+  NcrManagementPage,
+  CapaEightDPage,
+} from '@/features/quality'
 import { AccountListPage } from '@features/financial/pages/AccountList'
 import { ChartOfAccountsPage } from '@features/financial/pages/ChartOfAccountsPage'
 import { JournalVoucherPage } from '@features/financial/pages/JournalVoucherPage'
@@ -46,8 +61,10 @@ import { MoneyInListPage } from '@features/financial/pages/MoneyInList'
 import { MoneyOutListPage } from '@features/financial/pages/MoneyOutList'
 import { GiroListPage } from '@features/financial/pages/GiroList'
 import { AdvanceInListPage } from '@features/financial/pages/AdvanceInList'
+import { BankReconciliationListPage } from '@features/financial/pages/BankReconciliationListPage'
+import { BankReconciliationWorkspace } from '@features/financial/pages/BankReconciliationWorkspace'
 import { PurchaseApplyListPage } from '@features/bill/pages/PurchaseApplyList'
-import { PurchaseOrderListPage } from '@features/bill/pages/PurchaseOrderList'
+import { PurchaseOrderListPage as BillPurchaseOrderListPage } from '@features/bill/pages/PurchaseOrderList'
 import { PurchaseInboundListPage } from '@features/bill/pages/PurchaseInboundList'
 import { PurchaseReturnListPage } from '@features/bill/pages/PurchaseReturnList'
 import { SaleOrderListPage } from '@features/bill/pages/SaleOrderList'
@@ -73,6 +90,7 @@ import { AccountStatsReportPage } from '@features/report/pages/AccountStatsRepor
 import { TrendReportPage } from '@features/report/pages/TrendReport'
 import { InboundOutboundDetailReportPage } from '@features/report/pages/InboundOutboundDetailReport'
 import {
+  PurchaseOrderListPage as EnterprisePurchaseOrderListPage,
   PurchaseReturnListPage as EnterprisePurchaseReturnListPage,
   SupplierAdvanceListPage,
   TdsRegisterReportPage,
@@ -104,6 +122,7 @@ import { DepreciationRunPage } from '@features/financial/pages/DepreciationRunPa
 import { FixedAssetScheduleIIIReportPage } from '@features/financial/pages/FixedAssetScheduleIIIReportPage'
 import { FiscalPeriodListPage } from '@features/financial/pages/FiscalPeriodListPage'
 import { YearEndClosingPage } from '@features/financial/pages/YearEndClosingPage'
+import { ConsolidationCockpitPage } from '@features/financial/pages/ConsolidationCockpitPage'
 import { useAuthStore } from '@core/auth/authStore'
 import { useAppStore, AuthorityDomain } from '@store/useAppStore'
 
@@ -277,6 +296,27 @@ export const router = createBrowserRouter([
         path: 'sales/invoices/:id/print',
         element: <GstRule46InvoicePrint />,
       },
+      // GST Sales Invoice Aliases
+      {
+        path: 'gst/sales-invoice',
+        element: <BillingDocumentList />,
+      },
+      {
+        path: 'gst/sales-invoice/new',
+        element: <GstSalesInvoiceForm />,
+      },
+      {
+        path: 'gst/sales-invoice/:id',
+        element: <GstSalesInvoiceForm />,
+      },
+      {
+        path: 'gst/sales-invoice/print/:id',
+        element: <GstRule46InvoicePrint />,
+      },
+      {
+        path: 'gst/sales-invoice/:id/print',
+        element: <GstRule46InvoicePrint />,
+      },
       {
         path: 'sales/credit_notes',
         element: <BillingDocumentList />,
@@ -339,11 +379,11 @@ export const router = createBrowserRouter([
       },
       {
         path: 'procurement/orders',
-        element: <PurchaseOrderListPage />,
+        element: <EnterprisePurchaseOrderListPage />,
       },
       {
         path: 'purchase/order', // Alias
-        element: <PurchaseOrderListPage />,
+        element: <EnterprisePurchaseOrderListPage />,
       },
       {
         path: 'procurement/inbound',
@@ -419,24 +459,32 @@ export const router = createBrowserRouter([
       },
       {
         path: 'inventory/other_in',
-        element: <SpecialBillListPage type="入库" subType="其它入库" title="Other Inbound" />,
+        element: <SpecialBillListPage type="入库" subType="其它入库" title="Miscellaneous Stock Receipts" />,
       },
       {
         path: 'inventory/other_out',
-        element: <SpecialBillListPage type="出库" subType="其它出库" title="Other Outbound" />,
+        element: <SpecialBillListPage type="出库" subType="其它出库" title="Miscellaneous Stock Issues" />,
       },
       {
         path: 'inventory/assemble',
-        element: <SpecialBillListPage type="入库" subType="组装单" title="Assembly Bills" />,
+        element: <SpecialBillListPage type="入库" subType="组装单" title="Stock Assembly Vouchers" />,
       },
       {
         path: 'inventory/disassemble',
-        element: <SpecialBillListPage type="出库" subType="拆卸单" title="Disassembly Bills" />,
+        element: <SpecialBillListPage type="出库" subType="拆卸单" title="Stock Disassembly Vouchers" />,
       },
 
       // ==========================================
       // Manufacturing & Discrete Production (MFG-1 & MFG-2)
       // ==========================================
+      {
+        path: 'manufacturing/production_plan',
+        element: <ProductionPlanListPage />,
+      },
+      {
+        path: 'manufacturing/production_plans',
+        element: <ProductionPlanListPage />,
+      },
       {
         path: 'manufacturing/bom',
         element: <BomListPage />,
@@ -446,12 +494,80 @@ export const router = createBrowserRouter([
         element: <WorkOrderListPage />,
       },
       {
+        path: 'manufacturing/wip_reconciliation',
+        element: <WipReconciliationPage />,
+      },
+      {
+        path: 'manufacturing/job_card',
+        element: <JobCardListPage />,
+      },
+      {
+        path: 'manufacturing/job_cards',
+        element: <JobCardListPage />,
+      },
+      {
+        path: 'manufacturing/shop_floor',
+        element: <ShopFloorExecutionPage />,
+      },
+      {
         path: 'manufacturing/job_work',
         element: <JobWorkListPage />,
       },
       {
         path: 'manufacturing/section143_aging',
         element: <JobWorkAgingPage />,
+      },
+      {
+        path: 'manufacturing/oee_dashboard',
+        element: <OeeDashboardPage />,
+      },
+      {
+        path: 'manufacturing/machine_utilization',
+        element: <MachineUtilizationPage />,
+      },
+      {
+        path: 'manufacturing/downtime_analysis',
+        element: <DowntimeParetoPage />,
+      },
+      {
+        path: 'manufacturing/plan_vs_actual',
+        element: <PlanVsActualPage />,
+      },
+
+      // ==========================================
+      // Quality Management & Compliance (WP4)
+      // ==========================================
+      {
+        path: 'quality/cockpit',
+        element: <QualityCockpitPage />,
+      },
+      {
+        path: 'quality/inspections',
+        element: <InspectionWorkbenchPage />,
+      },
+      {
+        path: 'quality/inspection', // Alias
+        element: <InspectionWorkbenchPage />,
+      },
+      {
+        path: 'quality/templates',
+        element: <QualityTemplateListPage />,
+      },
+      {
+        path: 'quality/template', // Alias
+        element: <QualityTemplateListPage />,
+      },
+      {
+        path: 'quality/ncr',
+        element: <NcrManagementPage />,
+      },
+      {
+        path: 'quality/capa',
+        element: <CapaEightDPage />,
+      },
+      {
+        path: 'quality/8d', // Alias
+        element: <CapaEightDPage />,
       },
 
       // ==========================================
@@ -526,6 +642,18 @@ export const router = createBrowserRouter([
         element: <PaymentVoucherListPage />,
       },
       {
+        path: 'financial/bank-reconciliation',
+        element: <BankReconciliationListPage />,
+      },
+      {
+        path: 'financial/bank-reconciliation/:id',
+        element: <BankReconciliationWorkspace />,
+      },
+      {
+        path: 'financial/bank_reconciliation', // Alias
+        element: <BankReconciliationListPage />,
+      },
+      {
         path: 'financial/reports/trial_balance',
         element: <TrialBalancePage />,
       },
@@ -588,6 +716,14 @@ export const router = createBrowserRouter([
       {
         path: 'financial/year_end_closing',
         element: <YearEndClosingPage />,
+      },
+      {
+        path: 'financial/consolidation',
+        element: <ConsolidationCockpitPage />,
+      },
+      {
+        path: 'financial/consolidation/cockpit',
+        element: <ConsolidationCockpitPage />,
       },
 
       // ==========================================
@@ -855,23 +991,23 @@ export const router = createBrowserRouter([
       },
       {
         path: 'report/in_detail',
-        element: <InboundOutboundDetailReportPage type="入库" title="Inbound Details" />,
+        element: <InboundOutboundDetailReportPage type="入库" title="Inbound Receipt Details" />,
       },
       {
         path: 'report/out_detail',
-        element: <InboundOutboundDetailReportPage type="出库" title="Outbound Details" />,
+        element: <InboundOutboundDetailReportPage type="出库" title="Outbound Issue Details" />,
       },
       {
         path: 'report/allocation_detail',
-        element: <InboundOutboundDetailReportPage type="调拨" title="Transfer Details" />,
+        element: <InboundOutboundDetailReportPage type="调拨" title="Stock Transfer Details" />,
       },
       {
         path: 'report/in_material_count',
-        element: <InboundOutboundSummaryReportPage type="入库" title="Inbound Summary" />,
+        element: <InboundOutboundSummaryReportPage type="入库" title="Inbound Receipt Summary" />,
       },
       {
         path: 'report/out_material_count',
-        element: <InboundOutboundSummaryReportPage type="出库" title="Outbound Summary" />,
+        element: <InboundOutboundSummaryReportPage type="出库" title="Outbound Issue Summary" />,
       },
       {
         path: 'report/in_out_stock_report',

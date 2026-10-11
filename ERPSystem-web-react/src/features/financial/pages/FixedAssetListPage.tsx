@@ -299,7 +299,7 @@ export const FixedAssetListPage: React.FC = () => {
               icon={<HistoryOutlined />}
               onClick={() => navigate('/financial/fixed-assets/depreciation')}
             >
-              Depreciation Cockpit
+              Depreciation Runs
             </Button>
             <Button
               icon={<PieChartOutlined />}

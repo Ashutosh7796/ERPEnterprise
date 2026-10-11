@@ -159,14 +159,15 @@ export const GoodsReceiptCreateModal: React.FC<Props> = ({ visible, onClose, onS
       await createGoodsReceipt({
         poHeaderId: values.poHeaderId,
         depotId: values.depotId,
+        supplierDeliveryNote: values.supplierDeliveryNote ? values.supplierDeliveryNote.trim() : undefined,
         items: payloadItems,
       })
 
-      message.success('Goods Receipt Note (GRN) created & posted to inventory successfully.')
+      message.success('Goods Receipt Note created and posted to inventory successfully.')
       onSuccess()
       onClose()
     } catch (err: any) {
-      message.error(err.message || 'Failed to create Goods Receipt')
+      message.error(err.message || 'Failed to create Goods Receipt Note.')
     } finally {
       setSubmitting(false)
     }
@@ -178,27 +179,27 @@ export const GoodsReceiptCreateModal: React.FC<Props> = ({ visible, onClose, onS
 
   const columns: TableColumnsType<any> = [
     {
-      title: 'Material ID',
+      title: 'Item ID',
       dataIndex: 'materialId',
       key: 'materialId',
       width: 100,
     },
     {
-      title: 'Ordered',
+      title: 'Ordered Quantity',
       dataIndex: 'orderedQuantity',
       key: 'orderedQuantity',
       align: 'right',
       render: (v: number) => Number(v || 0).toFixed(2),
     },
     {
-      title: 'Open Balance',
+      title: 'Remaining Balance',
       dataIndex: 'remainingReceiptQuantity',
       key: 'remainingReceiptQuantity',
       align: 'right',
       render: (v: number) => <Text strong>{Number(v || 0).toFixed(2)}</Text>,
     },
     {
-      title: 'Accepted Qty (Stock-In)',
+      title: 'Accepted Quantity',
       dataIndex: 'acceptedQty',
       key: 'acceptedQty',
       width: 150,
@@ -213,7 +214,7 @@ export const GoodsReceiptCreateModal: React.FC<Props> = ({ visible, onClose, onS
       ),
     },
     {
-      title: 'Rejected Qty (Quarantine)',
+      title: 'Rejected Quantity (Quarantine)',
       dataIndex: 'rejectedQty',
       key: 'rejectedQty',
       width: 150,
@@ -243,7 +244,7 @@ export const GoodsReceiptCreateModal: React.FC<Props> = ({ visible, onClose, onS
             allowClear
             style={{ width: '100%' }}
           >
-            <Select.Option value="DEFECTIVE_PRODUCT">Defective Product</Select.Option>
+            <Select.Option value="DEFECTIVE_PRODUCT">Defective Material</Select.Option>
             <Select.Option value="DAMAGED_IN_TRANSIT">Damaged in Transit</Select.Option>
             <Select.Option value="WRONG_SPECIFICATION">Wrong Specification</Select.Option>
             <Select.Option value="EXPIRED">Expired Shelf Life</Select.Option>
@@ -256,7 +257,7 @@ export const GoodsReceiptCreateModal: React.FC<Props> = ({ visible, onClose, onS
 
   return (
     <Modal
-      title="Create Goods Receipt Note (GRN) & QC Inspection"
+      title="Create Goods Receipt Note (GRN)"
       open={visible}
       onCancel={onClose}
       width={1000}
@@ -300,16 +301,24 @@ export const GoodsReceiptCreateModal: React.FC<Props> = ({ visible, onClose, onS
 
           <Form.Item
             name="depotId"
-            label="Receiving Warehouse / Depot"
+            label="Receiving Warehouse"
             rules={[{ required: true, message: 'Please select receiving warehouse' }]}
           >
-            <Select placeholder="Select warehouse (Data-Scope filtered)">
+            <Select placeholder="Select receiving warehouse...">
               {depotList.map((d) => (
                 <Select.Option key={d.id} value={d.id}>
                   {d.name}
                 </Select.Option>
               ))}
             </Select>
+          </Form.Item>
+
+          <Form.Item
+            name="supplierDeliveryNote"
+            label="Supplier Delivery Note / Challan #"
+            rules={[{ max: 100, message: 'Supplier delivery note cannot exceed 100 characters' }]}
+          >
+            <Input placeholder="e.g. DC-2026-8812, LR-44102" maxLength={100} allowClear />
           </Form.Item>
 
           {selectedPo && (

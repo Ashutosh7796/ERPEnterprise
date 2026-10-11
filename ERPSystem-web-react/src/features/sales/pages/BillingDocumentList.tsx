@@ -57,6 +57,7 @@ interface BillingDocumentItem {
   organName?: string
   customerGstin?: string
   posStateCode?: string
+  taxableValue?: number
   totalPrice?: number
   taxLastMoney?: number
   cgstAmount?: number
@@ -137,6 +138,7 @@ export const BillingDocumentList: React.FC = () => {
           }
 
           const rawTotal = row.totalPrice != null ? Number(row.totalPrice) : (row.discountLastMoney != null ? Number(row.discountLastMoney) : (row.taxLastMoney != null ? Number(row.taxLastMoney) : 0))
+          const rawTaxable = row.discountLastMoney != null ? Number(row.discountLastMoney) : (row.taxLastMoney != null ? Number(row.taxLastMoney) : rawTotal)
           return {
             id: row.id,
             documentType: docType,
@@ -147,10 +149,11 @@ export const BillingDocumentList: React.FC = () => {
             organName: row.organName || 'Walk-in Customer',
             customerGstin: row.taxNum || '-',
             posStateCode: '27',
+            taxableValue: rawTaxable,
             totalPrice: rawTotal,
-            taxLastMoney: row.taxLastMoney != null ? Number(row.taxLastMoney) : rawTotal,
+            taxLastMoney: rawTotal,
             status: row.status === '1' ? 'POSTED' : row.status === '0' ? 'DRAFT' : row.status || 'DRAFT',
-            postingStatus: row.status === '1' ? 'POSTED' : 'DRAFT',
+            postingStatus: row.postingStatus || (row.status === '1' ? 'POSTED' : 'DRAFT'),
             irn: row.otherField1, // Check if IRN exists
             signedQrCode: row.otherField2,
             ewbNumber: row.otherField3,
@@ -376,16 +379,16 @@ export const BillingDocumentList: React.FC = () => {
     },
     {
       title: 'Taxable Val (₹)',
-      dataIndex: 'totalPrice',
-      key: 'totalPrice',
+      dataIndex: 'taxableValue',
+      key: 'taxableValue',
       width: 130,
       align: 'right',
       render: (val: number) => formatCurrency(val || 0),
     },
     {
       title: 'Total Invoice Val (₹)',
-      dataIndex: 'taxLastMoney',
-      key: 'taxLastMoney',
+      dataIndex: 'totalPrice',
+      key: 'totalPrice',
       width: 150,
       align: 'right',
       render: (val: number) => (
@@ -420,7 +423,7 @@ export const BillingDocumentList: React.FC = () => {
       key: 'edocs',
       width: 180,
       render: (_: any, record: BillingDocumentItem) => (
-        <Space direction="vertical" size={2}>
+        <Space orientation="vertical" size={2}>
           {record.irn ? (
             <Tooltip title={`Official IRN: ${record.irn}`}>
               <Tag
@@ -564,7 +567,17 @@ export const BillingDocumentList: React.FC = () => {
       {/* Executive Process & KPI Cards */}
       <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
         <Col xs={24} sm={12} md={6}>
-          <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+          <Card
+            size="small"
+            style={{
+              borderRadius: 8,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              cursor: 'pointer',
+              borderColor: activeTab === 'ALL' ? '#1677ff' : undefined,
+              transition: 'all 0.2s ease',
+            }}
+            onClick={() => setActiveTab('ALL')}
+          >
             <Statistic
               title="Total Billing Documents"
               value={totalCount}
@@ -573,7 +586,17 @@ export const BillingDocumentList: React.FC = () => {
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+          <Card
+            size="small"
+            style={{
+              borderRadius: 8,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              cursor: 'pointer',
+              borderColor: activeTab === 'INVOICE' ? '#52c41a' : undefined,
+              transition: 'all 0.2s ease',
+            }}
+            onClick={() => setActiveTab('INVOICE')}
+          >
             <Statistic
               title="Tax Invoices (Rule 46)"
               value={invoiceCount}
@@ -582,7 +605,17 @@ export const BillingDocumentList: React.FC = () => {
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+          <Card
+            size="small"
+            style={{
+              borderRadius: 8,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              cursor: 'pointer',
+              borderColor: activeTab === 'CREDIT_NOTE' || activeTab === 'DEBIT_NOTE' ? '#722ed1' : undefined,
+              transition: 'all 0.2s ease',
+            }}
+            onClick={() => setActiveTab('CREDIT_NOTE')}
+          >
             <Statistic
               title="Credit & Debit Notes (Rule 53)"
               value={adjustmentCount}
@@ -591,7 +624,13 @@ export const BillingDocumentList: React.FC = () => {
           </Card>
         </Col>
         <Col xs={24} sm={12} md={6}>
-          <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+          <Card
+            size="small"
+            style={{
+              borderRadius: 8,
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+            }}
+          >
             <Statistic
               title="e-Invoices Verified (IRN)"
               value={irnVerifiedCount}
@@ -649,7 +688,7 @@ export const BillingDocumentList: React.FC = () => {
         <Row gutter={16} style={{ marginBottom: 16 }}>
           <Col xs={24} sm={8} md={6}>
             <Input
-              placeholder="Search Doc Number / Customer"
+              placeholder="Search Doc Number / Customer..."
               prefix={<SearchOutlined />}
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
@@ -678,12 +717,24 @@ export const BillingDocumentList: React.FC = () => {
             />
           </Col>
           <Col xs={24} sm={24} md={6} style={{ textAlign: 'right' }}>
-            <Button
-              icon={<RedoOutlined />}
-              onClick={() => fetchDocuments(pagination.current, pagination.pageSize)}
-            >
-              Refresh
-            </Button>
+            <Space>
+              <Button
+                onClick={() => {
+                  setSearchKeyword('')
+                  setStatusFilter('')
+                  setDateRange(null)
+                  fetchDocuments(1, pagination.pageSize)
+                }}
+              >
+                Reset
+              </Button>
+              <Button
+                icon={<RedoOutlined />}
+                onClick={() => fetchDocuments(pagination.current, pagination.pageSize)}
+              >
+                Refresh
+              </Button>
+            </Space>
           </Col>
         </Row>
 
@@ -693,6 +744,26 @@ export const BillingDocumentList: React.FC = () => {
           dataSource={dataSource}
           rowKey="id"
           loading={loading}
+          locale={{
+            emptyText: (
+              <div style={{ padding: '32px 0', textAlign: 'center' }}>
+                <FileProtectOutlined style={{ fontSize: 40, color: '#bfbfbf', marginBottom: 12 }} />
+                <div style={{ fontSize: 15, fontWeight: 600, color: '#262626', marginBottom: 4 }}>
+                  No Billing Documents Found
+                </div>
+                <div style={{ fontSize: 13, color: '#8c8c8c', marginBottom: 16 }}>
+                  Create your first statutory Rule 46 Tax Invoice or adjust existing accounts with Rule 53 notes.
+                </div>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => navigate('/sales/invoices/new')}
+                >
+                  Create Tax Invoice
+                </Button>
+              </div>
+            ),
+          }}
           pagination={{
             ...pagination,
             showSizeChanger: true,

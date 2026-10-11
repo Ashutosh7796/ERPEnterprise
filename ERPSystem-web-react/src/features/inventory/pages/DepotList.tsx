@@ -138,52 +138,52 @@ export const DepotListPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       await http.delete(`/depot/delete?id=${id}`)
-      message.success('Warehouse deleted successfully')
+      message.success('Warehouse deleted successfully.')
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to delete warehouse')
+      message.error(err?.message || 'Failed to delete warehouse.')
     }
   }
 
   const handleBatchDelete = async () => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Please select warehouses first')
+      message.warning('Please select at least one warehouse.')
       return
     }
     try {
       const ids = selectedRowKeys.join(',')
       await http.delete(`/depot/deleteBatch?ids=${ids}`)
-      message.success('Selected warehouses deleted successfully')
+      message.success('Selected warehouses deleted successfully.')
       setSelectedRowKeys([])
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to delete selected warehouses')
+      message.error(err?.message || 'Failed to delete selected warehouses.')
     }
   }
 
   const handleBatchStatus = async (status: boolean) => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Please select warehouses first')
+      message.warning('Please select at least one warehouse.')
       return
     }
     try {
       const ids = selectedRowKeys.join(',')
       await http.post(`/depot/batchSetStatus?status=${status}&ids=${ids}`)
-      message.success(status ? 'Warehouses enabled' : 'Warehouses disabled')
+      message.success(status ? 'Warehouses enabled successfully.' : 'Warehouses disabled successfully.')
       setSelectedRowKeys([])
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to update warehouse status')
+      message.error(err?.message || 'Failed to update warehouse status.')
     }
   }
 
   const handleSetDefault = async (id: number) => {
     try {
       await http.post(`/depot/updateIsDefault?id=${id}&isDefault=true`)
-      message.success('Default warehouse updated successfully')
+      message.success('Default warehouse updated successfully.')
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to set default warehouse')
+      message.error(err?.message || 'Failed to set default warehouse.')
     }
   }
 
@@ -222,16 +222,16 @@ export const DepotListPage: React.FC = () => {
       if (editingRecord) {
         payload.id = editingRecord.id
         await http.put('/depot/update', payload)
-        message.success('Warehouse updated successfully')
+        message.success('Warehouse updated successfully.')
       } else {
         await http.post('/depot/add', payload)
-        message.success('Warehouse created successfully')
+        message.success('Warehouse created successfully.')
       }
 
       setModalOpen(false)
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to save warehouse')
+      message.error(err?.message || 'Failed to save warehouse.')
     } finally {
       setSubmitting(false)
     }
@@ -265,7 +265,7 @@ export const DepotListPage: React.FC = () => {
       scanChecked(rawTree)
       setCheckedUserKeys(preChecked)
     } catch (err) {
-      message.error('Failed to load user assignments')
+      message.error('Failed to load user assignments.')
     }
   }
 
@@ -277,7 +277,7 @@ export const DepotListPage: React.FC = () => {
         roleId: targetDepot.id,
         btnStr: checkedUserKeys.join(','),
       })
-      message.success(`User assignments updated for warehouse: ${targetDepot.name}`)
+      message.success(`User assignments updated successfully for warehouse: ${targetDepot.name}.`)
       setUserModalOpen(false)
     } catch (err: any) {
       message.error(err?.message || 'Failed to save user assignments')
@@ -296,19 +296,27 @@ export const DepotListPage: React.FC = () => {
         (pagination.current - 1) * pagination.pageSize + idx + 1,
     },
     action: {
-      title: 'Action',
+      title: 'Actions',
       key: 'action',
       width: 360,
       align: 'center' as const,
       render: (_: any, record: DepotRecord) => (
         <Space split={<Divider type="vertical" style={{ margin: '0 4px' }} />} size={0}>
-          <a onClick={() => handleOpenManageBins(record)}>Manage Bins</a>
+          <a onClick={() => handleOpenManageBins(record)}>Manage Storage Bins</a>
           <a onClick={() => handleOpenAssignUser(record)}>Assign Users</a>
-          <Popconfirm title="Set this as default warehouse?" onConfirm={() => handleSetDefault(record.id)}>
+          <Popconfirm
+            title="Set as default warehouse?"
+            description="Future inventory transactions will select this warehouse by default."
+            onConfirm={() => handleSetDefault(record.id)}
+          >
             <a>Set Default</a>
           </Popconfirm>
           <a onClick={() => handleOpenEdit(record)}>Edit</a>
-          <Popconfirm title="Delete this warehouse?" onConfirm={() => handleDelete(record.id)}>
+          <Popconfirm
+            title="Delete this warehouse?"
+            description="Inactive warehouses with historical transactions will be archived."
+            onConfirm={() => handleDelete(record.id)}
+          >
             <a style={{ color: '#ff4d4f' }}>Delete</a>
           </Popconfirm>
         </Space>
@@ -378,10 +386,10 @@ export const DepotListPage: React.FC = () => {
       },
     },
     isDefault: {
-      title: 'Is Default',
+      title: 'Default Warehouse',
       dataIndex: 'isDefault',
       key: 'isDefault',
-      width: 90,
+      width: 130,
       align: 'center' as const,
       render: (val: any) => {
         const isDef = val === true || val === 1 || val === '1'
@@ -496,15 +504,16 @@ export const DepotListPage: React.FC = () => {
       >
         <Space size="small" wrap>
           <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
-            Add New Warehouse
+            Create Warehouse
           </Button>
           <Popconfirm
             title="Delete selected warehouses?"
+            description="Inactive warehouses with historical transactions will be archived."
             onConfirm={handleBatchDelete}
             disabled={selectedRowKeys.length === 0}
           >
             <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-              Batch Delete
+              Delete Selected Warehouses
             </Button>
           </Popconfirm>
           <Button
@@ -512,14 +521,14 @@ export const DepotListPage: React.FC = () => {
             onClick={() => handleBatchStatus(true)}
             disabled={selectedRowKeys.length === 0}
           >
-            Enable
+            Enable Warehouses
           </Button>
           <Button
             icon={<StopOutlined />}
             onClick={() => handleBatchStatus(false)}
             disabled={selectedRowKeys.length === 0}
           >
-            Disable
+            Disable Warehouses
           </Button>
           <ExportPrintButtons
             title="Warehouse Master Directory"
@@ -557,7 +566,7 @@ export const DepotListPage: React.FC = () => {
 
       {/* Add / Edit Warehouse Modal */}
       <Modal
-        title={editingRecord ? 'Edit Warehouse' : 'New Warehouse'}
+        title={editingRecord ? 'Edit Warehouse' : 'Create Warehouse'}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}
@@ -571,7 +580,7 @@ export const DepotListPage: React.FC = () => {
             label="Warehouse Name"
             rules={[{ required: true, message: 'Please enter warehouse name' }]}
           >
-            <Input placeholder="e.g. Main Central Depot" />
+            <Input placeholder="e.g. Main Central Warehouse" />
           </Form.Item>
 
           <Form.Item name="address" label="Warehouse Address">

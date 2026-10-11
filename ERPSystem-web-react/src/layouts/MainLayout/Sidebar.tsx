@@ -16,6 +16,7 @@ import {
   FileProtectOutlined,
   ToolOutlined,
   BuildOutlined,
+  ExperimentOutlined,
 } from '@ant-design/icons'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAppStore } from '@store/useAppStore'
@@ -125,7 +126,7 @@ export const Sidebar: React.FC = () => {
         {
           key: '/dashboard',
           icon: <HomeOutlined />,
-          label: `Tenant #${userAuth.tenantId} Overview`,
+          label: `${userAuth.tenantName || 'Workspace'} Overview`,
         },
       ]
 
@@ -165,7 +166,7 @@ export const Sidebar: React.FC = () => {
           icon: <DatabaseOutlined />,
           label: 'Inventory & Logistics',
           children: [
-            { key: '/inventory/depots', label: 'Storage Locations / Depots' },
+            { key: '/inventory/depots', label: 'Warehouse Directory' },
             { key: '/inventory/stock_ledger', label: 'Stock Ledger' },
             { key: '/inventory/transfers', label: 'Stock Transfers' },
             { key: '/inventory/other_in', label: 'Goods Inbound (Other)' },
@@ -185,6 +186,8 @@ export const Sidebar: React.FC = () => {
             { key: '/financial/advances', label: 'Customer Advances' },
             { key: '/financial/accounts', label: 'Settlement Accounts' },
             { key: '/financial/transfers', label: 'Bank Transfers' },
+            { key: '/financial/bank-reconciliation', label: 'Bank Reconciliation (BRS)' },
+            { key: '/financial/consolidation', label: 'Inter-Company Consolidation' },
           ],
         })
       }
@@ -206,10 +209,10 @@ export const Sidebar: React.FC = () => {
           label: 'Reports & Diagnostics',
           children: [
             { key: '/report/stock', label: 'Stock Valuation' },
-            { key: '/report/in_out_stock_report', label: 'Inventory Flow' },
+            { key: '/report/in_out_stock_report', label: 'Inventory Movement Summary' },
             { key: '/report/customer', label: 'Customer Statements' },
-            { key: '/report/vendor', label: 'Vendor Statements' },
-            { key: '/report/account_report', label: 'Account Stats' },
+            { key: '/report/vendor', label: 'Supplier Statements' },
+            { key: '/report/account_report', label: 'Account Statements' },
           ],
         })
       }
@@ -231,6 +234,7 @@ export const Sidebar: React.FC = () => {
         icon: <ShoppingCartOutlined />,
         label: 'Sales & Billing',
         children: [
+          { key: '/sales/quotations', label: 'Sales Quotations' },
           { key: '/sales/orders', label: 'Sales Orders' },
           { key: '/sales/invoices', label: 'Tax Invoices' },
           { key: '/sales/outbound', label: 'Outbound Deliveries' },
@@ -248,9 +252,10 @@ export const Sidebar: React.FC = () => {
           { key: '/procurement/orders', label: 'Purchase Orders' },
           { key: '/procurement/inbound', label: 'Goods Receipts (GRN)' },
           { key: '/procurement/invoices', label: 'Purchase Invoices' },
+          { key: '/procurement/landed-costs', label: 'Landed Cost Vouchers' },
           { key: '/procurement/advances', label: 'Supplier Advances' },
           { key: '/procurement/tds-register', label: 'TDS Deductions Register' },
-          { key: '/procurement/msme-aging', label: 'MSME Vendor Aging' },
+          { key: '/procurement/msme-aging', label: 'MSME Supplier Aging' },
           { key: '/procurement/returns', label: 'Purchase Returns & Debit Notes' },
         ],
       },
@@ -259,14 +264,14 @@ export const Sidebar: React.FC = () => {
         icon: <DatabaseOutlined />,
         label: 'Inventory & Logistics',
         children: [
-          { key: '/inventory/depots', label: 'Warehouses & Depots' },
+          { key: '/inventory/depots', label: 'Warehouse Directory' },
           { key: '/inventory/stock_ledger', label: 'Stock Ledger' },
           { key: '/inventory/stocktake', label: 'Stocktake & Audit' },
           { key: '/inventory/transfers', label: 'Stock Transfers' },
-          { key: '/inventory/other_in', label: 'Goods Inbound (Other)' },
-          { key: '/inventory/other_out', label: 'Goods Outbound (Other)' },
-          { key: '/inventory/assemble', label: 'Assembly Orders' },
-          { key: '/inventory/disassemble', label: 'Disassembly Orders' },
+          { key: '/inventory/other_in', label: 'Miscellaneous Stock Receipts' },
+          { key: '/inventory/other_out', label: 'Miscellaneous Stock Issues' },
+          { key: '/inventory/assemble', label: 'Stock Assembly Vouchers' },
+          { key: '/inventory/disassemble', label: 'Stock Disassembly Vouchers' },
         ],
       },
       {
@@ -274,10 +279,30 @@ export const Sidebar: React.FC = () => {
         icon: <BuildOutlined />,
         label: 'Manufacturing',
         children: [
-          { key: '/manufacturing/bom', label: 'Bills of Materials (BOM)' },
+          { key: '/manufacturing/production_plan', label: 'Production Planning & MRP' },
+          { key: '/manufacturing/bom', label: 'Bill of Materials (BOM)' },
           { key: '/manufacturing/work_orders', label: 'Production Work Orders' },
+          { key: '/manufacturing/wip_reconciliation', label: 'WIP Reconciliation' },
+          { key: '/manufacturing/job_card', label: 'Job Cards (Shop Floor)' },
+          { key: '/manufacturing/shop_floor', label: 'Shop Floor Terminal' },
           { key: '/manufacturing/job_work', label: 'Job Work Orders & Challans' },
           { key: '/manufacturing/section143_aging', label: 'Job Work Aging & Compliance' },
+          { key: '/manufacturing/oee_dashboard', label: 'Overall Equipment Effectiveness (OEE)' },
+          { key: '/manufacturing/machine_utilization', label: 'Machine Utilization & Capacity' },
+          { key: '/manufacturing/downtime_analysis', label: 'Downtime Pareto Analysis' },
+          { key: '/manufacturing/plan_vs_actual', label: 'Production Plan vs Actual Variance' },
+        ],
+      },
+      {
+        key: '/quality_domain',
+        icon: <ExperimentOutlined />,
+        label: 'Quality Management',
+        children: [
+          { key: '/quality/cockpit', label: 'Quality Dashboard' },
+          { key: '/quality/inspections', label: 'Quality Inspections' },
+          { key: '/quality/templates', label: 'Inspection Templates' },
+          { key: '/quality/ncr', label: 'Non-Conformance Reports (NCR)' },
+          { key: '/quality/capa', label: 'Corrective & Preventive Actions' },
         ],
       },
       {
@@ -304,6 +329,7 @@ export const Sidebar: React.FC = () => {
           { key: '/financial/chart_of_accounts', label: 'Chart of Accounts' },
           { key: '/financial/income', label: 'Income Receipts' },
           { key: '/financial/payment', label: 'Payment Vouchers' },
+          { key: '/financial/consolidation', label: 'Inter-Company Consolidation' },
         ],
       },
       {
@@ -311,12 +337,12 @@ export const Sidebar: React.FC = () => {
         icon: <AppstoreOutlined />,
         label: 'Master Data',
         children: [
-          { key: '/master/products', label: 'Products & SKUs' },
-          { key: '/master/categories', label: 'Product Categories' },
+          { key: '/master/products', label: 'Items & Materials' },
+          { key: '/master/categories', label: 'Item Categories' },
           { key: '/master/units', label: 'Units of Measure' },
           { key: '/master/attributes', label: 'Multi-Attributes' },
           { key: '/master/customers', label: 'Customers (GSTIN)' },
-          { key: '/master/vendors', label: 'Vendors & Suppliers' },
+          { key: '/master/vendors', label: 'Suppliers' },
           { key: '/master/members', label: 'Members' },
           { key: '/master/staff', label: 'Staff & Handlers' },
           { key: '/master/in_out_items', label: 'Income/Expense Heads' },
@@ -342,19 +368,19 @@ export const Sidebar: React.FC = () => {
         label: 'Analytics & Reports',
         children: [
           { key: '/report/stock', label: 'Stock Valuation' },
-          { key: '/report/in_out_stock_report', label: 'Inventory Flow' },
+          { key: '/report/in_out_stock_report', label: 'Inventory Movement Summary' },
           { key: '/report/customer', label: 'Customer Statements' },
-          { key: '/report/vendor', label: 'Vendor Statements' },
+          { key: '/report/vendor', label: 'Supplier Statements' },
           { key: '/report/account_report', label: 'Account Statements' },
           { key: '/report/sale_out_report', label: 'Sales Trends' },
           { key: '/report/buy_in_report', label: 'Purchase Trends' },
           { key: '/report/retail_report', label: 'Retail Trends' },
-          { key: '/report/in_detail', label: 'Inbound Details' },
-          { key: '/report/out_detail', label: 'Outbound Details' },
-          { key: '/report/allocation_detail', label: 'Transfer Details' },
-          { key: '/report/in_material_count', label: 'Inbound Summary' },
-          { key: '/report/out_material_count', label: 'Outbound Summary' },
-          { key: '/report/stock_warning_report', label: 'Stock Warning' },
+          { key: '/report/in_detail', label: 'Inbound Receipt Details' },
+          { key: '/report/out_detail', label: 'Outbound Issue Details' },
+          { key: '/report/allocation_detail', label: 'Stock Transfer Details' },
+          { key: '/report/in_material_count', label: 'Inbound Receipt Summary' },
+          { key: '/report/out_material_count', label: 'Outbound Issue Summary' },
+          { key: '/report/stock_warning_report', label: 'Safety Stock Alerts' },
         ],
       },
       {
@@ -364,8 +390,8 @@ export const Sidebar: React.FC = () => {
         children: [
           { key: '/admin/financial_years', label: 'Financial Years & Series' },
           { key: '/system/role', label: 'Roles & Permissions' },
-          { key: '/system/user', label: 'Users Management' },
-          { key: '/system/organization', label: 'Organizations & Depts' },
+          { key: '/system/user', label: 'User Management' },
+          { key: '/system/organization', label: 'Organizations & Departments' },
           { key: '/system/log', label: 'System Audit Logs' },
           { key: '/system/config', label: 'System Configuration' },
           { key: '/system/demo_data', label: 'Demo Data Management' },
@@ -397,7 +423,7 @@ export const Sidebar: React.FC = () => {
       '/procurement/tds-register': ['/report/account_report', '/procurement/tds-register'],
       '/procurement/msme-aging': ['/report/vendor', '/procurement/msme-aging'],
       '/procurement/returns': ['/bill/purchase_back', '/procurement/returns'],
-       '/inventory/transfers': ['/bill/allocation_out', '/inventory/transfers'],
+      '/inventory/transfers': ['/bill/allocation_out', '/inventory/transfers'],
       '/inventory/stock_ledger': ['/report/stock', '/inventory/stock_ledger'],
       '/inventory/stocktake': ['/bill/stocktake', '/inventory/stocktake'],
       '/inventory/depots': ['/system/depot', '/inventory/depots'],
@@ -405,8 +431,11 @@ export const Sidebar: React.FC = () => {
       '/inventory/other_out': ['/bill/other_out', '/inventory/other_out'],
       '/inventory/assemble': ['/bill/assemble', '/inventory/assemble'],
       '/inventory/disassemble': ['/bill/disassemble', '/inventory/disassemble'],
+      '/manufacturing/production_plan': ['/manufacturing/production_plan', '/manufacturing/work_orders', '/bill/assemble', '/inventory/depots'],
       '/manufacturing/bom': ['/manufacturing/bom', '/bill/assemble', '/master/products'],
       '/manufacturing/work_orders': ['/manufacturing/work_orders', '/bill/assemble', '/inventory/depots'],
+      '/manufacturing/job_card': ['/manufacturing/job_card', '/manufacturing/work_orders', '/bill/assemble'],
+      '/manufacturing/shop_floor': ['/manufacturing/shop_floor', '/manufacturing/job_card', '/manufacturing/work_orders', '/bill/assemble'],
       '/manufacturing/job_work': ['/manufacturing/job_work', '/bill/assemble', '/inventory/depots'],
       '/manufacturing/section143_aging': ['/manufacturing/section143_aging', '/bill/assemble', '/report/stock'],
       '/financial/receipts': ['/financial/money_in', '/financial/receipts'],
@@ -423,6 +452,7 @@ export const Sidebar: React.FC = () => {
       '/financial/contra': ['/financial/giro', '/financial/transfers', '/financial/contra'],
       '/financial/income': ['/financial/item_in', '/financial/income'],
       '/financial/payment': ['/financial/item_out', '/financial/payment'],
+      '/financial/consolidation': ['/financial/consolidation', '/financial/consolidation/cockpit'],
       '/master/products': ['/material/material', '/master/products'],
       '/master/categories': ['/material/material_category', '/master/categories'],
       '/master/units': ['/system/unit', '/master/units'],
@@ -567,8 +597,8 @@ export const Sidebar: React.FC = () => {
               userAuth.authorityDomain === 'PLATFORM'
                 ? 'linear-gradient(135deg, #722ed1 0%, #13c2c2 100%)'
                 : userAuth.authorityDomain === 'SUPPORT_OPERATIONS'
-                ? 'linear-gradient(135deg, #fa8c16 0%, #eb2f96 100%)'
-                : 'linear-gradient(135deg, #1677ff 0%, #52c41a 100%)',
+                  ? 'linear-gradient(135deg, #fa8c16 0%, #eb2f96 100%)'
+                  : 'linear-gradient(135deg, #1677ff 0%, #52c41a 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -598,13 +628,13 @@ export const Sidebar: React.FC = () => {
               {userAuth.authorityDomain === 'PLATFORM'
                 ? 'Platform Dashboard'
                 : userAuth.authorityDomain === 'SUPPORT_OPERATIONS'
-                ? 'Support Center'
-                : userAuth.authorityDomain === 'SUPPORT_SESSION'
-                ? `Support Session`
-                : 'ERP Enterprise'}
+                  ? 'Support Center'
+                  : userAuth.authorityDomain === 'SUPPORT_SESSION'
+                    ? `Support Session`
+                    : 'ERP Enterprise'}
             </span>
             <span style={{ fontSize: 11, color: siderTheme === 'dark' ? 'rgba(255,255,255,0.45)' : token.colorTextSecondary }}>
-              {userAuth.tenantId ? `Tenant #${userAuth.tenantId} • GST Ready` : 'Super Administration'}
+              {userAuth.tenantName ? `${userAuth.tenantName} • GST Ready` : userAuth.tenantId ? 'Enterprise Workspace • GST Ready' : 'Super Administration'}
             </span>
           </div>
         )}

@@ -817,7 +817,7 @@ export const TenantListPage: React.FC = () => {
             onClick={openProvisionWizard}
             style={{ background: '#722ed1', borderColor: '#722ed1' }}
           >
-            Provision Tenant (Wizard)
+            Provision Tenant
           </Button>
           <Button icon={<PlusOutlined />} onClick={handleOpenAdd}>
             Quick Add
@@ -1068,7 +1068,7 @@ export const TenantListPage: React.FC = () => {
 
       {/* Multi-Step Provisioning Wizard Modal */}
       <Modal
-        title="Enterprise Multi-Resource Tenant Provisioning Wizard"
+        title="Enterprise Multi-Resource Tenant Provisioning"
         open={wizardOpen}
         onCancel={() => setWizardOpen(false)}
         footer={
@@ -1171,7 +1171,7 @@ export const TenantListPage: React.FC = () => {
             <div>
               <Alert
                 message="Tenant Root Administrator"
-                description="Bootstrap credentials for the primary tenant administrator who will govern the organization."
+                description="Initial login credentials for the primary tenant administrator who will govern the organization."
                 type="info"
                 showIcon
                 style={{ marginBottom: 16 }}
@@ -1226,8 +1226,8 @@ export const TenantListPage: React.FC = () => {
           {wizardStep === 2 && (
             <div>
               <Alert
-                message="SaaS Subscription & Topology Bootstrap"
-                description="Assigns subscription tier and automatically scaffolds default organization root and primary warehouse."
+                message="Subscription & Organization Setup"
+                description="Assigns subscription tier and automatically configures default organization structure and primary warehouse."
                 type="info"
                 showIcon
                 style={{ marginBottom: 16 }}
@@ -1269,7 +1269,7 @@ export const TenantListPage: React.FC = () => {
                 <Col span={12}>
                   <Form.Item
                     name="initialDepotName"
-                    label="Default Warehouse / Depot Name"
+                    label="Default Warehouse Name"
                     rules={[{ required: true, message: 'Please enter warehouse name' }]}
                   >
                     <Input placeholder="e.g. Central Warehouse" />
@@ -1315,7 +1315,7 @@ export const TenantListPage: React.FC = () => {
                 <Descriptions.Item label="Root Organization">
                   {wizardForm.getFieldValue('initialOrgName')}
                 </Descriptions.Item>
-                <Descriptions.Item label="Default Depot">
+                <Descriptions.Item label="Default Warehouse">
                   {wizardForm.getFieldValue('initialDepotName')}
                 </Descriptions.Item>
               </Descriptions>

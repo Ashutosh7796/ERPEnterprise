@@ -217,7 +217,7 @@ export function ErpAgGrid<T = any>({
           minHeight: '400px',
         }}
       >
-        <Spin spinning={loading} tip="Loading data..." style={{ height: '100%', width: '100%' }}>
+        <Spin spinning={loading} description="Loading data..." style={{ height: '100%', width: '100%' }}>
           <div style={{ height: '100%', width: '100%' }}>
             <AgGridReact<T>
               theme={gridTheme}

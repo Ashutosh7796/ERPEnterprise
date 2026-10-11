@@ -24,6 +24,9 @@ export interface JobWorkOrder {
   tenantId: number
   orderNumber: string
   workOrderId?: number
+  workOrderOperationId?: number
+  operationName?: string
+  operationSeq?: number
   supplierId: number
   goodsType: 'INPUT' | 'SEMI_FINISHED' | 'CAPITAL_GOODS'
   orderDate: string
@@ -115,6 +118,9 @@ export interface AgingItem {
   statutoryDueDate: string
   workOrderId?: number
   workOrderNumber?: string
+  workOrderOperationId?: number
+  operationName?: string
+  operationSeq?: number
   supplierId: number
   supplierName: string
   supplierGstin: string
@@ -155,6 +161,7 @@ export interface JobWorkOrderRequest {
   id?: number
   orderNumber?: string
   workOrderId?: number
+  workOrderOperationId?: number
   supplierId: number
   goodsType: 'INPUT' | 'SEMI_FINISHED' | 'CAPITAL_GOODS'
   orderDate?: string

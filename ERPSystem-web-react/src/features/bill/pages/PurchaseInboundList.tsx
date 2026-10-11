@@ -6,7 +6,7 @@ export const PurchaseInboundListPage: React.FC = () => {
     <PurchaseBillManager
       type="入库"
       subType="采购入库"
-      title="Purchase Receipt"
+      title="Goods Receipt (GRN)"
       prefixNo="CGRK"
     />
   )

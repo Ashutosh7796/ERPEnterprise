@@ -17,6 +17,7 @@ import { PlusOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/ic
 import dayjs from 'dayjs'
 import { http } from '@/core/api/client'
 import { jobWorkApi, JobWorkOrderRequest } from '../api/jobWorkApi'
+import { workOrderApi, WorkOrderOperationDTO } from '../api/workOrderApi'
 
 interface JobWorkOrderModalProps {
   open: boolean
@@ -40,6 +41,7 @@ export const JobWorkOrderModal: React.FC<JobWorkOrderModalProps> = ({
   const [loading, setLoading] = useState(false)
   const [suppliers, setSuppliers] = useState<any[]>([])
   const [workOrders, setWorkOrders] = useState<any[]>([])
+  const [availableOperations, setAvailableOperations] = useState<WorkOrderOperationDTO[]>([])
   const [depots, setDepots] = useState<any[]>([])
   const [bins, setBins] = useState<any[]>([])
   const [materials, setMaterials] = useState<any[]>([])
@@ -102,6 +104,36 @@ export const JobWorkOrderModal: React.FC<JobWorkOrderModalProps> = ({
     }
   }
 
+  const handleWorkOrderChange = async (woId: number | undefined) => {
+    form.setFieldValue('workOrderOperationId', undefined)
+    if (!woId) {
+      setAvailableOperations([])
+      return
+    }
+    try {
+      const res: any = await workOrderApi.getOperations(woId)
+      const ops: WorkOrderOperationDTO[] = res?.data || res || []
+      const outsourced = ops.filter((o) => o.isOutsource === 1)
+      setAvailableOperations(outsourced)
+      if (outsourced.length === 1) {
+        form.setFieldValue('workOrderOperationId', outsourced[0].id)
+        if (outsourced[0].supplierId && !form.getFieldValue('supplierId')) {
+          form.setFieldValue('supplierId', outsourced[0].supplierId)
+        }
+      }
+    } catch {
+      setAvailableOperations([])
+    }
+  }
+
+  const handleOperationSelect = (opId: number | undefined) => {
+    if (!opId) return
+    const op = availableOperations.find((o) => o.id === opId)
+    if (op && op.supplierId && !form.getFieldValue('supplierId')) {
+      form.setFieldValue('supplierId', op.supplierId)
+    }
+  }
+
   const handleGoodsTypeChange = (val: 'INPUT' | 'SEMI_FINISHED' | 'CAPITAL_GOODS') => {
     setGoodsType(val)
     const years = val === 'CAPITAL_GOODS' ? 3 : 1
@@ -125,7 +157,7 @@ export const JobWorkOrderModal: React.FC<JobWorkOrderModalProps> = ({
 
   const removeItemRow = (key: string) => {
     if (items.length <= 1) {
-      message.warning('At least one item line is required')
+      message.warning('At least one item line is required.')
       return
     }
     setItems((prev) => prev.filter((it) => it.key !== key))
@@ -142,11 +174,11 @@ export const JobWorkOrderModal: React.FC<JobWorkOrderModalProps> = ({
       const values = await form.validateFields()
       for (const it of items) {
         if (!it.materialId) {
-          message.error('Please select material for all lines')
+          message.error('Please select material for all lines.')
           return
         }
         if (!it.dispatchedQty || it.dispatchedQty <= 0) {
-          message.error('Dispatched quantity must be greater than zero')
+          message.error('Dispatched quantity must be greater than zero.')
           return
         }
       }
@@ -156,6 +188,7 @@ export const JobWorkOrderModal: React.FC<JobWorkOrderModalProps> = ({
         orderNumber: values.orderNumber,
         supplierId: values.supplierId,
         workOrderId: values.workOrderId,
+        workOrderOperationId: values.workOrderOperationId,
         goodsType: values.goodsType,
         orderDate: values.orderDate ? values.orderDate.format('YYYY-MM-DD') : undefined,
         expectedReturnDate: values.expectedReturnDate
@@ -260,7 +293,7 @@ export const JobWorkOrderModal: React.FC<JobWorkOrderModalProps> = ({
       onCancel={onClose}
       onOk={handleSubmit}
       confirmLoading={loading}
-      width={850}
+      width={940}
       destroyOnClose
     >
       <Alert
@@ -281,11 +314,11 @@ export const JobWorkOrderModal: React.FC<JobWorkOrderModalProps> = ({
 
       <Form form={form} layout="vertical">
         <Row gutter={16}>
-          <Col span={8}>
+          <Col span={6}>
             <Form.Item
               name="supplierId"
-              label="Job Worker (Vendor)"
-              rules={[{ required: true, message: 'Select Job Worker' }]}
+              label="Job Worker (Subcontractor)"
+              rules={[{ required: true, message: 'Please select Job Worker.' }]}
             >
               <Select
                 showSearch
@@ -298,28 +331,45 @@ export const JobWorkOrderModal: React.FC<JobWorkOrderModalProps> = ({
               />
             </Form.Item>
           </Col>
-          <Col span={8}>
+          <Col span={6}>
             <Form.Item name="goodsType" label="Goods Classification" rules={[{ required: true }]}>
               <Select
                 onChange={handleGoodsTypeChange}
                 options={[
-                  { value: 'INPUT', label: 'Inputs & Raw Materials (1-Year Statutory Limit)' },
-                  { value: 'SEMI_FINISHED', label: 'Semi-Finished Goods (1-Year Statutory Limit)' },
-                  { value: 'CAPITAL_GOODS', label: 'Capital Goods / Dies / Moulds (3-Year Limit)' },
+                  { value: 'INPUT', label: 'Inputs & Raw Materials (1-Yr)' },
+                  { value: 'SEMI_FINISHED', label: 'Semi-Finished (1-Yr)' },
+                  { value: 'CAPITAL_GOODS', label: 'Capital Goods (3-Yr)' },
                 ]}
               />
             </Form.Item>
           </Col>
-          <Col span={8}>
-            <Form.Item name="workOrderId" label="Originating Work Order (Optional)">
+          <Col span={6}>
+            <Form.Item name="workOrderId" label="Originating Work Order">
               <Select
                 showSearch
                 allowClear
                 placeholder="Link to Work Order"
                 optionFilterProp="label"
+                onChange={handleWorkOrderChange}
                 options={workOrders.map((w) => ({
                   value: w.id,
                   label: `${w.orderNumber} - ${w.materialName || 'Material #' + w.materialId}`,
+                }))}
+              />
+            </Form.Item>
+          </Col>
+          <Col span={6}>
+            <Form.Item name="workOrderOperationId" label="Outsourced Operation">
+              <Select
+                showSearch
+                allowClear
+                placeholder={availableOperations.length > 0 ? "Select operation" : "Select WO first"}
+                disabled={availableOperations.length === 0}
+                optionFilterProp="label"
+                onChange={handleOperationSelect}
+                options={availableOperations.map((o) => ({
+                  value: o.id,
+                  label: `Op #${o.operationSeq} ${o.operationName}`,
                 }))}
               />
             </Form.Item>
@@ -352,8 +402,8 @@ export const JobWorkOrderModal: React.FC<JobWorkOrderModalProps> = ({
           <Col span={12}>
             <Form.Item
               name="depotId"
-              label="Source Plant Depot"
-              rules={[{ required: true, message: 'Select depot' }]}
+              label="Source Plant / Warehouse"
+              rules={[{ required: true, message: 'Please select warehouse.' }]}
             >
               <Select
                 placeholder="Select dispatch warehouse"

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import {
   Card,
   Table,
@@ -14,6 +14,8 @@ import {
   Tooltip,
   Popconfirm,
   Typography,
+  Statistic,
+  Empty,
 } from 'antd'
 import type { TableColumnsType } from 'antd'
 import {
@@ -25,6 +27,9 @@ import {
   BranchesOutlined,
   FileDoneOutlined,
   StopOutlined,
+  FileTextOutlined,
+  DollarCircleOutlined,
+  AuditOutlined,
 } from '@ant-design/icons'
 import dayjs from 'dayjs'
 import { getPurchaseInvoices, postPurchaseInvoice } from '../api/procurementApi'
@@ -92,13 +97,24 @@ export const PurchaseInvoiceListPage: React.FC = () => {
     }
   }
 
+  const { Text, Title } = Typography
+
+  const kpis = useMemo(() => {
+    const totalCount = pagination.total || dataSource.length
+    const matchedCount = dataSource.filter((inv) => inv.status === 'MATCHED' || inv.status === 'POSTED').length
+    const postedCount = dataSource.filter((inv) => inv.status === 'POSTED').length
+    const totalVal = dataSource.reduce((acc, curr) => acc + (Number(curr.total_invoice_amount) || 0), 0)
+    return { totalCount, matchedCount, postedCount, totalVal }
+  }, [pagination.total, dataSource])
+
   const columns: TableColumnsType<any> = [
     {
-      title: 'Vendor Bill No.',
+      title: 'Supplier Invoice Number',
       dataIndex: 'invoice_number',
       key: 'invoice_number',
       render: (num: string, record: any) => (
         <a
+          style={{ fontWeight: 600 }}
           onClick={() => {
             setFlowDoc({ id: record.id, type: 'PURCHASE_INVOICE', number: num })
             setFlowModalOpen(true)
@@ -109,7 +125,7 @@ export const PurchaseInvoiceListPage: React.FC = () => {
       ),
     },
     {
-      title: 'System Doc No.',
+      title: 'System Document Number',
       dataIndex: 'system_invoice_number',
       key: 'system_invoice_number',
       render: (num: string) => <Tag>{num}</Tag>,
@@ -119,7 +135,7 @@ export const PurchaseInvoiceListPage: React.FC = () => {
       dataIndex: 'supplier_name',
       key: 'supplier_name',
       render: (name: string, record: any) => (
-        <Space direction="vertical" size={1}>
+        <Space orientation="vertical" size={1}>
           <Text strong>{name || `Supplier #${record.supplier_id}`}</Text>
           <Text type="secondary" style={{ fontSize: 12 }}>
             GSTIN: {record.supplier_gstin || 'N/A'}
@@ -134,7 +150,7 @@ export const PurchaseInvoiceListPage: React.FC = () => {
       render: (type: string, record: any) => {
         const isRcm = record.is_rcm === 1 || record.is_rcm === true
         return (
-          <Space direction="vertical" size={2}>
+          <Space orientation="vertical" size={2}>
             <Tag color={type === 'INTRA_STATE' ? 'blue' : 'purple'}>
               {type} (POS: {record.place_of_supply})
             </Tag>
@@ -148,7 +164,11 @@ export const PurchaseInvoiceListPage: React.FC = () => {
       dataIndex: 'total_taxable_amount',
       key: 'total_taxable_amount',
       align: 'right',
-      render: (amt: number) => `₹${Number(amt || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`,
+      render: (amt: number) => (
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 500 }}>
+          ₹{Number(amt || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      ),
     },
     {
       title: 'GST Breakdown',
@@ -159,7 +179,7 @@ export const PurchaseInvoiceListPage: React.FC = () => {
         const sgst = Number(record.sgst_amount || 0)
         const igst = Number(record.igst_amount || 0)
         return (
-          <Space direction="vertical" size={1} style={{ textAlign: 'right' }}>
+          <Space orientation="vertical" size={1} style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
             {igst > 0 ? (
               <Text type="secondary">IGST: ₹{igst.toFixed(2)}</Text>
             ) : (
@@ -178,9 +198,9 @@ export const PurchaseInvoiceListPage: React.FC = () => {
       key: 'total_invoice_amount',
       align: 'right',
       render: (amt: number) => (
-        <Text strong style={{ color: '#1890ff' }}>
-          ₹{Number(amt || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-        </Text>
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: '#1677ff' }}>
+          ₹{Number(amt || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
       ),
     },
     {
@@ -190,7 +210,7 @@ export const PurchaseInvoiceListPage: React.FC = () => {
         const eligible = Number(record.eligible_itc_amount || 0)
         const blocked = Number(record.blocked_itc_amount || 0)
         return (
-          <Space direction="vertical" size={1}>
+          <Space orientation="vertical" size={1} style={{ fontVariantNumeric: 'tabular-nums' }}>
             {eligible > 0 && <Tag color="green">Eligible: ₹{eligible.toFixed(2)}</Tag>}
             {blocked > 0 && <Tag color="orange">Blocked (17(5)): ₹{blocked.toFixed(2)}</Tag>}
           </Space>
@@ -224,10 +244,10 @@ export const PurchaseInvoiceListPage: React.FC = () => {
             {!isPosted && (
               <Popconfirm
                 title="Post Purchase Invoice"
-                description="This will execute the 3-Way Match gate and post invoice to accounts payable. Proceed?"
+                description="Post this Purchase Invoice? The 3-Way Match will be verified and financial liabilities posted to Accounts Payable."
                 onConfirm={() => handlePostInvoice(record)}
-                okText="Yes, Post"
-                cancelText="No"
+                okText="Post Invoice"
+                cancelText="Dismiss"
               >
                 <Button size="small" type="primary" icon={<FileDoneOutlined />}>
                   Post
@@ -267,19 +287,88 @@ export const PurchaseInvoiceListPage: React.FC = () => {
     },
   ]
 
-  const { Text } = Typography
-
   return (
-    <div style={{ padding: 16 }}>
-      <Card bordered={false} style={{ marginBottom: 16 }}>
+    <div style={{ padding: 20 }}>
+      {/* Executive Header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+        <div>
+          <Title level={3} style={{ margin: 0 }}>
+            <FileTextOutlined style={{ color: '#1677ff', marginRight: 10 }} />
+            Purchase Invoices (AP)
+          </Title>
+          <Text type="secondary">
+            Process statutory supplier invoices, audit Input Tax Credit (ITC) eligibility, enforce 3-Way Match, and book general ledger AP liabilities.
+          </Text>
+        </div>
+        <Space>
+          <Button icon={<ReloadOutlined />} onClick={fetchInvoices}>
+            Refresh
+          </Button>
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => setCreateModalOpen(true)}
+          >
+            Create Purchase Invoice
+          </Button>
+        </Space>
+      </div>
+
+      {/* KPI Statistic Cards */}
+      <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
+        <Col xs={24} sm={12} md={6}>
+          <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+            <Statistic
+              title="Total Purchase Invoices"
+              value={kpis.totalCount}
+              prefix={<FileTextOutlined style={{ color: '#1677ff' }} />}
+              styles={{ content: { fontWeight: 600 } }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+            <Statistic
+              title="3-Way Matched"
+              value={kpis.matchedCount}
+              prefix={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
+              styles={{ content: { color: '#52c41a', fontWeight: 600 } }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+            <Statistic
+              title="Posted to Ledger (AP)"
+              value={kpis.postedCount}
+              prefix={<AuditOutlined style={{ color: '#722ed1' }} />}
+              styles={{ content: { color: '#722ed1', fontWeight: 600 } }}
+            />
+          </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <Card size="small" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+            <Statistic
+              title="Invoice Liabilities (Page)"
+              value={kpis.totalVal}
+              precision={2}
+              prefix="₹"
+              styles={{ content: { color: '#1677ff', fontWeight: 600, fontVariantNumeric: 'tabular-nums' } }}
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Filter Toolbar */}
+      <Card size="small" style={{ marginBottom: 16, borderRadius: 8 }}>
         <Form form={form} layout="inline">
           <Row gutter={[16, 16]} style={{ width: '100%' }}>
-            <Col xs={24} sm={8} md={6}>
-              <Form.Item name="invoiceNumber" label="Bill Number" style={{ width: '100%', margin: 0 }}>
-                <Input placeholder="Enter Bill Number..." allowClear />
+            <Col xs={24} sm={10} md={8}>
+              <Form.Item name="invoiceNumber" label="Invoice Number" style={{ width: '100%', margin: 0 }}>
+                <Input placeholder="Enter invoice number..." allowClear />
               </Form.Item>
             </Col>
-            <Col xs={24} sm={8} md={6}>
+            <Col xs={24} sm={10} md={8}>
               <Form.Item name="status" label="Status" style={{ width: '100%', margin: 0 }}>
                 <Select placeholder="Filter by status" allowClear>
                   <Select.Option value="DRAFT">Draft</Select.Option>
@@ -289,7 +378,7 @@ export const PurchaseInvoiceListPage: React.FC = () => {
                 </Select>
               </Form.Item>
             </Col>
-            <Col xs={24} sm={24} md={12} style={{ textAlign: 'right' }}>
+            <Col xs={24} sm={4} md={8} style={{ textAlign: 'right' }}>
               <Space>
                 <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
                   Search
@@ -297,21 +386,14 @@ export const PurchaseInvoiceListPage: React.FC = () => {
                 <Button icon={<ReloadOutlined />} onClick={handleReset}>
                   Reset
                 </Button>
-                <Button
-                  type="primary"
-                  style={{ backgroundColor: '#1890ff' }}
-                  icon={<PlusOutlined />}
-                  onClick={() => setCreateModalOpen(true)}
-                >
-                  Create Purchase Invoice
-                </Button>
               </Space>
             </Col>
           </Row>
         </Form>
       </Card>
 
-      <Card bordered={false}>
+      {/* Main Table */}
+      <Card variant="borderless" style={{ borderRadius: 8, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
         <Table
           columns={columns}
           dataSource={dataSource}
@@ -320,6 +402,22 @@ export const PurchaseInvoiceListPage: React.FC = () => {
           scroll={{ x: 1350 }}
           bordered
           size="middle"
+          locale={{
+            emptyText: (
+              <Empty
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                description="No purchase invoices found matching the filter criteria."
+              >
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => setCreateModalOpen(true)}
+                >
+                  Create Purchase Invoice
+                </Button>
+              </Empty>
+            ),
+          }}
           pagination={{
             current: pagination.current,
             pageSize: pagination.pageSize,

@@ -79,7 +79,7 @@ export const HsnSacModal: React.FC<HsnSacModalProps> = ({
 
   return (
     <Modal
-      title={initialValues ? 'Edit HSN / SAC Code' : 'Add New HSN / SAC Code'}
+      title={initialValues ? 'Edit HSN / SAC Code' : 'Create HSN / SAC Code'}
       open={open}
       onCancel={onClose}
       onOk={handleSubmit}

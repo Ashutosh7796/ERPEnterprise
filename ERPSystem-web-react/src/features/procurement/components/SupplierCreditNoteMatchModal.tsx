@@ -63,10 +63,10 @@ export const SupplierCreditNoteMatchModal: React.FC<SupplierCreditNoteMatchModal
       }
 
       await reconcileSupplierCreditNote(returnDoc.id, payload)
-      message.success('Successfully matched Purchase Return with Supplier Credit Note (Section 34(1))')
+      message.success('Purchase Return matched with Supplier Credit Note successfully.')
       onSuccess()
     } catch (err: any) {
-      message.error(err?.response?.data?.data || err.message || 'Failed to reconcile credit note')
+      message.error(err?.response?.data?.data || err.message || 'Failed to reconcile Supplier Credit Note.')
     } finally {
       setSubmitting(false)
     }

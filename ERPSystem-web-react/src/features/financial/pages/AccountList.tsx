@@ -215,7 +215,7 @@ export const AccountListPage: React.FC = () => {
 
   const columnsConfig: Record<string, any> = {
     rowIndex: {
-      title: '#',
+      title: 'Sr No.',
       key: 'rowIndex',
       width: 50,
       align: 'center' as const,
@@ -422,7 +422,7 @@ export const AccountListPage: React.FC = () => {
       >
         <Space size="small" wrap>
           <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
-            Add New
+            Create Account
           </Button>
           <Popconfirm
             title="Delete selected accounts?"
@@ -430,7 +430,7 @@ export const AccountListPage: React.FC = () => {
             disabled={selectedRowKeys.length === 0}
           >
             <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-              Batch Delete
+              Delete Selected Accounts
             </Button>
           </Popconfirm>
           <Button
@@ -438,14 +438,14 @@ export const AccountListPage: React.FC = () => {
             onClick={() => handleBatchStatus(true)}
             disabled={selectedRowKeys.length === 0}
           >
-            Enable
+            Enable Accounts
           </Button>
           <Button
             icon={<StopOutlined />}
             onClick={() => handleBatchStatus(false)}
             disabled={selectedRowKeys.length === 0}
           >
-            Disable
+            Disable Accounts
           </Button>
           <ExportPrintButtons
             title="Settlement Accounts List"
@@ -483,7 +483,7 @@ export const AccountListPage: React.FC = () => {
 
       {/* Account Modal */}
       <Modal
-        title={editingRecord ? 'Edit Settlement Account' : 'Add Settlement Account'}
+        title={editingRecord ? 'Edit Settlement Account' : 'Create Settlement Account'}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}

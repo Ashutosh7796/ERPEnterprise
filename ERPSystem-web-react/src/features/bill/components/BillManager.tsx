@@ -11,9 +11,8 @@ import {
   Row,
   Col,
   Popconfirm,
-  message,
+  App,
   Tooltip,
-  Modal,
 } from 'antd'
 import {
   SearchOutlined,
@@ -69,6 +68,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
   partnerType = 'none',
   partnerLabel = 'Partner',
 }) => {
+  const { message, modal } = App.useApp()
   const navigate = useNavigate()
   const user = useAuthStore((state) => state.user)
   const isManager = useMemo(() => {
@@ -202,7 +202,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
       const ids = selectedRowKeys.join(',')
       const res = await http.delete(`/depotHead/deleteBatch?ids=${ids}`)
       if (res && (res.code === 200 || res.status === 200)) {
-        message.success('Batch delete successful')
+        message.success('Selected documents deleted successfully.')
         setSelectedRowKeys([])
         fetchData(pagination.current, pagination.pageSize)
       } else {
@@ -218,7 +218,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
     try {
       const res = await http.delete(`/depotHead/delete?id=${id}`)
       if (res && (res.code === 200 || res.status === 200)) {
-        message.success('Document deleted successfully')
+        message.success('Document deleted successfully.')
         fetchData(pagination.current, pagination.pageSize)
       } else {
         message.error('Failed to delete document')
@@ -231,7 +231,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
   // Batch Status
   const handleBatchStatus = async (status: number) => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Please select documents first')
+      message.warning('Please select at least one document.')
       return
     }
     try {
@@ -241,7 +241,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
         ids,
       })
       if (res && (res.code === 200 || res.status === 200 || res.code === 20000 || res.status === 'OK' || res.status === 0)) {
-        message.success(status === 1 ? 'Approved successfully' : 'Unapproved successfully')
+        message.success(status === 1 ? 'Documents approved successfully.' : 'Documents unapproved successfully.')
         setSelectedRowKeys([])
         fetchData(pagination.current, pagination.pageSize)
       } else {
@@ -258,7 +258,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
 
     const cols: ErpColDef<any>[] = [
       {
-        headerName: 'Action',
+        headerName: 'Actions',
         colId: 'action',
         pinned: 'left',
         width: 220,
@@ -346,7 +346,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
                     icon={<ShoppingCartOutlined style={{ color: '#52c41a', fontSize: 14 }} />}
                     style={{ padding: '0 4px' }}
                     onClick={() => {
-                      Modal.confirm({
+                      modal.confirm({
                         title: 'Convert Requisition to Purchase Order',
                         content: `Generate Purchase Order for Requisition ${record.number}?`,
                         okText: 'Convert to PO',
@@ -380,7 +380,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
                     style={{ padding: '0 4px' }}
                     onClick={async () => {
                       if (prefixNo === 'XSDD' || subType.includes('订单') || subType.includes('Order')) {
-                        Modal.info({
+                        modal.info({
                           title: 'Sales Order Compliance Notice',
                           content: (
                             <div>
@@ -407,7 +407,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
                           const errMsg = res?.data || res?.message || 'Generation Rejected'
                           if (String(errMsg).includes('B2C') || String(errMsg).includes('Unregistered')) {
                             message.destroy('irn_bill')
-                            Modal.info({
+                            modal.info({
                               title: 'B2C Transaction - Statutory Notice',
                               content: (
                                 <div>
@@ -426,7 +426,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
                         const errMsg = e?.message || String(e)
                         if (errMsg.includes('B2C') || errMsg.includes('Unregistered')) {
                           message.destroy('irn_bill')
-                          Modal.info({
+                          modal.info({
                             title: 'B2C Transaction - Statutory Notice',
                             content: (
                               <div>
@@ -485,7 +485,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
 
     cols.push(
       {
-        headerName: 'Doc Number',
+        headerName: 'Document Number',
         field: 'number',
         width: 170,
         minWidth: 150,
@@ -507,7 +507,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
         },
       },
       {
-        headerName: 'Ref PR / Linked Doc',
+        headerName: 'Reference Document',
         field: 'linkNumber',
         width: 170,
         minWidth: 150,
@@ -523,7 +523,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
         ),
       },
       {
-        headerName: 'Product Info',
+        headerName: 'Item Information',
         field: 'materialsList',
         width: 240,
         minWidth: 200,
@@ -534,7 +534,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
         valueGetter: (p) => p.data?.materialsList || '-',
       },
       {
-        headerName: 'Doc Date',
+        headerName: 'Document Date',
         field: 'operTimeStr',
         width: 165,
         minWidth: 155,
@@ -550,7 +550,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
         valueGetter: (p) => p.data?.userName || p.data?.creatorName || '-',
       },
       {
-        headerName: 'Qty',
+        headerName: 'Quantity',
         field: 'materialCount',
         width: 90,
         minWidth: 80,
@@ -590,7 +590,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
           cellRenderer: CurrencyCellRenderer,
         },
         {
-          headerName: 'Debt Amount (₹)',
+          headerName: 'Outstanding Balance (₹)',
           field: 'debt',
           width: 130,
           minWidth: 110,
@@ -657,7 +657,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
           setModalOpen(true)
         }}
       >
-        Add New
+        Create Document
       </Button>
       <Popconfirm
         title="Delete selected documents?"
@@ -665,7 +665,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
         disabled={selectedRowKeys.length === 0}
       >
         <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-          Batch Delete
+          Delete Selected Documents
         </Button>
       </Popconfirm>
       <Button
@@ -673,14 +673,14 @@ export const BillManager: React.FC<BillManagerProps> = ({
         onClick={() => handleBatchStatus(1)}
         disabled={selectedRowKeys.length === 0}
       >
-        Approve
+        Approve Documents
       </Button>
       <Button
         icon={<StopOutlined />}
         onClick={() => handleBatchStatus(0)}
         disabled={selectedRowKeys.length === 0}
       >
-        Unapprove
+        Unapprove Documents
       </Button>
       <ExportPrintButtons
         title={`${title} Documents`}
@@ -699,42 +699,24 @@ export const BillManager: React.FC<BillManagerProps> = ({
         style={{ marginBottom: 16 }}
       >
         {/* Row 1 */}
-        <Row gutter={[16, 12]} align="middle">
-          <Col xs={24} sm={12} md={6}>
-            <Form.Item
-              name="number"
-              label="Doc Number:"
-              labelCol={{ flex: '90px' }}
-              wrapperCol={{ flex: 'auto' }}
-              style={{ marginBottom: 0 }}
-            >
-              <Input placeholder="Enter doc number..." allowClear style={{ width: '100%' }} />
+        <Row gutter={[12, 12]} align="middle">
+          <Col xs={24} sm={12} md={7}>
+            <Form.Item name="number" style={{ marginBottom: 0 }}>
+              <Input prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />} placeholder="Search Document Number..." allowClear />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Form.Item
-              name="materialParam"
-              label="Product Info:"
-              labelCol={{ flex: '90px' }}
-              wrapperCol={{ flex: 'auto' }}
-              style={{ marginBottom: 0 }}
-            >
-              <Input placeholder="Enter barcode, name..." allowClear style={{ width: '100%' }} />
+            <Form.Item name="materialParam" style={{ marginBottom: 0 }}>
+              <Input placeholder="Filter Barcode / Item Name..." allowClear />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={6}>
-            <Form.Item
-              name="dateRange"
-              label="Doc Date:"
-              labelCol={{ flex: '80px' }}
-              wrapperCol={{ flex: 'auto' }}
-              style={{ marginBottom: 0 }}
-            >
+            <Form.Item name="dateRange" style={{ marginBottom: 0 }}>
               <RangePicker style={{ width: '100%' }} />
             </Form.Item>
           </Col>
-          <Col xs={24} sm={12} md={6}>
-            <Space wrap style={{ paddingLeft: 4 }}>
+          <Col xs={24} sm={12} md={5}>
+            <Space wrap style={{ width: '100%', justifyContent: 'flex-end' }}>
               <Button type="primary" icon={<SearchOutlined />} htmlType="submit">
                 Search
               </Button>
@@ -752,7 +734,7 @@ export const BillManager: React.FC<BillManagerProps> = ({
                 onClick={() => setExpandedSearch(!expandedSearch)}
                 style={{ padding: 0 }}
               >
-                {expandedSearch ? 'Collapse' : 'Expand'}{' '}
+                {expandedSearch ? 'Less' : 'More'}{' '}
                 {expandedSearch ? <UpOutlined /> : <DownOutlined />}
               </Button>
             </Space>
@@ -761,17 +743,11 @@ export const BillManager: React.FC<BillManagerProps> = ({
 
         {/* Row 2 (Expandable) */}
         {expandedSearch && (
-          <Row gutter={[16, 12]} align="middle" style={{ marginTop: 12 }}>
+          <Row gutter={[12, 12]} align="middle" style={{ marginTop: 12 }}>
             <Col xs={24} sm={12} md={6}>
-              <Form.Item
-                name="creator"
-                label="Operator:"
-                labelCol={{ flex: '90px' }}
-                wrapperCol={{ flex: 'auto' }}
-                style={{ marginBottom: 0 }}
-              >
+              <Form.Item name="creator" style={{ marginBottom: 0 }}>
                 <Select
-                  placeholder="Select Operator..."
+                  placeholder="Filter by Operator..."
                   allowClear
                   showSearch
                   optionFilterProp="children"
@@ -785,15 +761,9 @@ export const BillManager: React.FC<BillManagerProps> = ({
             </Col>
             {partnerType !== 'none' && (
               <Col xs={24} sm={12} md={6}>
-                <Form.Item
-                  name="organId"
-                  label={`${partnerLabel}:`}
-                  labelCol={{ flex: '90px' }}
-                  wrapperCol={{ flex: 'auto' }}
-                  style={{ marginBottom: 0 }}
-                >
+                <Form.Item name="organId" style={{ marginBottom: 0 }}>
                   <Select
-                    placeholder={`Select ${partnerLabel}...`}
+                    placeholder={`Filter by ${partnerLabel}...`}
                     allowClear
                     showSearch
                     optionFilterProp="children"
@@ -807,18 +777,12 @@ export const BillManager: React.FC<BillManagerProps> = ({
               </Col>
             )}
             <Col xs={24} sm={12} md={6}>
-              <Form.Item
-                name="status"
-                label="Doc Status:"
-                labelCol={{ flex: '80px' }}
-                wrapperCol={{ flex: 'auto' }}
-                style={{ marginBottom: 0 }}
-              >
+              <Form.Item name="status" style={{ marginBottom: 0 }}>
                 <Select
-                  placeholder="Select status..."
+                  placeholder="Filter by Status..."
                   allowClear
                   options={[
-                    { value: '0', label: 'Pending' },
+                    { value: '0', label: 'Pending Approval' },
                     { value: '1', label: 'Approved' },
                     { value: '2', label: 'Completed' },
                     { value: '3', label: 'Partial' },
@@ -829,14 +793,8 @@ export const BillManager: React.FC<BillManagerProps> = ({
               </Form.Item>
             </Col>
             <Col xs={24} sm={12} md={6}>
-              <Form.Item
-                name="remark"
-                label="Doc Remarks:"
-                labelCol={{ flex: '90px' }}
-                wrapperCol={{ flex: 'auto' }}
-                style={{ marginBottom: 0 }}
-              >
-                <Input placeholder="Enter remarks..." allowClear style={{ width: '100%' }} />
+              <Form.Item name="remark" style={{ marginBottom: 0 }}>
+                <Input placeholder="Filter by Remarks..." allowClear style={{ width: '100%' }} />
               </Form.Item>
             </Col>
           </Row>

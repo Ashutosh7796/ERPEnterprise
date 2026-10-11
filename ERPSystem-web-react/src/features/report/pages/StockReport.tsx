@@ -187,7 +187,7 @@ export const StockReportPage: React.FC = () => {
       render: (_: any, __: any, index: number) => (pagination.current - 1) * pagination.pageSize + index + 1,
     },
     action: {
-      title: 'StockDetails',
+      title: 'Actions',
       key: 'action',
       width: 120,
       align: 'center' as const,
@@ -204,21 +204,21 @@ export const StockReportPage: React.FC = () => {
       ),
     },
     mBarCode: {
-      title: 'Barcode',
+      title: 'Item Code / Barcode',
       dataIndex: 'mBarCode',
       key: 'mBarCode',
-      width: 110,
+      width: 130,
       render: (val: any, record: any) => val || record.barCode || '-',
     },
     name: {
-      title: 'Name',
+      title: 'Item Name',
       dataIndex: 'name',
       key: 'name',
       width: 150,
       ellipsis: true,
     },
     standard: {
-      title: 'Spec',
+      title: 'Specification',
       dataIndex: 'standard',
       key: 'standard',
       width: 90,
@@ -258,7 +258,7 @@ export const StockReportPage: React.FC = () => {
       render: (v: any) => v || '-',
     },
     categoryName: {
-      title: 'Category',
+      title: 'Item Category',
       dataIndex: 'categoryName',
       key: 'categoryName',
       width: 100,
@@ -266,7 +266,7 @@ export const StockReportPage: React.FC = () => {
       render: (v: any) => v || '-',
     },
     position: {
-      title: 'Shelf / Bin',
+      title: 'Storage Bin',
       dataIndex: 'position',
       key: 'position',
       width: 100,
@@ -274,17 +274,17 @@ export const StockReportPage: React.FC = () => {
       render: (v: any) => v || '-',
     },
     unitName: {
-      title: 'Unit',
+      title: 'Unit of Measure',
       dataIndex: 'unitName',
       key: 'unitName',
-      width: 65,
+      width: 85,
       render: (v: any, r: any) => v || r.materialUnit || '-',
     },
     purchaseDecimal: {
-      title: 'Cost Price',
+      title: 'Valuation Rate (₹)',
       dataIndex: 'purchaseDecimal',
       key: 'purchaseDecimal',
-      width: 90,
+      width: 110,
       render: (val: any) => (val !== undefined && val !== null ? Number(val).toFixed(2) : '0.00'),
     },
     initialStock: {
@@ -295,17 +295,17 @@ export const StockReportPage: React.FC = () => {
       render: (val: any) => val || 0,
     },
     currentStock: {
-      title: 'Stock (On-Hand)',
+      title: 'On-Hand Stock',
       dataIndex: 'currentStock',
       key: 'currentStock',
-      width: 95,
+      width: 105,
       render: (val: any) => <strong>{val !== undefined && val !== null ? Number(val).toFixed(2) : '0.00'}</strong>,
     },
     reservedStock: {
-      title: 'Reserved',
+      title: 'Reserved Stock',
       dataIndex: 'reservedStock',
       key: 'reservedStock',
-      width: 90,
+      width: 105,
       render: (val: any) => (
         <span style={{ color: Number(val) > 0 ? '#faad14' : '#8c8c8c' }}>
           {val !== undefined && val !== null ? Number(val).toFixed(2) : '0.00'}
@@ -313,10 +313,10 @@ export const StockReportPage: React.FC = () => {
       ),
     },
     availableStock: {
-      title: 'Available (ATP)',
+      title: 'Available to Promise (ATP)',
       dataIndex: 'availableStock',
       key: 'availableStock',
-      width: 110,
+      width: 140,
       render: (val: any, record: any) => {
         const atpVal =
           val !== undefined && val !== null
@@ -334,17 +334,17 @@ export const StockReportPage: React.FC = () => {
       },
     },
     currentStockPrice: {
-      title: 'StockAmount',
+      title: 'Stock Valuation (₹)',
       dataIndex: 'currentStockPrice',
       key: 'currentStockPrice',
-      width: 100,
+      width: 120,
       render: (val: any) => (val !== undefined && val !== null ? Number(val).toFixed(2) : '0.00'),
     },
     currentWeight: {
-      title: 'Weight',
+      title: 'Total Weight (kg)',
       dataIndex: 'currentWeight',
       key: 'currentWeight',
-      width: 80,
+      width: 110,
       render: (val: any) => (val !== undefined && val !== null ? Number(val).toFixed(2) : '0.00'),
     },
   }
@@ -402,19 +402,19 @@ export const StockReportPage: React.FC = () => {
           <Col xs={24} sm={12} md={6}>
             <Form.Item
               name="materialParam"
-              label="Product Info:"
-              labelCol={{ flex: '90px' }}
+              label="Item Information:"
+              labelCol={{ flex: '120px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
-              <Input placeholder="Please enter Barcode, Name, ..." allowClear style={{ width: '100%' }} />
+              <Input placeholder="Search item code, name..." allowClear style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={6}>
             <Form.Item
               name="categoryId"
-              label="Category:"
-              labelCol={{ flex: '80px' }}
+              label="Item Category:"
+              labelCol={{ flex: '105px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
@@ -460,12 +460,12 @@ export const StockReportPage: React.FC = () => {
             <Col xs={24} sm={12} md={6}>
               <Form.Item
                 name="position"
-                label="Shelf/Bin:"
-                labelCol={{ flex: '85px' }}
+                label="Storage Bin:"
+                labelCol={{ flex: '95px' }}
                 wrapperCol={{ flex: 'auto' }}
                 style={{ marginBottom: 0 }}
               >
-                <Input placeholder="Enter shelf position..." allowClear style={{ width: '100%' }} />
+                <Input placeholder="Enter storage bin..." allowClear style={{ width: '100%' }} />
               </Form.Item>
             </Col>
             <Col xs={24} sm={12} md={6}>
@@ -507,15 +507,15 @@ export const StockReportPage: React.FC = () => {
       >
         <Space size="middle" wrap>
           <Text>
-            Total Stock: <strong style={{ color: '#1890ff' }}>{currentStock.toFixed(2)}</strong>
+            Total On-Hand Stock: <strong style={{ color: '#1890ff' }}>{currentStock.toFixed(2)}</strong>
           </Text>
           <Divider vertical />
           <Text>
-            Total StockAmount: <strong style={{ color: '#52c41a' }}>{currentStockPrice.toFixed(2)}</strong>
+            Total Stock Valuation: <strong style={{ color: '#52c41a' }}>₹{currentStockPrice.toFixed(2)}</strong>
           </Text>
           <Divider vertical />
           <Text>
-            Total Weight: <strong>{currentWeight.toFixed(2)}</strong>
+            Total Weight: <strong>{currentWeight.toFixed(2)} kg</strong>
           </Text>
         </Space>
 
@@ -525,7 +525,7 @@ export const StockReportPage: React.FC = () => {
             columns={columns as any}
             dataSource={dataSource}
             summaryItems={[
-              { label: 'Total Stock', value: currentStock.toFixed(2) },
+              { label: 'Total On-Hand Stock', value: currentStock.toFixed(2) },
               { label: 'Total Stock Valuation', value: `₹${currentStockPrice.toFixed(2)}` },
               { label: 'Total Weight', value: `${currentWeight.toFixed(2)} kg` },
             ]}

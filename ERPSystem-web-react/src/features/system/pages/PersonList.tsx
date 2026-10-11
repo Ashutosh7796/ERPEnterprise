@@ -336,7 +336,7 @@ export const PersonListPage: React.FC = () => {
       >
         <Space size="small" wrap>
           <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
-            Add New
+            Create Person
           </Button>
           <Popconfirm
             title="Delete selected handlers?"
@@ -344,7 +344,7 @@ export const PersonListPage: React.FC = () => {
             disabled={selectedRowKeys.length === 0}
           >
             <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-              Batch Delete
+              Delete Selected Persons
             </Button>
           </Popconfirm>
           <Button
@@ -397,7 +397,7 @@ export const PersonListPage: React.FC = () => {
 
       {/* Modal */}
       <Modal
-        title={editingRecord ? 'Edit Handler Info' : 'Add New Handler'}
+        title={editingRecord ? 'Edit Person' : 'Create Person'}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}

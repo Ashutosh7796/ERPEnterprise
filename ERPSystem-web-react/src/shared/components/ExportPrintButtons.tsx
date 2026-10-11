@@ -19,7 +19,7 @@ export interface ExportPrintButtonsProps {
 
 export const ExportPrintButtons: React.FC<ExportPrintButtonsProps> = ({
   title,
-  companyName = 'Acme Enterprise / jshERP',
+  companyName = 'ERPSystem',
   columns,
   dataSource,
   summaryItems = [],

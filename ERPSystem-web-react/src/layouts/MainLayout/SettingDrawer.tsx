@@ -1,5 +1,5 @@
 import React from 'react'
-import { Drawer, Switch, List, Select, Divider, Tooltip, Space } from 'antd'
+import { Drawer, Switch, Select, Divider, Tooltip, Space } from 'antd'
 import { CheckOutlined } from '@ant-design/icons'
 import { useAppStore } from '@store/useAppStore'
 
@@ -111,93 +111,57 @@ export const SettingDrawer: React.FC = () => {
       <Divider style={{ margin: '16px 0' }} />
 
       {/* Navigation & Layout Settings */}
-      <List size="small" split={false}>
-        <List.Item
-          actions={[
-            <Switch
-              key="fixedHeader"
-              size="small"
-              checked={themeSettings.fixedHeader}
-              onChange={(checked) => updateThemeSettings({ fixedHeader: checked })}
-            />,
-          ]}
-        >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>Fixed Header</span>
-        </List.Item>
+          <Switch
+            size="small"
+            checked={themeSettings.fixedHeader}
+            onChange={(checked) => updateThemeSettings({ fixedHeader: checked })}
+          />
+        </div>
 
-        <List.Item
-          actions={[
-            <Switch
-              key="autoHideHeader"
-              size="small"
-              checked={themeSettings.autoHideHeader}
-              onChange={(checked) => updateThemeSettings({ autoHideHeader: checked })}
-            />,
-          ]}
-        >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>Hide Header on Scroll</span>
-        </List.Item>
+          <Switch
+            size="small"
+            checked={themeSettings.autoHideHeader}
+            onChange={(checked) => updateThemeSettings({ autoHideHeader: checked })}
+          />
+        </div>
 
-        <List.Item
-          actions={[
-            <Switch
-              key="fixedSidebar"
-              size="small"
-              checked={themeSettings.fixedSidebar}
-              onChange={(checked) => updateThemeSettings({ fixedSidebar: checked })}
-            />,
-          ]}
-        >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>Fixed Sidebar</span>
-        </List.Item>
+          <Switch
+            size="small"
+            checked={themeSettings.fixedSidebar}
+            onChange={(checked) => updateThemeSettings({ fixedSidebar: checked })}
+          />
+        </div>
 
-        <List.Item
-          actions={[
-            <Switch
-              key="multipage"
-              size="small"
-              checked={themeSettings.multipage}
-              onChange={(checked) => updateThemeSettings({ multipage: checked })}
-            />,
-          ]}
-        >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>Multi-Tab Bar</span>
-        </List.Item>
-      </List>
-
-      <Divider style={{ margin: '16px 0' }} />
-
-      {/* Language Settings */}
-      <div style={{ marginBottom: 20 }}>
-        <h4 style={{ marginBottom: 10, fontWeight: 600, fontSize: 14 }}>Language</h4>
-        <Select
-          style={{ width: '100%' }}
-          value={themeSettings.language}
-          onChange={(val) => updateThemeSettings({ language: val })}
-          options={[
-            { value: 'english', label: '🇬🇧 English' },
-            { value: 'chinese_simplified', label: '🇨🇳 简体中文 (Chinese)' },
-          ]}
-        />
+          <Switch
+            size="small"
+            checked={themeSettings.multipage}
+            onChange={(checked) => updateThemeSettings({ multipage: checked })}
+          />
+        </div>
       </div>
 
       <Divider style={{ margin: '16px 0' }} />
 
       {/* Other Settings */}
-      <List size="small" split={false}>
-        <List.Item
-          actions={[
-            <Switch
-              key="colorWeak"
-              size="small"
-              checked={themeSettings.colorWeak}
-              onChange={(checked) => updateThemeSettings({ colorWeak: checked })}
-            />,
-          ]}
-        >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span>Color Weak Mode</span>
-        </List.Item>
-      </List>
+          <Switch
+            size="small"
+            checked={themeSettings.colorWeak}
+            onChange={(checked) => updateThemeSettings({ colorWeak: checked })}
+          />
+        </div>
+      </div>
     </Drawer>
   )
 }

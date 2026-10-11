@@ -137,13 +137,13 @@ export const MaterialIssueModal: React.FC<MaterialIssueModalProps> = ({
       // Validate quantities
       const itemsToIssue = lines.filter(l => l.issueQty > 0)
       if (itemsToIssue.length === 0) {
-        message.error('Please enter an issue quantity greater than 0 for at least one component')
+        message.error('Please enter an issue quantity greater than 0 for at least one component.')
         return
       }
 
       for (const item of itemsToIssue) {
         if (item.issueQty > item.remainingQty) {
-          message.error(`Issue quantity for "${item.componentName}" cannot exceed remaining requirement (${item.remainingQty})`)
+          message.error(`Issue quantity for "${item.componentName}" cannot exceed remaining requirement (${item.remainingQty}).`)
           return
         }
       }
@@ -165,11 +165,11 @@ export const MaterialIssueModal: React.FC<MaterialIssueModalProps> = ({
       }
 
       await workOrderApi.issueMaterial(payload)
-      message.success('Materials issued to WIP successfully!')
+      message.success('Materials issued to WIP successfully.')
       onSuccess()
       onClose()
     } catch (err: any) {
-      message.error(err?.response?.data?.data || err?.message || 'Material issue failed')
+      message.error(err?.response?.data?.data || err?.message || 'Material issue failed.')
     } finally {
       setSubmitting(false)
     }
@@ -187,28 +187,28 @@ export const MaterialIssueModal: React.FC<MaterialIssueModalProps> = ({
       ),
     },
     {
-      title: 'Required',
+      title: 'Required Quantity',
       dataIndex: 'requiredQty',
       key: 'requiredQty',
-      width: 100,
+      width: 110,
       render: (v: number) => <Tag color="blue">{v}</Tag>,
     },
     {
-      title: 'Issued',
+      title: 'Issued Quantity',
       dataIndex: 'issuedQty',
       key: 'issuedQty',
-      width: 90,
+      width: 100,
       render: (v: number) => <Tag color="green">{v}</Tag>,
     },
     {
-      title: 'Remaining',
+      title: 'Remaining Quantity',
       dataIndex: 'remainingQty',
       key: 'remainingQty',
-      width: 100,
+      width: 110,
       render: (v: number) => <Tag color={v > 0 ? 'orange' : 'default'}>{v}</Tag>,
     },
     {
-      title: 'Issue Qty',
+      title: 'Issue Quantity',
       key: 'issueQty',
       width: 130,
       render: (_: any, r: IssueLineState, idx: number) => (
@@ -222,7 +222,7 @@ export const MaterialIssueModal: React.FC<MaterialIssueModalProps> = ({
       ),
     },
     {
-      title: 'Source Depot',
+      title: 'Source Warehouse',
       key: 'sourceDepotId',
       width: 160,
       render: (_: any, r: IssueLineState, idx: number) => (
@@ -235,15 +235,15 @@ export const MaterialIssueModal: React.FC<MaterialIssueModalProps> = ({
       ),
     },
     {
-      title: 'Source Bin',
+      title: 'Source Storage Bin',
       key: 'sourceBinId',
-      width: 140,
+      width: 150,
       render: (_: any, r: IssueLineState, idx: number) => {
         const bins = depotBinsMap[r.sourceDepotId] || []
         return (
           <Select
             allowClear
-            placeholder="Select Bin"
+            placeholder="Select Storage Bin"
             value={r.sourceBinId}
             style={{ width: '100%' }}
             onChange={val => handleLineChange(idx, 'sourceBinId', val)}

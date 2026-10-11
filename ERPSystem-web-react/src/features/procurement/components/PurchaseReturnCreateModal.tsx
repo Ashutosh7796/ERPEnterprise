@@ -114,7 +114,7 @@ export const PurchaseReturnCreateModal: React.FC<PurchaseReturnCreateModalProps>
 
   const handleRemoveLine = (index: number) => {
     if (lines.length === 1) {
-      message.warning('At least one item line is required for return')
+      message.warning('At least one item line is required to process the return.')
       return
     }
     const updated = [...lines]
@@ -150,10 +150,10 @@ export const PurchaseReturnCreateModal: React.FC<PurchaseReturnCreateModalProps>
       }
 
       await createPurchaseReturn(payload)
-      message.success('Purchase Return document created & posted to General Ledger successfully!')
+      message.success('Purchase Return created and posted to General Ledger successfully.')
       onSuccess()
     } catch (err: any) {
-      message.error(err?.response?.data?.data || err.message || 'Failed to process purchase return')
+      message.error(err?.response?.data?.data || err.message || 'Failed to create Purchase Return.')
     } finally {
       setSubmitting(false)
     }
@@ -174,7 +174,7 @@ export const PurchaseReturnCreateModal: React.FC<PurchaseReturnCreateModalProps>
       ),
     },
     {
-      title: 'Return Qty',
+      title: 'Return Quantity',
       dataIndex: 'returnQuantity',
       key: 'returnQuantity',
       width: '16%',
@@ -188,7 +188,7 @@ export const PurchaseReturnCreateModal: React.FC<PurchaseReturnCreateModalProps>
       ),
     },
     {
-      title: 'Unit Price (₹)',
+      title: 'Unit Rate (₹)',
       dataIndex: 'unitPrice',
       key: 'unitPrice',
       width: '18%',
@@ -302,13 +302,13 @@ export const PurchaseReturnCreateModal: React.FC<PurchaseReturnCreateModalProps>
             <Form.Item
               name="supplierName"
               label="Supplier"
-              rules={[{ required: true, message: 'Please select supplier' }]}
+              rules={[{ required: true, message: 'Please select a supplier.' }]}
             >
               <Input placeholder="Supplier Name" />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item name="originalInvoiceNumber" label="Original Invoice Ref">
+            <Form.Item name="originalInvoiceNumber" label="Original Invoice Reference">
               <Input placeholder="e.g. INV-2026-0042" />
             </Form.Item>
           </Col>
@@ -316,7 +316,7 @@ export const PurchaseReturnCreateModal: React.FC<PurchaseReturnCreateModalProps>
             <Form.Item
               name="returnReason"
               label="Return Reason"
-              rules={[{ required: true, message: 'Please select reason' }]}
+              rules={[{ required: true, message: 'Please select a return reason.' }]}
             >
               <Select placeholder="Select Reason">
                 <Option value="DEFECTIVE_GOODS">Defective / Damaged Goods</Option>

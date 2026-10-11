@@ -312,7 +312,7 @@ export const PlanManagementPage: React.FC = () => {
             <Col span={8}>
               <Form.Item
                 name="defaultDepotLimit"
-                label="Default Depot Limit"
+                label="Default Warehouse Limit"
                 rules={[{ required: true }]}
               >
                 <InputNumber min={1} max={1000} style={{ width: '100%' }} />

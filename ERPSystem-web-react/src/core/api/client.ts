@@ -48,8 +48,7 @@ export async function request<T = any>(
   if (
     !fullUrl.startsWith('http://') &&
     !fullUrl.startsWith('https://') &&
-    !fullUrl.startsWith('/ERPSystem-boot') &&
-    !fullUrl.startsWith('/jshERP-boot')
+    !fullUrl.startsWith('/ERPSystem-boot')
   ) {
     fullUrl = `${API_BASE_URL}${fullUrl.startsWith('/') ? fullUrl : `/${fullUrl}`}`
   }

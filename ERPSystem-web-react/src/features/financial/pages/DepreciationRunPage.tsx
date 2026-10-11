@@ -331,7 +331,7 @@ export const DepreciationRunPage: React.FC = () => {
   return (
     <div style={{ padding: 24 }}>
       <Card
-        title="Monthly Depreciation Cockpit (Straight Line Method)"
+        title="Monthly Depreciation Management (Straight Line Method)"
         extra={
           <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/financial/fixed-assets')}>
             Back to Register
@@ -343,7 +343,7 @@ export const DepreciationRunPage: React.FC = () => {
           items={[
             {
               key: 'cockpit',
-              label: 'Execution Cockpit & Preview',
+              label: 'Execution & Preview',
               children: (
                 <div>
                   <Alert

@@ -137,7 +137,7 @@ export const OrganizationListPage: React.FC = () => {
 
       const payload = {
         ...values,
-        parentId: selectedParentId || 0,
+        parentId: selectedParentId ? selectedParentId : null,
         id: editingRecord?.id,
       }
 

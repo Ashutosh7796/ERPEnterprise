@@ -16,7 +16,7 @@ import {
   Popconfirm,
   Modal,
   Tree,
-  message,
+  App,
 } from 'antd'
 import type { TableColumnsType } from 'antd'
 import {
@@ -51,6 +51,7 @@ export interface CustomerRecord {
 }
 
 export const CustomerListPage: React.FC = () => {
+  const { message, modal } = App.useApp()
   const [form] = Form.useForm()
   const [modalForm] = Form.useForm()
   const [loading, setLoading] = useState(false)
@@ -104,7 +105,7 @@ export const CustomerListPage: React.FC = () => {
     setLoading(true)
     try {
       const searchObj: Record<string, any> = {
-        type: '客户',
+        type: 'Customer',
         supplier: searchValues.supplier || '',
         contacts: searchValues.contacts || '',
         telephone: searchValues.telephone || '',
@@ -138,42 +139,42 @@ export const CustomerListPage: React.FC = () => {
   const handleDelete = async (id: number) => {
     try {
       await http.delete(`/supplier/delete?id=${id}`)
-      message.success('Customer deleted successfully')
+      message.success('Customer deleted successfully.')
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to delete customer')
+      message.error(err?.message || 'Failed to delete customer.')
     }
   }
 
   const handleBatchDelete = async () => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Please select customers first')
+      message.warning('Please select at least one customer.')
       return
     }
     try {
       const ids = selectedRowKeys.join(',')
       await http.delete(`/supplier/deleteBatch?ids=${ids}`)
-      message.success('Selected customers deleted successfully')
+      message.success('Selected customers deleted successfully.')
       setSelectedRowKeys([])
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to delete selected customers')
+      message.error(err?.message || 'Failed to delete selected customers.')
     }
   }
 
   const handleBatchStatus = async (status: boolean) => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Please select customers first')
+      message.warning('Please select at least one customer.')
       return
     }
     try {
       const ids = selectedRowKeys.join(',')
       await http.post(`/supplier/batchSetStatus?status=${status}&ids=${ids}`)
-      message.success(status ? 'Customers enabled' : 'Customers disabled')
+      message.success(status ? 'Customers enabled successfully.' : 'Customers disabled successfully.')
       setSelectedRowKeys([])
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to update customer status')
+      message.error(err?.message || 'Failed to update customer status.')
     }
   }
 
@@ -204,7 +205,7 @@ export const CustomerListPage: React.FC = () => {
       const values = await modalForm.validateFields()
       setSubmitting(true)
       const payload: any = {
-        type: '客户',
+        type: 'Customer',
         supplier: values.supplier,
         contacts: values.contacts || '',
         telephone: values.telephone || '',
@@ -219,16 +220,16 @@ export const CustomerListPage: React.FC = () => {
       if (editingRecord) {
         payload.id = editingRecord.id
         await http.put('/supplier/update', payload)
-        message.success('Customer updated successfully')
+        message.success('Customer updated successfully.')
       } else {
         await http.post('/supplier/add', payload)
-        message.success('Customer created successfully')
+        message.success('Customer created successfully.')
       }
 
       setModalOpen(false)
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to save customer')
+      message.error(err?.message || 'Failed to save customer.')
     } finally {
       setSubmitting(false)
     }
@@ -262,7 +263,7 @@ export const CustomerListPage: React.FC = () => {
       scanChecked(rawTree)
       setCheckedUserKeys(preChecked)
     } catch (err) {
-      message.error('Failed to load user assignments')
+      message.error('Failed to load user assignments.')
     }
   }
 
@@ -274,10 +275,10 @@ export const CustomerListPage: React.FC = () => {
         roleId: targetCustomer.id,
         btnStr: checkedUserKeys.join(','),
       })
-      message.success(`User assignments updated for customer: ${targetCustomer.supplier}`)
+      message.success(`User assignments updated successfully for customer: ${targetCustomer.supplier}.`)
       setUserModalOpen(false)
     } catch (err: any) {
-      message.error(err?.message || 'Failed to save user assignments')
+      message.error(err?.message || 'Failed to save user assignments.')
     } finally {
       setUserSubmitting(false)
     }
@@ -344,18 +345,18 @@ export const CustomerListPage: React.FC = () => {
       render: (v: any) => v || '-',
     },
     beginNeedGet: {
-      title: 'Opening AR (₹)',
+      title: 'Opening Balance (₹)',
       dataIndex: 'beginNeedGet',
       key: 'beginNeedGet',
-      width: 130,
+      width: 150,
       align: 'right' as const,
       render: (v: any) => (v !== undefined ? Number(v).toFixed(2) : '0.00'),
     },
     allNeedGet: {
-      title: 'Accumulated AR (₹)',
+      title: 'Outstanding Balance (₹)',
       dataIndex: 'allNeedGet',
       key: 'allNeedGet',
-      width: 140,
+      width: 160,
       align: 'right' as const,
       render: (v: any) => (v !== undefined ? Number(v).toFixed(2) : '0.00'),
     },
@@ -528,7 +529,7 @@ export const CustomerListPage: React.FC = () => {
       >
         <Space size="small" wrap>
           <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
-            Add New Customer
+            Create Customer
           </Button>
           <Popconfirm
             title="Delete selected customers?"
@@ -536,7 +537,7 @@ export const CustomerListPage: React.FC = () => {
             disabled={selectedRowKeys.length === 0}
           >
             <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-              Batch Delete
+              Delete Selected Customers
             </Button>
           </Popconfirm>
           <Button
@@ -544,14 +545,14 @@ export const CustomerListPage: React.FC = () => {
             onClick={() => handleBatchStatus(true)}
             disabled={selectedRowKeys.length === 0}
           >
-            Enable
+            Enable Customers
           </Button>
           <Button
             icon={<StopOutlined />}
             onClick={() => handleBatchStatus(false)}
             disabled={selectedRowKeys.length === 0}
           >
-            Disable
+            Disable Customers
           </Button>
           <ExportPrintButtons
             title="Customer Master Directory"
@@ -589,7 +590,7 @@ export const CustomerListPage: React.FC = () => {
 
       {/* Add / Edit Customer Modal */}
       <Modal
-        title={editingRecord ? 'Edit Customer' : 'New Customer'}
+        title={editingRecord ? 'Edit Customer' : 'Create Customer'}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}
@@ -601,7 +602,7 @@ export const CustomerListPage: React.FC = () => {
           <Form.Item
             name="supplier"
             label="Customer Name"
-            rules={[{ required: true, message: 'Please enter customer name' }]}
+            rules={[{ required: true, message: 'Please enter a customer name.' }]}
           >
             <Input placeholder="e.g. Acme Corporation" />
           </Form.Item>
@@ -624,7 +625,7 @@ export const CustomerListPage: React.FC = () => {
               <Form.Item
                 name="taxNum"
                 label="Customer GSTIN (15-Digit, if B2B)"
-                rules={[{ max: 15, message: 'GSTIN cannot exceed 15 characters' }]}
+                rules={[{ max: 15, message: 'GSTIN cannot exceed 15 characters.' }]}
               >
                 <Input placeholder="e.g. 27AABCZ9988P1Z3 (leave blank if Retail/B2C)" maxLength={15} />
               </Form.Item>
@@ -651,7 +652,7 @@ export const CustomerListPage: React.FC = () => {
 
           <Row gutter={16}>
             <Col span={12}>
-              <Form.Item name="beginNeedGet" label="Opening AR (₹)" initialValue={0}>
+              <Form.Item name="beginNeedGet" label="Opening Balance (₹)" initialValue={0}>
                 <InputNumber min={0} precision={2} style={{ width: '100%' }} />
               </Form.Item>
             </Col>

@@ -6,7 +6,7 @@ export const StockTransferListPage: React.FC = () => {
     <BillManager
       type="出库"
       subType="调拨出库"
-      title="Stock Allocation"
+      title="Stock Transfer"
       prefixNo="DBCK"
       partnerType="none"
     />

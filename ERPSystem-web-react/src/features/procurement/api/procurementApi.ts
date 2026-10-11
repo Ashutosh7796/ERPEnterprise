@@ -46,6 +46,7 @@ export interface GrnLineItem {
 export interface GrnCreateRequest {
   poHeaderId: number
   depotId: number
+  supplierDeliveryNote?: string
   items: GrnLineItem[]
 }
 
@@ -54,6 +55,7 @@ export interface GrnResult {
   grnNumber: string
   poHeaderId: number
   depotId: number
+  supplierDeliveryNote?: string
   totalAcceptedQuantity: number
   totalRejectedQuantity: number
   totalReceiptAmount: number

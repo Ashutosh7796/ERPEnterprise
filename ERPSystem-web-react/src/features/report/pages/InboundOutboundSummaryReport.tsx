@@ -97,23 +97,23 @@ export const InboundOutboundSummaryReportPage: React.FC<SummaryReportProps> = ({
 
   const columnsConfig: Record<string, any> = {
     barCode: {
-      title: 'Barcode',
+      title: 'Item Code / Barcode',
       dataIndex: 'barCode',
       key: 'barCode',
       width: 140,
     },
     mName: {
-      title: 'Product Name',
+      title: 'Item Name',
       dataIndex: 'mName',
       key: 'mName',
       width: 170,
       ellipsis: true,
     },
     standard: {
-      title: 'Spec',
+      title: 'Specification',
       dataIndex: 'standard',
       key: 'standard',
-      width: 90,
+      width: 110,
       ellipsis: true,
     },
     model: {
@@ -137,23 +137,23 @@ export const InboundOutboundSummaryReportPage: React.FC<SummaryReportProps> = ({
       ellipsis: true,
     },
     categoryName: {
-      title: 'Category',
+      title: 'Item Category',
       dataIndex: 'categoryName',
       key: 'categoryName',
       width: 110,
       ellipsis: true,
     },
     materialUnit: {
-      title: 'Unit',
+      title: 'Unit of Measure',
       dataIndex: 'materialUnit',
       key: 'materialUnit',
-      width: 70,
+      width: 90,
     },
     numSum: {
-      title: `${type === '入库' ? 'Inbound' : 'Outbound'} Qty`,
+      title: `${type === '入库' ? 'Inbound' : 'Outbound'} Quantity`,
       dataIndex: 'numSum',
       key: 'numSum',
-      width: 120,
+      width: 130,
       render: (val: any) => (
         <strong style={{ color: type === '入库' ? '#52c41a' : '#f5222d' }}>
           {val || 0}
@@ -204,8 +204,8 @@ export const InboundOutboundSummaryReportPage: React.FC<SummaryReportProps> = ({
           <Col xs={24} sm={12} md={8}>
             <Form.Item
               name="materialParam"
-              label="Product Info:"
-              labelCol={{ flex: '90px' }}
+              label="Item Information:"
+              labelCol={{ flex: '120px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
@@ -259,11 +259,11 @@ export const InboundOutboundSummaryReportPage: React.FC<SummaryReportProps> = ({
       >
         <Space size="middle" wrap>
           <Text>
-            Total Summary Qty: <strong>{totalQty}</strong>
+            Total Quantity: <strong>{totalQty}</strong>
           </Text>
           <Divider type="vertical" />
           <Text>
-            Total Valuation Amount:{' '}
+            Total Amount (₹):{' '}
             <strong style={{ color: '#52c41a' }}>₹{totalAmount.toFixed(2)}</strong>
           </Text>
         </Space>
@@ -274,8 +274,8 @@ export const InboundOutboundSummaryReportPage: React.FC<SummaryReportProps> = ({
             columns={columns as any}
             dataSource={dataSource}
             summaryItems={[
-              { label: 'Total Summary Qty', value: totalQty },
-              { label: 'Total Valuation Amount', value: `₹${totalAmount.toFixed(2)}` },
+              { label: 'Total Quantity', value: totalQty },
+              { label: 'Total Amount', value: `₹${totalAmount.toFixed(2)}` },
             ]}
           />
           <Popover content={columnSettingsContent} trigger="click" placement="bottomRight">

@@ -124,7 +124,7 @@ export const DeliveryChallanPrint: React.FC = () => {
           </Col>
           <Col span={12}>
             <Card size="small" title="Consignee (Receiving Location)" style={{ height: '100%' }}>
-              <div><strong>Name:</strong> Regional Depot & Distribution Centre</div>
+              <div><strong>Name:</strong> Regional Warehouse & Distribution Centre</div>
               <div><strong>Address:</strong> Warehouse 10B, GIDC Logistics Hub, Ahmedabad</div>
               <div><strong>State & POS Code:</strong> 24 - Gujarat</div>
               <div><strong>GSTIN:</strong> 24AAACT2727Q1Z5 (Same Legal Entity)</div>
@@ -162,7 +162,7 @@ export const DeliveryChallanPrint: React.FC = () => {
             { title: 'Quantity', dataIndex: 'operNumber', key: 'operNumber', width: 90, align: 'right' },
             { title: 'UOM', dataIndex: 'unit', key: 'unit', width: 80, align: 'center', render: (val) => val || 'NOS' },
             { title: 'Rate (₹)', dataIndex: 'unitPrice', key: 'unitPrice', width: 110, align: 'right', render: (val) => formatCurrency(val || 0) },
-            { title: 'Taxable Val (₹)', dataIndex: 'allPrice', key: 'allPrice', width: 130, align: 'right', render: (val) => formatCurrency(val || 0) },
+            { title: 'Taxable Value (₹)', dataIndex: 'allPrice', key: 'allPrice', width: 130, align: 'right', render: (val) => formatCurrency(val || 0) },
           ]}
           style={{ marginBottom: 16 }}
         />

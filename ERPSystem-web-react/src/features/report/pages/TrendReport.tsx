@@ -263,7 +263,7 @@ export const TrendReportPage: React.FC<TrendReportProps> = ({ type, title }) => 
           <Col xs={24} sm={12} md={6}>
             <Form.Item
               name="materialParam"
-              label="Product Info:"
+              label="Item Info:"
               labelCol={{ flex: '90px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
@@ -285,13 +285,13 @@ export const TrendReportPage: React.FC<TrendReportProps> = ({ type, title }) => 
           <Col xs={24} sm={12} md={6}>
             <Form.Item
               name="organId"
-              label={type === 'purchase' ? 'Vendor:' : type === 'sale' ? 'Customer:' : 'Member:'}
+              label={type === 'purchase' ? 'Supplier:' : type === 'sale' ? 'Customer:' : 'Member:'}
               labelCol={{ flex: '80px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
               <Select
-                placeholder={`Select ${type === 'purchase' ? 'Vendor' : type === 'sale' ? 'Customer' : 'Member'}...`}
+                placeholder={`Select ${type === 'purchase' ? 'Supplier' : type === 'sale' ? 'Customer' : 'Member'}...`}
                 allowClear
                 showSearch
                 optionFilterProp="children"

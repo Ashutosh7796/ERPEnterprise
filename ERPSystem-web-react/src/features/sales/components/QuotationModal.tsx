@@ -76,10 +76,16 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
 
   const loadCustomers = async () => {
     try {
-      const res = await http.get<any>('/supplier/findBySelect_sup', { params: { type: '客户' } })
-      if (res && Array.isArray(res)) {
-        setCustomers(res)
+      let list: any[] = []
+      const res: any = await http.get('/supplier/findBySelect_cus').catch(() => null)
+      if (Array.isArray(res?.data) && res.data.length > 0) list = res.data
+      else if (Array.isArray(res) && res.length > 0) list = res
+      else {
+        const fb: any = await http.get('/supplier/findBySelectCus').catch(() => null)
+        if (Array.isArray(fb?.data)) list = fb.data
+        else if (Array.isArray(fb)) list = fb
       }
+      setCustomers(list)
     } catch (e) {
       console.error('Failed to load customers', e)
     }
@@ -87,10 +93,18 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
 
   const loadMaterials = async () => {
     try {
-      const res = await http.get<any>('/material/getMaterialBySelect')
-      if (res && Array.isArray(res)) {
-        setMaterials(res)
+      const res: any = await http.get('/material/findBySelect', { params: { page: 1, rows: 300 } }).catch(() => null)
+      let list: any[] = []
+      if (Array.isArray(res)) list = res
+      else if (Array.isArray(res?.data?.rows)) list = res.data.rows
+      else if (Array.isArray(res?.rows)) list = res.rows
+      else if (Array.isArray(res?.data)) list = res.data
+      if (list.length === 0) {
+        const fb: any = await http.get('/material/getMaterialBySelect').catch(() => null)
+        if (Array.isArray(fb)) list = fb
+        else if (Array.isArray(fb?.data)) list = fb.data
       }
+      setMaterials(list)
     } catch (e) {
       console.error('Failed to load materials', e)
     }
@@ -117,7 +131,7 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
         setItems(q.items && q.items.length > 0 ? q.items : [])
       }
     } catch (e) {
-      message.error('Failed to load quotation details')
+      message.error('Failed to load quotation details.')
     } finally {
       setLoading(false)
     }
@@ -128,21 +142,24 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
     const row = { ...updated[index], [field]: val }
 
     if (field === 'materialId') {
-      const mat = materials.find((m) => m.id === val)
+      const mat = materials.find((m) => m.id === val || m.meId === val)
       if (mat) {
         row.materialName = mat.name
-        row.unitPrice = mat.presetPriceOne || 0
+        row.unitPrice = Number(mat.wholesaleDecimal || mat.commodityDecimal || mat.presetPriceOne || 0)
+        if (!row.taxRate && mat.taxRate) {
+          row.taxRate = Number(mat.taxRate)
+        }
       }
     }
 
-    const qty = row.quantity || 0
-    const price = row.unitPrice || 0
-    const discRate = row.discountRate || 0
-    const taxRate = row.taxRate || 0
+    const qty = Number(row.quantity || 0)
+    const price = Number(row.unitPrice || 0)
+    const discRate = Number(row.discountRate || 0)
+    const taxRate = Number(row.taxRate || 0)
 
     const gross = qty * price
     const discAmount = (gross * discRate) / 100
-    const taxable = gross - discAmount
+    const taxable = Math.max(0, gross - discAmount)
     const taxAmount = (taxable * taxRate) / 100
     const total = taxable + taxAmount
 
@@ -230,7 +247,7 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
         : await salesApi.createQuotation(payload)
 
       if (res.code === 200) {
-        message.success(quotationId ? 'Quotation updated successfully' : 'Quotation draft created successfully')
+        message.success(quotationId ? 'Quotation updated successfully.' : 'Quotation draft created successfully.')
         onSuccess()
         onClose()
       } else {
@@ -246,21 +263,21 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
 
   const columns = [
     {
-      title: 'Material / Product',
+      title: 'Item',
       dataIndex: 'materialId',
-      width: '28%',
+      width: 260,
       render: (val: number, _: any, idx: number) => (
         <Select
           showSearch
           optionFilterProp="children"
           value={val || undefined}
-          placeholder="Select item"
+          placeholder="Select item..."
           style={{ width: '100%' }}
           onChange={(v) => handleItemChange(idx, 'materialId', v)}
         >
           {materials.map((m) => (
-            <Option key={m.id} value={m.id}>
-              {m.name} ({m.standard || m.model || 'Standard'})
+            <Option key={m.id || m.meId} value={m.id || m.meId}>
+              {m.mBarCode || m.barCode ? `${m.mBarCode || m.barCode} - ` : ''}{m.name} ({m.standard || m.model || 'Standard'})
             </Option>
           ))}
         </Select>
@@ -269,37 +286,54 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
     {
       title: 'Qty',
       dataIndex: 'quantity',
-      width: '12%',
+      width: 90,
+      align: 'right' as const,
       render: (val: number, _: any, idx: number) => (
         <InputNumber
           min={1}
           value={val}
           style={{ width: '100%' }}
-          onChange={(v) => handleItemChange(idx, 'quantity', v)}
+          onChange={(v) => handleItemChange(idx, 'quantity', v || 1)}
         />
       ),
     },
     {
-      title: 'Unit Price (₹)',
+      title: 'Unit Rate (₹)',
       dataIndex: 'unitPrice',
-      width: '16%',
+      width: 130,
+      align: 'right' as const,
       render: (val: number, _: any, idx: number) => (
         <InputNumber
           min={0}
           precision={2}
           value={val}
           style={{ width: '100%' }}
-          onChange={(v) => handleItemChange(idx, 'unitPrice', v)}
+          onChange={(v) => handleItemChange(idx, 'unitPrice', v || 0)}
         />
       ),
     },
     {
-      title: 'GST Rate (%)',
+      title: 'Disc %',
+      dataIndex: 'discountRate',
+      width: 90,
+      align: 'right' as const,
+      render: (val: number, _: any, idx: number) => (
+        <InputNumber
+          min={0}
+          max={100}
+          value={val || 0}
+          style={{ width: '100%' }}
+          onChange={(v) => handleItemChange(idx, 'discountRate', v || 0)}
+        />
+      ),
+    },
+    {
+      title: 'GST Rate',
       dataIndex: 'taxRate',
-      width: '14%',
+      width: 110,
       render: (val: number, _: any, idx: number) => (
         <Select
-          value={val || 18}
+          value={val !== undefined ? val : 18}
           style={{ width: '100%' }}
           onChange={(v) => handleItemChange(idx, 'taxRate', v)}
         >
@@ -314,14 +348,18 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
     {
       title: 'Line Total (₹)',
       dataIndex: 'totalAmount',
-      width: '20%',
+      width: 130,
+      align: 'right' as const,
       render: (val: number) => (
-        <Text strong>₹{(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</Text>
+        <Text strong style={{ fontVariantNumeric: 'tabular-nums', color: '#1677ff' }}>
+          ₹{(val || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </Text>
       ),
     },
     {
       title: '',
-      width: '10%',
+      width: 50,
+      align: 'center' as const,
       render: (_: any, __: any, idx: number) => (
         <Button
           type="text"
@@ -336,10 +374,10 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
 
   return (
     <Modal
-      title={quotationId ? 'Edit Quotation Draft' : 'Create New Sales Quotation'}
+      title={quotationId ? 'Edit Sales Quotation' : 'Create Sales Quotation'}
       open={visible}
       onCancel={onClose}
-      width={900}
+      width={1050}
       footer={[
         <Button key="cancel" onClick={onClose} disabled={loading}>
           Cancel
@@ -355,7 +393,7 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
             <Form.Item
               name="quotationNumber"
               label="Quotation Number"
-              rules={[{ required: true, message: 'Quotation number required' }]}
+              rules={[{ required: true, message: 'Please enter a quotation number.' }]}
             >
               <Input placeholder="QTN-XXXXXX" />
             </Form.Item>
@@ -364,12 +402,12 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
             <Form.Item
               name="customerId"
               label="Customer"
-              rules={[{ required: true, message: 'Please select a customer' }]}
+              rules={[{ required: true, message: 'Please select a customer.' }]}
             >
-              <Select showSearch optionFilterProp="children" placeholder="Select customer">
+              <Select showSearch optionFilterProp="children" placeholder="Select customer...">
                 {customers.map((c) => (
                   <Option key={c.id} value={c.id}>
-                    {c.supplier}
+                    {c.supplier || c.name} {c.taxNum ? `(${c.taxNum})` : ''}
                   </Option>
                 ))}
               </Select>
@@ -390,7 +428,7 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
         <Row gutter={16}>
           <Col span={6}>
             <Form.Item name="placeOfSupply" label="Place of Supply (State Code)">
-              <Input placeholder="e.g. 27" />
+              <Input placeholder="e.g. 27" maxLength={2} />
             </Form.Item>
           </Col>
           <Col span={6}>
@@ -421,6 +459,7 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
           rowKey={(_, idx) => String(idx)}
           size="small"
           bordered
+          scroll={{ x: 880 }}
         />
 
         <Button
@@ -430,32 +469,36 @@ export const QuotationModal: React.FC<QuotationModalProps> = ({
           icon={<PlusOutlined />}
           style={{ marginTop: 10 }}
         >
-          Add Item
+          Add Item Line
         </Button>
 
         <Divider style={{ margin: '16px 0' }} />
 
         <Row gutter={16} align="middle">
           <Col span={14}>
-            <Form.Item name="remark" label="Remarks / Special Notes">
-              <TextArea rows={2} placeholder="Optional commercial terms or quotation notes..." />
+            <Form.Item name="remark" label="Remarks / Special Notes" style={{ marginBottom: 0 }}>
+              <TextArea rows={3} placeholder="Optional commercial terms or quotation notes..." />
             </Form.Item>
           </Col>
           <Col span={10}>
-            <div style={{ background: '#f5f5f5', padding: '12px 16px', borderRadius: '6px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+            <div style={{ background: '#f8fafc', padding: '16px 20px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13 }}>
                 <Text type="secondary">Total Taxable Value:</Text>
-                <Text strong>₹{totalTaxable.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</Text>
+                <Text strong style={{ fontVariantNumeric: 'tabular-nums' }}>
+                  ₹{totalTaxable.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </Text>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                <Text type="secondary">Total GST:</Text>
-                <Text strong>₹{totalTax.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</Text>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: 13 }}>
+                <Text type="secondary">Total GST Amount:</Text>
+                <Text strong style={{ fontVariantNumeric: 'tabular-nums', color: '#475569' }}>
+                  ₹{totalTax.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </Text>
               </div>
-              <Divider style={{ margin: '6px 0' }} />
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <Text strong style={{ fontSize: '15px' }}>Grand Total:</Text>
-                <Text strong style={{ fontSize: '16px', color: '#1677ff' }}>
-                  ₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              <Divider style={{ margin: '8px 0' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                <Text strong style={{ fontSize: '15px', color: '#1e293b' }}>Grand Total:</Text>
+                <Text strong style={{ fontSize: '18px', color: '#1677ff', fontVariantNumeric: 'tabular-nums' }}>
+                  ₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </Text>
               </div>
             </div>

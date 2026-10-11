@@ -12,6 +12,11 @@ import {
   Popconfirm,
   message,
   Tooltip,
+  Drawer,
+  Timeline,
+  Spin,
+  Empty,
+  Typography,
 } from 'antd'
 import {
   SearchOutlined,
@@ -24,6 +29,9 @@ import {
   StopOutlined,
   EditOutlined,
   CopyOutlined,
+  HistoryOutlined,
+  CheckCircleOutlined,
+  InfoCircleOutlined,
 } from '@ant-design/icons'
 import { http } from '@core/api/client'
 import { MaterialModal } from '../components/MaterialModal'
@@ -34,6 +42,8 @@ import {
   StatusTagCellRenderer,
   type ErpColDef,
 } from '@shared/components/grid'
+
+const { Text } = Typography
 
 export interface MaterialRecord {
   id: number
@@ -47,6 +57,12 @@ export interface MaterialRecord {
   mnemonic?: string
   categoryName?: string
   categoryId?: number
+  revisionNo?: string
+  drawingNo?: string
+  materialGrade?: string
+  noOfCavity?: number
+  weightPerUnit?: number
+  weightUomId?: number
   otherField1?: string
   otherField2?: string
   otherField3?: string
@@ -81,6 +97,28 @@ export const MaterialListPage: React.FC = () => {
   // Modal State
   const [modalOpen, setModalOpen] = useState(false)
   const [editingRecord, setEditingRecord] = useState<any | null>(null)
+
+  // Revision History State
+  const [historyOpen, setHistoryOpen] = useState(false)
+  const [historyLoading, setHistoryLoading] = useState(false)
+  const [historyList, setHistoryList] = useState<any[]>([])
+  const [selectedMaterial, setSelectedMaterial] = useState<any>(null)
+
+  const handleOpenHistory = async (record: any) => {
+    setSelectedMaterial(record)
+    setHistoryOpen(true)
+    setHistoryLoading(true)
+    try {
+      const res: any = await http.get('/material/getHistory', { materialId: record.id })
+      const list = res?.data || (Array.isArray(res) ? res : [])
+      setHistoryList(list)
+    } catch (e) {
+      console.error('Failed to load history:', e)
+      message.error('Failed to load material revision history')
+    } finally {
+      setHistoryLoading(false)
+    }
+  }
 
   useEffect(() => {
     http.get('/materialCategory/getAllList').then((res: any) => {
@@ -139,55 +177,55 @@ export const MaterialListPage: React.FC = () => {
     try {
       const res = await http.delete(`/material/delete?id=${id}`)
       if (res && (res.code === 200 || res.status === 200)) {
-        message.success('Product deleted successfully')
+        message.success('Item deleted successfully.')
         fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
       } else {
-        message.error('Failed to delete product')
+        message.error('Cannot delete item. It may be referenced by active transactions or bills of materials.')
       }
     } catch (err: any) {
-      message.error(err?.message || 'Failed to delete product')
+      message.error(err?.message || 'Cannot delete item.')
     }
   }
 
   // Handle Batch Delete
   const handleBatchDelete = async () => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Please select products to delete')
+      message.warning('Please select at least one item to delete.')
       return
     }
     try {
       const ids = selectedRowKeys.join(',')
       const res = await http.delete(`/material/deleteBatch?ids=${ids}`)
       if (res && (res.code === 200 || res.status === 200)) {
-        message.success('Batch delete successful')
+        message.success('Selected items deleted successfully.')
         setSelectedRowKeys([])
         fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
       } else {
-        message.error('Failed to delete selected products')
+        message.error('Failed to delete selected items.')
       }
     } catch (err: any) {
-      message.error(err?.message || 'Failed to delete products')
+      message.error(err?.message || 'Failed to delete selected items.')
     }
   }
 
   // Handle Batch Enable/Disable
   const handleBatchStatus = async (status: boolean) => {
     if (selectedRowKeys.length === 0) {
-      message.warning('Please select products')
+      message.warning('Please select at least one item.')
       return
     }
     try {
       const ids = selectedRowKeys.join(',')
       await http.post(`/material/batchSetStatus?status=${status}&ids=${ids}`)
-      message.success(status ? 'Products enabled' : 'Products disabled')
+      message.success(status ? 'Selected items enabled successfully.' : 'Selected items disabled successfully.')
       setSelectedRowKeys([])
       fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
     } catch (err: any) {
-      message.error(err?.message || 'Failed to update product status')
+      message.error(err?.message || 'Failed to update item status.')
     }
   }
 
-  // Handle Copy / Clone Product
+  // Handle Copy / Clone Item
   const handleCopyAdd = (record: MaterialRecord) => {
     const clone = { ...record, id: undefined, name: `${record.name} (Copy)` }
     setEditingRecord(clone)
@@ -201,8 +239,8 @@ export const MaterialListPage: React.FC = () => {
         headerName: 'Action',
         colId: 'action',
         pinned: 'left',
-        width: 140,
-        minWidth: 130,
+        width: 170,
+        minWidth: 160,
         lockPinned: true,
         suppressHeaderMenuButton: true,
         sortable: false,
@@ -212,7 +250,7 @@ export const MaterialListPage: React.FC = () => {
           if (!record) return null
           return (
             <div className="erp-grid-actions">
-              <Tooltip title="Edit Product">
+              <Tooltip title="Edit Item">
                 <Button
                   type="text"
                   size="small"
@@ -224,7 +262,7 @@ export const MaterialListPage: React.FC = () => {
                   }}
                 />
               </Tooltip>
-              <Tooltip title="Copy Product">
+              <Tooltip title="Copy Item">
                 <Button
                   type="text"
                   size="small"
@@ -233,8 +271,17 @@ export const MaterialListPage: React.FC = () => {
                   onClick={() => handleCopyAdd(record)}
                 />
               </Tooltip>
-              <Popconfirm title="Delete this product?" onConfirm={() => handleDelete(record.id)}>
-                <Tooltip title="Delete Product">
+              <Tooltip title="Revision Audit History">
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<HistoryOutlined style={{ color: '#722ed1', fontSize: 14 }} />}
+                  style={{ padding: '0 4px' }}
+                  onClick={() => handleOpenHistory(record)}
+                />
+              </Tooltip>
+              <Popconfirm title="Delete this item? This action will archive the item." onConfirm={() => handleDelete(record.id)}>
+                <Tooltip title="Delete Item">
                   <Button
                     type="text"
                     danger
@@ -249,7 +296,7 @@ export const MaterialListPage: React.FC = () => {
         },
       },
       {
-        headerName: 'Barcode',
+        headerName: 'Item Code / Barcode',
         field: 'mBarCode',
         width: 140,
         minWidth: 120,
@@ -257,7 +304,7 @@ export const MaterialListPage: React.FC = () => {
         valueGetter: (p) => p.data?.mBarCode || p.data?.barCode || '-',
       },
       {
-        headerName: 'Product Name',
+        headerName: 'Item Name',
         field: 'name',
         width: 220,
         minWidth: 180,
@@ -277,7 +324,7 @@ export const MaterialListPage: React.FC = () => {
         },
       },
       {
-        headerName: 'Spec',
+        headerName: 'Specification',
         field: 'standard',
         width: 110,
         minWidth: 90,
@@ -291,6 +338,30 @@ export const MaterialListPage: React.FC = () => {
         minWidth: 90,
         filter: true,
         valueGetter: (p) => p.data?.model || '-',
+      },
+      {
+        headerName: 'Revision',
+        field: 'revisionNo',
+        width: 85,
+        minWidth: 75,
+        filter: true,
+        cellRenderer: (p: any) => <Tag color="blue">v{p.data?.revisionNo || '1.0'}</Tag>,
+      },
+      {
+        headerName: 'Drawing No',
+        field: 'drawingNo',
+        width: 130,
+        minWidth: 100,
+        filter: true,
+        valueGetter: (p: any) => p.data?.drawingNo || '-',
+      },
+      {
+        headerName: 'Material Grade',
+        field: 'materialGrade',
+        width: 110,
+        minWidth: 90,
+        filter: true,
+        valueGetter: (p: any) => p.data?.materialGrade || '-',
       },
       {
         headerName: 'Color',
@@ -309,7 +380,7 @@ export const MaterialListPage: React.FC = () => {
         valueGetter: (p) => p.data?.brand || '-',
       },
       {
-        headerName: 'Category',
+        headerName: 'Item Category',
         field: 'categoryName',
         width: 120,
         minWidth: 100,
@@ -317,10 +388,10 @@ export const MaterialListPage: React.FC = () => {
         valueGetter: (p) => p.data?.categoryName || '-',
       },
       {
-        headerName: 'Unit',
+        headerName: 'Unit of Measure (UOM)',
         field: 'unit',
-        width: 80,
-        minWidth: 70,
+        width: 110,
+        minWidth: 90,
         filter: true,
         valueGetter: (p) => p.data?.unit || p.data?.unitName || '-',
       },
@@ -337,9 +408,9 @@ export const MaterialListPage: React.FC = () => {
         ),
       },
       {
-        headerName: 'Cost Price (₹)',
+        headerName: 'Valuation Rate (₹)',
         field: 'purchaseDecimal',
-        width: 125,
+        width: 135,
         minWidth: 110,
         type: 'numericColumn',
         cellRenderer: CurrencyCellRenderer,
@@ -417,15 +488,15 @@ export const MaterialListPage: React.FC = () => {
           setModalOpen(true)
         }}
       >
-        Add Product
+        Create Item
       </Button>
       <Popconfirm
-        title="Delete selected products?"
+        title="Delete selected items? This action will archive the selected items."
         onConfirm={handleBatchDelete}
         disabled={selectedRowKeys.length === 0}
       >
         <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-          Batch Delete
+          Delete Selected Items
         </Button>
       </Popconfirm>
       <Button
@@ -433,17 +504,17 @@ export const MaterialListPage: React.FC = () => {
         onClick={() => handleBatchStatus(true)}
         disabled={selectedRowKeys.length === 0}
       >
-        Enable
+        Enable Items
       </Button>
       <Button
         icon={<StopOutlined />}
         onClick={() => handleBatchStatus(false)}
         disabled={selectedRowKeys.length === 0}
       >
-        Disable
+        Disable Items
       </Button>
       <ExportPrintButtons
-        title="Product Information List"
+        title="Item Master List"
         columns={columnDefs as any}
         dataSource={dataSource}
       />
@@ -462,19 +533,19 @@ export const MaterialListPage: React.FC = () => {
           <Col xs={24} sm={12} md={6}>
             <Form.Item
               name="materialParam"
-              label="Barcode/Name:"
-              labelCol={{ flex: '110px' }}
+              label="Item Code / Name:"
+              labelCol={{ flex: '135px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
-              <Input placeholder="Barcode / Name..." allowClear style={{ width: '100%' }} />
+              <Input placeholder="Item code or name..." allowClear style={{ width: '100%' }} />
             </Form.Item>
           </Col>
           <Col xs={24} sm={12} md={6}>
             <Form.Item
               name="categoryId"
-              label="Category:"
-              labelCol={{ flex: '80px' }}
+              label="Item Category:"
+              labelCol={{ flex: '105px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
@@ -494,8 +565,8 @@ export const MaterialListPage: React.FC = () => {
           <Col xs={24} sm={12} md={6}>
             <Form.Item
               name="standard"
-              label="Spec:"
-              labelCol={{ flex: '60px' }}
+              label="Specification:"
+              labelCol={{ flex: '95px' }}
               wrapperCol={{ flex: 'auto' }}
               style={{ marginBottom: 0 }}
             >
@@ -612,6 +683,58 @@ export const MaterialListPage: React.FC = () => {
           fetchData(pagination.current, pagination.pageSize, form.getFieldsValue())
         }}
       />
+
+      {/* Item Master Revision History Drawer */}
+      <Drawer
+        title={
+          <Space>
+            <HistoryOutlined style={{ color: '#722ed1', fontSize: 18 }} />
+            <span>
+              Item Revision History — {selectedMaterial?.name} ({selectedMaterial?.mBarCode || selectedMaterial?.barCode || `#${selectedMaterial?.id}`})
+            </span>
+          </Space>
+        }
+        placement="right"
+        width={560}
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+      >
+        <Spin spinning={historyLoading}>
+          {historyList && historyList.length > 0 ? (
+            <Timeline
+              mode="left"
+              items={historyList.map((h: any, idx: number) => {
+                const isLatest = idx === 0
+                return {
+                  color: h.changeType === 'CREATE' ? 'green' : 'blue',
+                  dot: isLatest ? <CheckCircleOutlined style={{ fontSize: '16px' }} /> : undefined,
+                  children: (
+                    <Card size="small" style={{ marginBottom: 12, borderLeft: '3px solid #1890ff' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                        <Space>
+                          <Tag color="purple">Rev {h.revisionNo || '1.0'}</Tag>
+                          <Tag color={h.changeType === 'CREATE' ? 'success' : 'processing'}>{h.changeType}</Tag>
+                        </Space>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                          {h.createTime ? new Date(h.createTime).toLocaleString() : '-'}
+                        </Text>
+                      </div>
+                      <div style={{ fontWeight: 500, margin: '6px 0', color: '#262626' }}>
+                        {h.changeSummary || 'Item Master record saved.'}
+                      </div>
+                      <div style={{ fontSize: 12, color: '#8c8c8c' }}>
+                        Action by User #{h.changedBy || '1'}
+                      </div>
+                    </Card>
+                  ),
+                }
+              })}
+            />
+          ) : (
+            <Empty description="No revision history records available for this item." />
+          )}
+        </Spin>
+      </Drawer>
     </Card>
   )
 }

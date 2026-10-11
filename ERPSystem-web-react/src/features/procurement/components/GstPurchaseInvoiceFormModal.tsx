@@ -428,7 +428,7 @@ export const GstPurchaseInvoiceFormModal: React.FC<Props> = ({ visible, onClose,
       width: 220,
       render: (_, record: GstPurchaseInvoiceItem, idx: number) => {
         return (
-          <Space direction="vertical" size={2} style={{ width: '100%' }}>
+          <Space orientation="vertical" size={2} style={{ width: '100%' }}>
             <Space>
               <Switch
                 checked={record.itcEligible}
@@ -502,8 +502,8 @@ export const GstPurchaseInvoiceFormModal: React.FC<Props> = ({ visible, onClose,
             <Col span={6}>
               <Form.Item
                 name="invoiceNumber"
-                label="Supplier Bill / Invoice Number"
-                rules={[{ required: true, message: 'Vendor Bill Number is required' }]}
+                label="Supplier Invoice Number"
+                rules={[{ required: true, message: 'Supplier Invoice Number is required.' }]}
               >
                 <Input placeholder="e.g. BILL-2026-001" />
               </Form.Item>
@@ -511,8 +511,8 @@ export const GstPurchaseInvoiceFormModal: React.FC<Props> = ({ visible, onClose,
             <Col span={6}>
               <Form.Item
                 name="supplierId"
-                label="Supplier (Vendor)"
-                rules={[{ required: true, message: 'Select supplier' }]}
+                label="Supplier"
+                rules={[{ required: true, message: 'Please select a supplier.' }]}
               >
                 <Select
                   placeholder="Select supplier..."

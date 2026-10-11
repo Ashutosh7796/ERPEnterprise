@@ -1,10 +1,20 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
+import { visualizer } from 'rollup-plugin-visualizer'
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
+export default defineConfig(({ mode }) => ({
+  plugins: [
+    react(),
+    mode === 'analyze' &&
+      visualizer({
+        filename: './dist/stats.html',
+        open: false,
+        gzipSize: true,
+        brotliSize: true,
+      }),
+  ].filter(Boolean),
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -24,11 +34,6 @@ export default defineConfig({
         changeOrigin: true,
         ws: false,
       },
-      '/jshERP-boot': {
-        target: 'http://localhost:9999',
-        changeOrigin: true,
-        ws: false,
-      },
     },
   },
-})
+}))

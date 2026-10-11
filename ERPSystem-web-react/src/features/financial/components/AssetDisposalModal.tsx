@@ -198,12 +198,12 @@ export const AssetDisposalModal: React.FC<AssetDisposalModalProps> = ({
       </Form>
 
       <Divider style={{ margin: '12px 0' }}>
-        Authoritative Backend Disposal Simulation
+        Disposal Financial Simulation
       </Divider>
 
       {previewing ? (
         <div style={{ textAlign: 'center', padding: 24 }}>
-          <Spin tip="Calculating authoritative pro-rata depreciation and derecognition facts..." />
+          <Spin description="Calculating final depreciation and asset derecognition..." />
         </div>
       ) : previewData ? (
         <div

@@ -547,7 +547,7 @@ export const SupportCenter: React.FC = () => {
                   Support Access Centre &bull; Super Admin Governance & Operations
                 </Title>
                 <Text type="secondary" style={{ fontSize: 13 }}>
-                  Global Oversight, Shift Tracking, Real-Time Ephemeral Sessions, Policy Control & Compliance
+                  Global Oversight, Shift Tracking, Real-Time Support Sessions, Policy Control & Compliance
                 </Text>
               </div>
             </Space>

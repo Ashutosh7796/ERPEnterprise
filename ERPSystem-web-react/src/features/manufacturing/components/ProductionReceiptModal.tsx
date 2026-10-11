@@ -90,12 +90,12 @@ export const ProductionReceiptModal: React.FC<ProductionReceiptModalProps> = ({
       const scrap = Number(values.scrappedQty || 0)
 
       if (received <= 0 && scrap <= 0) {
-        message.error('Received quantity or scrapped quantity must be greater than zero')
+        message.error('Received quantity or scrap quantity must be greater than zero.')
         return
       }
 
       if (received + scrap > remaining) {
-        message.error(`Total batch output (${received + scrap}) exceeds remaining planned quantity (${remaining})`)
+        message.error(`Total batch output (${received + scrap}) exceeds remaining planned quantity (${remaining}).`)
         return
       }
 
@@ -114,11 +114,11 @@ export const ProductionReceiptModal: React.FC<ProductionReceiptModalProps> = ({
       const res: any = await workOrderApi.receiveProduction(payload)
       const receiptData: any = res?.data || res
       const unitCost = receiptData?.unitCost != null ? Number(receiptData.unitCost).toFixed(4) : '-'
-      message.success(`Production receipt recorded! Absorbed Actual Unit Cost: $${unitCost}`)
+      message.success(`Production Receipt recorded successfully. Absorbed Actual Unit Cost: ₹${unitCost}`)
       onSuccess()
       onClose()
     } catch (err: any) {
-      message.error(err?.response?.data?.data || err?.message || 'Production receipt failed')
+      message.error(err?.response?.data?.data || err?.message || 'Production receipt failed.')
     } finally {
       setSubmitting(false)
     }
@@ -128,7 +128,7 @@ export const ProductionReceiptModal: React.FC<ProductionReceiptModalProps> = ({
     <Modal
       title={
         <Space>
-          <span>Receive Finished Goods & Absorb Cost</span>
+          <span>Post Production Receipt & Absorb Cost</span>
           <Tag color="green">{order?.orderNumber}</Tag>
         </Space>
       }
@@ -141,26 +141,26 @@ export const ProductionReceiptModal: React.FC<ProductionReceiptModalProps> = ({
     >
       {order && (
         <Descriptions size="small" bordered column={2} style={{ marginBottom: 16 }}>
-          <Descriptions.Item label="Finished Good">{order.materialName} ({order.materialModel || '-'})</Descriptions.Item>
+          <Descriptions.Item label="Item to Manufacture (FG)">{order.materialName} ({order.materialModel || '-'})</Descriptions.Item>
           <Descriptions.Item label="Planned Quantity">{order.plannedQty}</Descriptions.Item>
-          <Descriptions.Item label="Completed Qty">
+          <Descriptions.Item label="Completed Quantity">
             <Tag color="blue">{order.completedQty}</Tag>
           </Descriptions.Item>
           <Descriptions.Item label="Remaining to Produce">
             <Tag color={remaining > 0 ? 'orange' : 'green'}>{remaining}</Tag>
           </Descriptions.Item>
-          <Descriptions.Item label="Current Actual Unit Cost">
-            <Tag color="gold">${Number(order.actualUnitCost || 0).toFixed(4)}</Tag>
+          <Descriptions.Item label="Current Actual Unit Cost (₹)">
+            <Tag color="gold">₹{Number(order.actualUnitCost || 0).toFixed(4)}</Tag>
           </Descriptions.Item>
-          <Descriptions.Item label="Shop-Floor WIP Bin">
+          <Descriptions.Item label="Shop-Floor WIP Storage Bin">
             <Tag color="cyan">{order.wipBinName || `Bin #${order.wipBinId}`}</Tag>
           </Descriptions.Item>
         </Descriptions>
       )}
 
       <Alert
-        message="WIP Consumption & Cost Absorption Flow"
-        description="Receiving Finished Goods automatically consumes raw material components from the WIP bin based on the frozen snapshot formula. The total consumed material value is absorbed directly into the finished goods inventory valuation."
+        message="Physical Production Receipt & Cost Staging"
+        description="Receiving Finished Goods executes physical inventory movement and consumes components from the WIP bin based on the frozen snapshot formula. The receipt is initially staged in PENDING_COSTING; subsequent time-log cost allocation and statutory GL posting are executed in the Execution Audit workspace."
         type="info"
         showIcon
         style={{ marginBottom: 16 }}
@@ -168,7 +168,7 @@ export const ProductionReceiptModal: React.FC<ProductionReceiptModalProps> = ({
 
       <Form form={form} layout="vertical">
         <Space size="large" style={{ width: '100%', display: 'flex' }}>
-          <Form.Item label="Receipt Voucher #" name="receiptNumber" rules={[{ required: true }]} style={{ flex: 1 }}>
+          <Form.Item label="Receipt Voucher Number" name="receiptNumber" rules={[{ required: true }]} style={{ flex: 1 }}>
             <Input />
           </Form.Item>
           <Form.Item label="Receipt Date" name="receiptDate" rules={[{ required: true }]} style={{ flex: 1 }}>
@@ -177,10 +177,10 @@ export const ProductionReceiptModal: React.FC<ProductionReceiptModalProps> = ({
         </Space>
 
         <Space size="large" style={{ width: '100%', display: 'flex' }}>
-          <Form.Item label="Good Quantity Received" name="receivedQty" rules={[{ required: true }]} style={{ flex: 1 }}>
+          <Form.Item label="Completed Good Quantity" name="receivedQty" rules={[{ required: true }]} style={{ flex: 1 }}>
             <InputNumber min={0} max={remaining} style={{ width: '100%' }} />
           </Form.Item>
-          <Form.Item label="Scrapped Quantity" name="scrappedQty" style={{ flex: 1 }}>
+          <Form.Item label="Scrap Quantity" name="scrappedQty" style={{ flex: 1 }}>
             <InputNumber min={0} max={remaining} style={{ width: '100%' }} />
           </Form.Item>
         </Space>
@@ -188,7 +188,7 @@ export const ProductionReceiptModal: React.FC<ProductionReceiptModalProps> = ({
         <Divider style={{ margin: '12px 0', fontSize: 13 }}>Destination Storage</Divider>
 
         <Space size="large" style={{ width: '100%', display: 'flex' }}>
-          <Form.Item label="Target FG Depot" name="targetDepotId" rules={[{ required: true }]} style={{ flex: 1 }}>
+          <Form.Item label="Target Finished Goods Warehouse" name="targetDepotId" rules={[{ required: true }]} style={{ flex: 1 }}>
             <Select
               options={depotList.map(d => ({ label: d.name, value: d.id }))}
               onChange={val => {

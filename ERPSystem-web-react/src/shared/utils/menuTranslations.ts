@@ -11,7 +11,7 @@ export const MENU_NAME_MAP: Record<string, string> = {
   '仓库管理': 'Warehouse Management',
   '财务管理': 'Financial Management',
   '报表查询': 'Reports & Analytics',
-  '商品管理': 'Product Management',
+  '商品管理': 'Item Management',
   '基本资料': 'Master Data',
   '系统管理': 'System Management',
 
@@ -22,7 +22,7 @@ export const MENU_NAME_MAP: Record<string, string> = {
   // Purchase Domain
   '请购单': 'Purchase Requisitions',
   '采购订单': 'Purchase Orders',
-  '采购入库': 'Purchase Receipts',
+  '采购入库': 'Goods Receipts (GRN)',
   '采购退货': 'Purchase Returns',
 
   // Sales Domain
@@ -31,11 +31,11 @@ export const MENU_NAME_MAP: Record<string, string> = {
   '销售退货': 'Sales Returns',
 
   // Warehouse Domain
-  '其它入库': 'Other Inbound',
-  '其它出库': 'Other Outbound',
+  '其它入库': 'Miscellaneous Stock Receipts',
+  '其它出库': 'Miscellaneous Stock Issues',
   '调拨出库': 'Stock Transfer',
-  '组装单': 'Assembly Bills',
-  '拆卸单': 'Disassembly Bills',
+  '组装单': 'Stock Assembly Vouchers',
+  '拆卸单': 'Stock Disassembly Vouchers',
 
   // Financial Domain
   '收入单': 'Income Receipts',
@@ -51,27 +51,27 @@ export const MENU_NAME_MAP: Record<string, string> = {
   '零售统计': 'Retail Trends',
   '采购统计': 'Purchase Trends',
   '销售统计': 'Sales Trends',
-  '入库明细': 'Inbound Details',
-  '出库明细': 'Outbound Details',
-  '调拨明细': 'Transfer Details',
-  '入库汇总': 'Inbound Summary',
-  '出库汇总': 'Outbound Summary',
-  '进销存统计': 'Inventory Flow',
+  '入库明细': 'Inbound Receipt Details',
+  '出库明细': 'Outbound Issue Details',
+  '调拨明细': 'Stock Transfer Details',
+  '入库汇总': 'Inbound Receipt Summary',
+  '出库汇总': 'Outbound Issue Summary',
+  '进销存统计': 'Inventory Movement Summary',
   '客户对账': 'Customer Statements',
-  '供应商对账': 'Vendor Statements',
-  '库存预警': 'Stock Warning',
+  '供应商对账': 'Supplier Statements',
+  '库存预警': 'Safety Stock Alerts',
 
-  // Product Domain
-  '商品信息': 'Product List',
-  '商品类别': 'Category Master',
+  // Item & Material Domain
+  '商品信息': 'Item Master List',
+  '商品类别': 'Item Categories',
   '计量单位': 'Units of Measure',
   '多属性': 'Multi-Attributes',
-  '商品属性': 'Properties',
+  '商品属性': 'Item Attributes',
 
   // Master Data Domain
-  '仓库信息': 'Warehouse Info',
+  '仓库信息': 'Warehouses',
   '经手人管理': 'Handlers',
-  '供应商信息': 'Vendor Info',
+  '供应商信息': 'Suppliers',
   '客户信息': 'Customer Info',
   '会员信息': 'Member Info',
   '收支项目': 'Income/Expense Items',
@@ -93,10 +93,10 @@ export const MENU_NAME_MAP: Record<string, string> = {
   '批号': 'Batch Numbers',
 
   // Action Buttons & Sub-functions
-  '新增': 'Add New',
+  '新增': 'Create',
   '编辑': 'Edit',
   '删除': 'Delete',
-  '批量删除': 'Batch Delete',
+  '批量删除': 'Delete Selected',
   '导入': 'Import',
   '导出': 'Export',
   '打印': 'Print',

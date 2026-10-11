@@ -374,7 +374,7 @@ export const FunctionListPage: React.FC = () => {
       >
         <Space size="small" wrap>
           <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
-            Add New Menu
+            Create Menu
           </Button>
           <Popconfirm
             title="Delete selected menu items?"
@@ -382,7 +382,7 @@ export const FunctionListPage: React.FC = () => {
             disabled={selectedRowKeys.length === 0}
           >
             <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-              Batch Delete
+              Delete Selected Menus
             </Button>
           </Popconfirm>
           <ExportPrintButtons
@@ -421,7 +421,7 @@ export const FunctionListPage: React.FC = () => {
 
       {/* Modal */}
       <Modal
-        title={editingRecord ? 'Edit Menu Item' : 'Add New Menu Item'}
+        title={editingRecord ? 'Edit Menu Item' : 'Create Menu Item'}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}

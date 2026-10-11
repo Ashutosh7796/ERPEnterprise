@@ -73,13 +73,13 @@ export const PurchaseOrderHistoryModal: React.FC<Props> = ({ visible, poId, poNu
                 key={item.id}
                 color={item.action === 'APPROVE' ? 'green' : item.action === 'REJECT' ? 'red' : 'blue'}
               >
-                <Space direction="vertical" size={2}>
+                <Space orientation="vertical" size={2}>
                   <Space>
                     {getActionTag(item.action)}
                     <Text type="secondary">{item.createTime}</Text>
                   </Space>
                   <Text>
-                    <strong>Actor User ID:</strong> {item.actorUserId}
+                    <strong>Approver / Actor:</strong> User #{item.actorUserId}
                   </Text>
                   {item.comment && (
                     <Text type="secondary" italic>
@@ -87,7 +87,7 @@ export const PurchaseOrderHistoryModal: React.FC<Props> = ({ visible, poId, poNu
                     </Text>
                   )}
                   <Text type="secondary">
-                    Order Value: ₹{Number(item.orderTotalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    Order Total: ₹{Number(item.orderTotalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                   </Text>
                 </Space>
               </Timeline.Item>

@@ -270,7 +270,7 @@ export const WorkOrderModal: React.FC<WorkOrderModalProps> = ({
           <Col span={8}>
             <Form.Item
               name="plannedQty"
-              label="Planned Production Qty"
+              label="Planned Production Quantity"
               rules={[{ required: true, message: 'Planned quantity is required' }]}
             >
               <InputNumber min={0.0001} step={1} style={{ width: '100%' }} />
@@ -300,11 +300,11 @@ export const WorkOrderModal: React.FC<WorkOrderModalProps> = ({
           <Col span={12}>
             <Form.Item
               name="depotId"
-              label="Manufacturing Facility (Depot)"
+              label="Manufacturing Facility / Warehouse"
               rules={[{ required: true, message: 'Please select manufacturing plant' }]}
             >
               <Select
-                placeholder="Select plant depot..."
+                placeholder="Select plant warehouse..."
                 onChange={handleDepotChange}
                 options={depotList.map((d) => ({
                   value: d.id,
@@ -320,13 +320,13 @@ export const WorkOrderModal: React.FC<WorkOrderModalProps> = ({
               label={
                 <Space>
                   <span>Shop-Floor WIP Storage Bin</span>
-                  <Tag color="purple">binType=WIP</Tag>
+                  <Tag color="purple">WIP Staging</Tag>
                 </Space>
               }
               rules={[{ required: true, message: 'WIP storage bin is required' }]}
             >
               <Select
-                placeholder={wipBinList.length === 0 ? 'No WIP bins in selected depot' : 'Select WIP storage bin...'}
+                placeholder={wipBinList.length === 0 ? 'No WIP bins in selected warehouse' : 'Select WIP storage bin...'}
                 options={wipBinList.map((b) => ({
                   value: b.id,
                   label: `${b.binName} (${b.binCode}) [WIP]`,

@@ -59,4 +59,11 @@ export const ENDPOINTS = {
     PLATFORM_INFO: `${API_BASE}/platformConfig/getPlatform`,
     CONFIG_INFO: `${API_BASE}/systemConfig/getCurrentInfo`,
   },
+  DASHBOARD: {
+    CONTEXT: `${API_BASE}/dashboard/context`,
+    SUMMARY: `${API_BASE}/dashboard/summary`,
+    FINANCIAL: `${API_BASE}/dashboard/financial`,
+    POSITION: `${API_BASE}/dashboard/position`,
+    ACTIVITY: `${API_BASE}/dashboard/activity`,
+  },
 } as const

@@ -178,17 +178,17 @@ export function DataTable<T extends Record<string, any>>({
 
             {onBatchDelete && selectedRowKeys.length > 0 && (
               <Popconfirm
-                title="Batch Delete"
+                title="Delete Selected Records"
                 description={`Are you sure you want to delete ${selectedRowKeys.length} selected records?`}
                 onConfirm={() => {
                   onBatchDelete(selectedRowKeys)
                   setSelectedRowKeys([])
                 }}
-                okText="Yes"
-                cancelText="No"
+                okText="Delete Records"
+                cancelText="Cancel"
               >
                 <Button danger icon={<DeleteOutlined />}>
-                  Delete ({selectedRowKeys.length})
+                  Delete Selected ({selectedRowKeys.length})
                 </Button>
               </Popconfirm>
             )}

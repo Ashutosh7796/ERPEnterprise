@@ -76,15 +76,15 @@ export const JobWorkDispatchModal: React.FC<JobWorkDispatchModalProps> = ({
 
       const res: any = await jobWorkApi.dispatchMaterial(payload)
       if (res?.code === 200) {
-        message.success(`Material dispatched! Delivery Challan generated: ${res.data?.challanNumber || 'OK'}`)
+        message.success(`Material dispatched successfully. Delivery Challan generated: ${res.data?.challanNumber || 'OK'}`)
         onSuccess()
         onClose()
       } else {
-        message.error(res?.data || 'Failed to dispatch material')
+        message.error(res?.data || 'Failed to dispatch material.')
       }
     } catch (e: any) {
       if (e?.errorFields) return
-      message.error(e.message || 'Dispatch failed')
+      message.error(e.message || 'Dispatch failed.')
     } finally {
       setLoading(false)
     }
@@ -104,7 +104,7 @@ export const JobWorkDispatchModal: React.FC<JobWorkDispatchModalProps> = ({
     >
       <Alert
         message="Statutory Delivery Challan & Outside Custody"
-        description="Outward dispatch deducts raw material inventory from Plant Stores and transfers custody into the Job Worker Staging Bin. Ownership is preserved under Section 143. A serialized Rule 55 Delivery Challan and E-Way Bill JSON payload are generated."
+        description="Outward dispatch deducts raw material inventory from Plant Stores and transfers custody into the Job Worker Staging Bin. Ownership is preserved under Section 143. A serialized Rule 55 Delivery Challan and statutory E-Way Bill data are generated."
         type="warning"
         showIcon
         icon={<SafetyCertificateOutlined />}

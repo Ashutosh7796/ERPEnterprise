@@ -328,10 +328,26 @@ export const UserListPage: React.FC = () => {
     if (!targetUser) return
     setDepotSubmitting(true)
     try {
-      await http.post('/userBusiness/updateBtnStr', {
-        userId: targetUser.id,
-        btnStr: checkedDepotKeys.join(','),
-      })
+      const cleanKeys = checkedDepotKeys.filter((k) => k !== 0 && k !== '0' && k !== '')
+      const formattedValue = cleanKeys.map((k) => `[${k}]`).join('')
+      const checkRes: any = await http.get(`/userBusiness/checkIsValueExist?type=UserDepot&keyId=${targetUser.id}`)
+      const existId = checkRes?.data?.id
+
+      if (existId) {
+        await http.put('/userBusiness/update', {
+          id: existId,
+          type: 'UserDepot',
+          keyId: String(targetUser.id),
+          value: formattedValue,
+        })
+      } else {
+        await http.post('/userBusiness/add', {
+          type: 'UserDepot',
+          keyId: String(targetUser.id),
+          value: formattedValue,
+        })
+      }
+
       message.success(`Warehouse assignments updated for ${targetUser.userName}`)
       setDepotModalOpen(false)
     } catch (err: any) {
@@ -368,10 +384,26 @@ export const UserListPage: React.FC = () => {
     if (!targetUser) return
     setCustomerSubmitting(true)
     try {
-      await http.post('/userBusiness/updateBtnStr', {
-        userId: targetUser.id,
-        btnStr: checkedCustomerKeys.join(','),
-      })
+      const cleanKeys = checkedCustomerKeys.filter((k) => k !== 0 && k !== '0' && k !== '')
+      const formattedValue = cleanKeys.map((k) => `[${k}]`).join('')
+      const checkRes: any = await http.get(`/userBusiness/checkIsValueExist?type=UserCustomer&keyId=${targetUser.id}`)
+      const existId = checkRes?.data?.id
+
+      if (existId) {
+        await http.put('/userBusiness/update', {
+          id: existId,
+          type: 'UserCustomer',
+          keyId: String(targetUser.id),
+          value: formattedValue,
+        })
+      } else {
+        await http.post('/userBusiness/add', {
+          type: 'UserCustomer',
+          keyId: String(targetUser.id),
+          value: formattedValue,
+        })
+      }
+
       message.success(`Customer assignments updated for ${targetUser.userName}`)
       setCustomerModalOpen(false)
     } catch (err: any) {
@@ -383,7 +415,7 @@ export const UserListPage: React.FC = () => {
 
   const columnsConfig: Record<string, any> = {
     rowIndex: {
-      title: '#',
+      title: 'Sr No.',
       key: 'rowIndex',
       width: 50,
       align: 'center' as const,
@@ -397,13 +429,13 @@ export const UserListPage: React.FC = () => {
       align: 'center' as const,
       render: (_: any, record: UserRecord) => (
         <Space separator={<span style={{ color: '#d9d9d9', margin: '0 4px' }}>|</span>} size={0}>
-          <a onClick={() => handleOpenAssignDepot(record)}>Assign Depot</a>
+          <a onClick={() => handleOpenAssignDepot(record)}>Assign Warehouses</a>
           <a onClick={() => handleOpenAssignCustomer(record)}>Assign Customer</a>
           <a onClick={() => handleOpenEdit(record)}>Edit</a>
           <Popconfirm title="Delete this user?" onConfirm={() => handleDelete(record.id)}>
             <a style={{ color: '#ff4d4f' }}>Delete</a>
           </Popconfirm>
-          <a onClick={() => handleOpenResetPwd(record)}>Reset Pwd</a>
+          <a onClick={() => handleOpenResetPwd(record)}>Reset Password</a>
         </Space>
       ),
     },
@@ -580,7 +612,7 @@ export const UserListPage: React.FC = () => {
       >
         <Space size="small" wrap>
           <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
-            Add New User
+            Create User
           </Button>
           <Popconfirm
             title="Delete selected users?"
@@ -588,7 +620,7 @@ export const UserListPage: React.FC = () => {
             disabled={selectedRowKeys.length === 0}
           >
             <Button icon={<DeleteOutlined />} danger disabled={selectedRowKeys.length === 0}>
-              Batch Delete
+              Delete Selected Users
             </Button>
           </Popconfirm>
           <Button
@@ -596,14 +628,14 @@ export const UserListPage: React.FC = () => {
             onClick={() => handleBatchStatus(0)}
             disabled={selectedRowKeys.length === 0}
           >
-            Enable
+            Enable Users
           </Button>
           <Button
             icon={<StopOutlined />}
             onClick={() => handleBatchStatus(2)}
             disabled={selectedRowKeys.length === 0}
           >
-            Disable
+            Disable Users
           </Button>
           <ExportPrintButtons
             title="User Management Directory"
@@ -641,7 +673,7 @@ export const UserListPage: React.FC = () => {
 
       {/* User Add / Edit Modal */}
       <Modal
-        title={editingRecord ? 'Edit User Account' : 'New User Account'}
+        title={editingRecord ? 'Edit User' : 'Create User'}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleSave}

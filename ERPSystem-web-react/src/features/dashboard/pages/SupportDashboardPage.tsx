@@ -735,7 +735,7 @@ export const SupportDashboardPage: React.FC = () => {
                         <Option value="SALES">Sales & Billing</Option>
                         <Option value="FINANCE">Financial Ledgers</Option>
                         <Option value="GST_TAX">GST & Invoicing</Option>
-                        <Option value="INVENTORY">Depot & Stock</Option>
+                        <Option value="INVENTORY">Warehouse & Stock</Option>
                         <Option value="SEQUENCE">Numbering / Sequence</Option>
                       </Select>
                     </Form.Item>

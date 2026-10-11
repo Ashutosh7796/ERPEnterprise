@@ -13,7 +13,7 @@ import {
   Alert,
   Tooltip,
   Divider,
-  message,
+  App,
 } from 'antd'
 import {
   WarningOutlined,
@@ -31,6 +31,7 @@ import { jobWorkApi, Section143AgingVo, AgingItem } from '../api/jobWorkApi'
 const { Title, Text } = Typography
 
 export const JobWorkAgingPage: React.FC = () => {
+  const { message } = App.useApp()
   const [agingData, setAgingData] = useState<Section143AgingVo | null>(null)
   const [loading, setLoading] = useState(false)
   const [statusFilter, setStatusFilter] = useState<string>('ALL')
@@ -113,16 +114,23 @@ export const JobWorkAgingPage: React.FC = () => {
       ),
     },
     {
-      title: 'Challan & WO Ref',
+      title: 'Challan & Routing Ref',
       dataIndex: 'challanNumber',
       key: 'challanNumber',
-      width: 160,
+      width: 180,
       render: (challan: string, record: AgingItem) => (
         <div>
           <div><Tag color="cyan">{challan}</Tag></div>
           <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 2 }}>
             WO: {record.workOrderNumber || 'Direct Order'}
           </div>
+          {record.operationName && (
+            <div style={{ marginTop: 2 }}>
+              <Tag color="purple" style={{ fontSize: 11, margin: 0 }}>
+                {record.operationSeq ? `Op #${record.operationSeq} ` : ''}{record.operationName}
+              </Tag>
+            </div>
+          )}
         </div>
       ),
     },
@@ -234,7 +242,7 @@ export const JobWorkAgingPage: React.FC = () => {
 
   return (
     <div style={{ padding: 24 }}>
-      <Card bordered={false} style={{ marginBottom: 16 }}>
+      <Card variant="borderless" style={{ marginBottom: 16 }}>
         <Row justify="space-between" align="middle">
           <Col>
             <Title level={4} style={{ margin: 0 }}>
@@ -381,7 +389,7 @@ export const JobWorkAgingPage: React.FC = () => {
       </Card>
 
       {/* Filters */}
-      <Card size="small" bordered={false} style={{ marginBottom: 16 }}>
+      <Card size="small" variant="borderless" style={{ marginBottom: 16 }}>
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} md={8}>
             <Select
@@ -415,7 +423,7 @@ export const JobWorkAgingPage: React.FC = () => {
       </Card>
 
       {/* Traceability Table */}
-      <Card bordered={false}>
+      <Card variant="borderless">
         <Table
           dataSource={agingData?.rows || []}
           columns={columns}
